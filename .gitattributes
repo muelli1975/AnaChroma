@@ -1,0 +1,5 @@
+# Keep vendored upstream sources byte-identical on every build platform.
+native/cielab/upstream/** -text
+assets/*.jpg binary
+assets/*.ico binary
+assets/*.wav binary
