@@ -75,11 +75,12 @@ Im Hauptfenster steht bei der Auswahl **Verfahren** ein ausdrücklich sichtbarer
 
 Der Editor zeigt **Matrix links** und **Matrix rechts** nebeneinander, jeweils als 3 × 3-Raster. Spalten bezeichnen die Eingangsanteile R/G/B, Zeilen die ausgegebenen R/G/B-Kanäle. Jeder Koeffizient erhält ein Zahlenfeld mit einem zugehörigen kleinen Schieberegler. Zahlenfeld und Regler bleiben synchron; der ausgewählte Wert wird deutlich hervorgehoben.
 
-Bedienvorschlag für den ersten GUI-Prototyp:
+Quellenbasierte Festlegung der Regler:
 
-- Reglerbereich zunächst **−2 bis +2**. Er enthält alle Matrixkoeffizienten des geprüften Batch-Stands, einschließlich negativer Beiträge und Werten über 1.
-- Zahlenfelder nehmen auch größere endliche Werte an. Ein benötigter erweiterter Reglerbereich wird sichtbar dargestellt; geladene Werte werden nicht stillschweigend begrenzt.
-- Mausrad beim ausgewählten/fokussierten Regler: **0,001** pro logischem Schritt; **Shift** für feinere **0,0001**, **Strg** für gröbere **0,01**. Die Werte sind Startvorschläge für die Bedienprüfung, keine Genauigkeitsbegrenzung der Engine.
+- Bereiche, Neutralwerte und Schrittweiten werden pro Parameter aus dokumentierten Referenzverfahren und der tatsächlich verwendeten Formel abgeleitet. Ein gemeinsamer pauschaler Bereich für alle Regler wird nicht festgelegt. Die Quellen und noch offenen Punkte stehen in [Technische Quellgrundlage](REFERENCE_BASELINE.md#regler-und-referenzprogramme).
+- Für Matrixkoeffizienten müssen negative Werte und Werte über 1 möglich bleiben. Die SPM-Hilfe zeigt beides; sie dokumentiert jedoch keine allgemeinen Eingabegrenzen. Die bereits vorhandenen Batch-Koeffizienten dürfen nicht begrenzt werden. Ein sinnvoller Bedienbereich ist von einer mathematischen Zulässigkeitsgrenze zu unterscheiden; die Regler-Endpunkte bleiben bis zur begründeten Festlegung offen.
+- Eine Mausrad-Schrittweite von **0,001** für Matrixkoeffizienten lässt sich aus SPMs Darstellung in ganzzahligen Tausendsteln ableiten. Das ist eine begründete Bedienentscheidung für AnaChroma, keine Behauptung über SPMs Mausradverhalten. Feinere Zahlenwerte bleiben erhalten; weitere Schrittweiten für Zusatztasten werden erst mit einer begründeten Bedienentscheidung ergänzt.
+- Gamma, Kanalpotenz, Helligkeit und Kontrast sind unterschiedliche Parameter. Ein dokumentierter Bereich darf nur bei entsprechend geklärter Rechenvorschrift übertragen werden. Insbesondere ist SPMs Gamma-Bereich nicht automatisch der Bereich der bestehenden Batch-Kanalpotenzen.
 - Das Mausrad verändert nur den gezielt ausgewählten Regler. Dasselbe Ereignis darf nicht gleichzeitig den Dialog scrollen oder zum nächsten Bild wechseln. Kleine Trackpad-Deltas werden plattformgerecht gesammelt, ohne willkürlich große Sprünge zu erzeugen.
 - Bestehende Koeffizienten bleiben mit ihrer vorhandenen Genauigkeit erhalten. Eine Regleränderung quantisiert nicht sämtliche übrigen Matrixwerte.
 - Dezimalpunkt und Dezimalkomma in einzelnen Zahlenfeldern akzeptieren. Negative Werte ausdrücklich zulassen. Ungültige oder unvollständige Eingaben nachvollziehbar markieren; sie dürfen die Berechnung nicht starten.
@@ -90,7 +91,7 @@ Direkt unter den Matrizen stehen drei sichtbare Abschnitte, ohne aufklappbaren B
 | Abschnitt | Bedienelemente und Hilfstext |
 | --- | --- |
 | Berechnung | **In linearem Licht berechnen**. Wandelt sRGB vor der Matrixberechnung in lineares Licht und anschließend wieder zurück; passend zur verwendeten Matrix wählen. |
-| Bildanpassung | **Helligkeit**, **Kontrast**, neutral jeweils **0 = unverändert**, mit gemeinsamem **Zurücksetzen**. Gemeinsame Anpassung beider Halbbilder vor der Matrixrechnung. |
+| Bildanpassung | **Helligkeit**, **Kontrast**, mit gemeinsamem **Zurücksetzen**. Formel, Skala, Neutralwert und Grenzen werden zusammen anhand der Referenzen festgelegt. Gemeinsame Anpassung beider Halbbilder vor der Matrixrechnung. |
 | Farbkanäle | **Farbkanäle korrigieren** mit **Rot**, **Grün**, **Blau**, neutral jeweils **1,0**. Kleinere Werte als 1 hellen auf, größere dunkeln ab. |
 
 Die RGB-Korrektur ist eine Potenz auf den normierten Ausgabekanälen nach der Zusammenführung und gegebenenfalls der Rückwandlung nach sRGB. Die bekannte Rotkorrektur entspricht **Rot 0,75 / Grün 1,0 / Blau 1,0**. Es werden keine Korrekturwerte automatisch aus Rot/Cyan, Grün/Magenta oder Amber/Blau abgeleitet. Bei ausgeschalteter Korrektur bleiben die gespeicherten RGB-Werte sichtbar und ausgegraut. Gültige Potenzwerte müssen positiv und endlich sein.
