@@ -22,6 +22,7 @@ Die geprüften Quellstände sind in [REFERENCE_BASELINE.md](REFERENCE_BASELINE.m
 - 1080p und 2160p bedeuten Einpassen in die entsprechenden Breite/Höhe-Grenzen.
 - Bei CIELab werden die separaten Halbbilder **vor** der externen Berechnung auf Ausgabegröße gebracht, wie in der Batch.
 - Das Icon wird nachgeliefert. Als Abschlusssound wird die vorhandene **`ready.wav` unverändert** übernommen.
+- Der ursprünglich ausgeschlossene Matrixeditor wird als übersichtlicher Editor für **eigene Verfahren und lokal gespeicherte Presets** in v1 aufgenommen. Ein sichtbarer Einstieg, Schieberegler, Mausradbedienung und laufende Vorschau gehören dazu.
 
 ## Kern und Verarbeitung
 
@@ -60,13 +61,53 @@ Anzeige: beispielsweise `12/83 · bild012_sbs.jpg`. Keine Thumbnail-Galerie und 
 
 - Maximal **1024 px lange Seite**, Seitenverhältnis erhalten.
 - Automatische Aktualisierung bei Bildwechsel, neuer Eingabe, Verfahrenswechsel und relevanten Einstellungen.
-- Änderungen um etwa **150–250 ms** entprellen.
+- Einzelne Einstellungswechsel um etwa **150–250 ms** entprellen. Während fortlaufender Reglerbewegungen die neuesten Werte regelmäßig anzeigen (Startziel etwa alle **100 ms**); nicht erst nach Loslassen oder einer Bewegungspause aktualisieren.
 - Alte Berechnungsergebnisse dürfen eine neu angeforderte Vorschau nicht überschreiben.
 - Normale Verfahren sollen schnell reagieren; CIELab darf langsamer sein.
 - CIELab zeigt einen sichtbaren Busy-Zustand: **CIELab-Vorschau wird erzeugt...**
 - Berechnungen laufen außerhalb des GUI-Threads; die Oberfläche bleibt bedienbar.
 
 Die Vorschau ist eine verkleinerte Ansicht zur Beurteilung, kein Versprechen eines pixelidentischen verkleinerten Exports. Insbesondere CIELab berechnet auf der jeweiligen Zielauflösung.
+
+## Eigene Verfahren und Preset-Editor
+
+Im Hauptfenster steht bei der Auswahl **Verfahren** ein ausdrücklich sichtbarer Button **Eigenes Verfahren anlegen…**. Eine eigene gespeicherte Auswahl kann zusätzlich über **Bearbeiten…** geöffnet werden. Ein Eintrag **Eigene: <Name>** macht eigene Verfahren in der Liste erkennbar. Die Möglichkeit, ein Verfahren anzulegen, darf nicht ausschließlich hinter einer unklaren Verwaltungsbezeichnung verborgen sein.
+
+Der Editor zeigt **Matrix links** und **Matrix rechts** nebeneinander, jeweils als 3 × 3-Raster. Spalten bezeichnen die Eingangsanteile R/G/B, Zeilen die ausgegebenen R/G/B-Kanäle. Jeder Koeffizient erhält ein Zahlenfeld mit einem zugehörigen kleinen Schieberegler. Zahlenfeld und Regler bleiben synchron; der ausgewählte Wert wird deutlich hervorgehoben.
+
+Bedienvorschlag für den ersten GUI-Prototyp:
+
+- Reglerbereich zunächst **−2 bis +2**. Er enthält alle Matrixkoeffizienten des geprüften Batch-Stands, einschließlich negativer Beiträge und Werten über 1.
+- Zahlenfelder nehmen auch größere endliche Werte an. Ein benötigter erweiterter Reglerbereich wird sichtbar dargestellt; geladene Werte werden nicht stillschweigend begrenzt.
+- Mausrad beim ausgewählten/fokussierten Regler: **0,001** pro logischem Schritt; **Shift** für feinere **0,0001**, **Strg** für gröbere **0,01**. Die Werte sind Startvorschläge für die Bedienprüfung, keine Genauigkeitsbegrenzung der Engine.
+- Das Mausrad verändert nur den gezielt ausgewählten Regler. Dasselbe Ereignis darf nicht gleichzeitig den Dialog scrollen oder zum nächsten Bild wechseln. Kleine Trackpad-Deltas werden plattformgerecht gesammelt, ohne willkürlich große Sprünge zu erzeugen.
+- Bestehende Koeffizienten bleiben mit ihrer vorhandenen Genauigkeit erhalten. Eine Regleränderung quantisiert nicht sämtliche übrigen Matrixwerte.
+- Dezimalpunkt und Dezimalkomma in einzelnen Zahlenfeldern akzeptieren. Negative Werte ausdrücklich zulassen. Ungültige oder unvollständige Eingaben nachvollziehbar markieren; sie dürfen die Berechnung nicht starten.
+- Die Vorschau reagiert bereits beim Ziehen und bei Mausradschritten. Veraltete Ergebnisse werden verworfen; laufende Änderungen erzeugen keine lange Warteschlange.
+
+Direkt unter den Matrizen stehen drei sichtbare Abschnitte, ohne aufklappbaren Bereich:
+
+| Abschnitt | Bedienelemente und Hilfstext |
+| --- | --- |
+| Berechnung | **In linearem Licht berechnen**. Wandelt sRGB vor der Matrixberechnung in lineares Licht und anschließend wieder zurück; passend zur verwendeten Matrix wählen. |
+| Bildanpassung | **Helligkeit**, **Kontrast**, neutral jeweils **0 = unverändert**, mit gemeinsamem **Zurücksetzen**. Gemeinsame Anpassung beider Halbbilder vor der Matrixrechnung. |
+| Farbkanäle | **Farbkanäle korrigieren** mit **Rot**, **Grün**, **Blau**, neutral jeweils **1,0**. Kleinere Werte als 1 hellen auf, größere dunkeln ab. |
+
+Die RGB-Korrektur ist eine Potenz auf den normierten Ausgabekanälen nach der Zusammenführung und gegebenenfalls der Rückwandlung nach sRGB. Die bekannte Rotkorrektur entspricht **Rot 0,75 / Grün 1,0 / Blau 1,0**. Es werden keine Korrekturwerte automatisch aus Rot/Cyan, Grün/Magenta oder Amber/Blau abgeleitet. Bei ausgeschalteter Korrektur bleiben die gespeicherten RGB-Werte sichtbar und ausgegraut. Gültige Potenzwerte müssen positiv und endlich sein.
+
+Clipping und Operationsreihenfolge werden für eigene Verfahren intern eindeutig und versioniert festgelegt; sie erhalten keine zusätzlichen Bedienelemente. Die genaue Helligkeits-/Kontrastformel und die bedienbaren Bereiche werden vor der Engine-Umsetzung festgehalten. Farbsättigung, frei zusammengestellte Operationsketten und zusätzliche Lab-Regler sind nicht Teil des vereinfachten Editors.
+
+Die eingebauten 18 Verfahren bleiben unveränderliche Referenzen mit ihrer vollständigen Speziallogik. Als Vorlage kopierte Verfahren müssen im vereinfachten Schema vollständig darstellbar sein. Rendepth mit zusätzlicher Grünkorrektur kann entsprechend abgebildet werden; die getrennten iaian7-Halbbildpotenzen und dessen Abschlussmatrix können hier nicht stillschweigend entfallen. CIELab wird nicht als frei bearbeitbare Matrixvorlage angeboten. Eine nicht vollständig darstellbare Vorlage wird ausdrücklich als solche behandelt, ohne versteckte Verarbeitungsschritte in ein scheinbar einfaches Preset einzubauen.
+
+Eigene Presets werden mit Name, stabilem eindeutigen Bezeichner, Dateinamenssuffix, beiden Matrizen, Linearisierung und allen Bild-/Kanalwerten in **`presets.json`** gespeichert. Suffixe werden für Dateipfade validiert und dürfen keine eingebauten Verfahren oder anderen eigenen Presets unbeabsichtigt überschreiben. Die Datei wird sicher ersetzt, wie die Einstellungsdatei; Nutzerdaten gehören nicht in Git.
+
+Editoränderungen sind zunächst ein Entwurf mit laufender Vorschau. **Speichern** validiert und übernimmt das gesamte Verfahren; **Abbrechen** stellt das zuvor ausgewählte Verfahren wieder her. Eingebaute Verfahren werden durch solche Entwürfe nicht überschrieben.
+
+## Ghosting und weitere Bildanpassungen
+
+Die [offizielle SPM-Hilfe](https://stereo.jpn.org/eng/stphmkr/help/stereo_14.htm) beschreibt zur Ghosting-Verminderung zuerst Lab-Helligkeit/-Kontrast und danach RGB-Helligkeit/-Kontrast. Sie weist auf die Abhängigkeit von Brille und Wiedergabemedium sowie mögliches erneut auftretendes Ghosting hin. Diese Beschreibung liefert keine vollständige Rechenvorschrift für eine identische Nachimplementierung.
+
+AnaChromas allgemeine Helligkeits-/Kontrastanpassung ist deshalb kein zugesagter Algorithmus zur Ghosting-Kompensation. Ein eigener Bereich **Geisterbilder reduzieren** wird erst nach Prüfung eines konkreten Verfahrens mit realen Bildern und Betrachtungsbedingungen aufgenommen. Die [SPM-Matrixhilfe](https://stereo.jpn.org/eng/stphmkr/help/stereo_13.htm) bestätigt dagegen direkt den Ansatz gespeicherter eigener RGB-Mischungen.
 
 ## Ausgabegrößen und JPEG
 
@@ -142,7 +183,7 @@ Das Icon wird später ergänzt; die unveränderte `ready.wav` ist für den übli
 
 ## Bewusste Nicht-Ziele
 
-Keine Stereojustage, Links/Rechts-Paarerkennung, MPO-Aufteilung, Scheinfensterkorrektur, Deviation-/Tiefenanalyse, Tiefenkarten, 2D-zu-3D-Konvertierung, Custom-Matrix-Editor, Thumbnail-Galerie, komplexes ICC-Farbmanagement, PNG-16/TIFF-16-Ausgabe oder Videoverarbeitung. Kein FFmpeg als Standardengine, keine Cloud-, Account- oder Web-Funktionen.
+Keine Stereojustage, Links/Rechts-Paarerkennung, MPO-Aufteilung, Scheinfensterkorrektur, Deviation-/Tiefenanalyse, Tiefenkarten, 2D-zu-3D-Konvertierung, Thumbnail-Galerie, komplexes ICC-Farbmanagement, PNG-16/TIFF-16-Ausgabe oder Videoverarbeitung. Kein FFmpeg als Standardengine, keine Cloud-, Account- oder Web-Funktionen. Der vereinfachte Editor für eigene Matrixverfahren ist inzwischen ausdrücklich Teil von v1; eine gesonderte Ghosting-Kompensation bleibt eine Prüffrage.
 
 Alpha wird verworfen und RGB verwendet; keine zusätzliche Alpha-Mischung. Ungerade orientierte SBS-Breite wird mit **Bildbreite ist nicht gerade – SBS kann nicht sauber geteilt werden.** abgelehnt, ohne Pixel abzuschneiden. Für v1 wird sRGB vorausgesetzt. Der Umgang mit kopierten ICC-Profilen und anderen geometrieabhängigen Metadaten muss vor dem Export geprüft werden, damit Metadaten die angenommene Ausgabe nicht falsch beschreiben.
 
@@ -154,7 +195,7 @@ Für TransCora separat vormerken: Bei Anaglyph-Video 4:4:4 ernst nehmen, eingesc
 2. Bestehendes sRGB-Modul übernehmen und Verfahren samt Modi übertragen.
 3. Kleine reine Engine zunächst für Dubois LCD und Compromise aufbauen.
 4. Verlustfreie Zwischenbilder und reale SBS-Ergebnisse gegen die Batch vergleichen; JPEG-Codierung getrennt beurteilen.
-5. GUI mit Dateiladen, automatischer Vorschau und Verfahrensauswahl bauen.
+5. GUI mit Dateiladen, automatischer Vorschau, Verfahrensauswahl und dem vereinfachten Preset-Editor mit Regler-/Mausradbedienung bauen.
 6. Navigation, Größenwahl und Einzelbildexport ergänzen.
 7. Ordnerauftrag, Unterordnerabbildung, Metadaten, Fortschritt und Abbruch ergänzen.
 8. Externe CIELab-Verarbeitung und Plattform-Builds prüfen.

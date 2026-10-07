@@ -8,5 +8,7 @@
 - Document reuse of the existing sRGB transfer module and the CIELab scaling exception.
 - Add the unchanged shared completion sound and its SHA-256 hash.
 - Retain the project's MIT License and distinguish planned third-party components.
+- Extend the agreed v1 scope with custom presets, optional linear-light calculation, brightness/contrast and RGB correction values.
+- Specify a visible custom-method action and numeric matrix controls with sliders, focused mouse-wheel adjustment and continuous preview.
 
 No runnable application or release build is available yet.

@@ -33,6 +33,8 @@ Die aktuelle AnaglyphBatch liefert 18 Verfahren, darunter Dubois LCD mit Rotkana
 
 Es wird jeweils ein Verfahren ausgewählt. Die Verfahren behalten ihre eigenen Rechenregeln; sRGB-Linearisierung wird nur verwendet, wo die Referenzpipeline sie verlangt. Vorschau und Export nutzen denselben Verarbeitungskern. Die automatische Vorschau ist auf maximal 1024 px lange Seite begrenzt.
 
+Der ausdrücklich sichtbare Einstieg **Eigenes Verfahren anlegen…** öffnet den geplanten Preset-Editor. Zwei 3 × 3-Matrizen lassen sich über Zahlenfelder, Schieberegler und das Mausrad mit laufender Vorschau einstellen. Eigene Presets enthalten außerdem eine optionale Berechnung in linearem Licht, Helligkeits-/Kontrastanpassungen und einzelne RGB-Korrekturwerte. Die Einstellungen stehen direkt unter den Matrizen und werden lokal gespeichert; eingebaute Verfahren behalten ihr Referenzverhalten.
+
 ## Ausgabe
 
 Standard ist **JPEG-Qualität 90, 4:4:4 ohne Chroma-Subsampling, mit optimierter JPEG-Codierung**. Zusätzlich ist die Option **JPEG-Qualität 95 für Druck/Archiv** vorgesehen. Die Skalierung verwendet Lanczos und erhält das Seitenverhältnis.
@@ -53,7 +55,7 @@ Metadaten werden nach Möglichkeit mit ExifTool übernommen, ohne eingebettete O
 
 AnaChroma konzentriert sich auf die Konvertierung von SBS zu Anaglyphen. Stereojustage und Korrekturen bleiben Aufgabe von [StereoFine](https://github.com/muelli1975/StereoFine); die 2D-zu-3D-Konvertierung bleibt Aufgabe von [SplatTricia](https://github.com/muelli1975/SplatTricia).
 
-Version 1 enthält keine Erkennung separater Links/Rechts-Paare, kein MPO-Splitting, keine Scheinfensterkorrektur, keinen Matrixeditor, keine Thumbnail-Galerie, keine Ausgabe mit höherer Farbtiefe und keine Videoverarbeitung.
+Version 1 enthält keine Erkennung separater Links/Rechts-Paare, kein MPO-Splitting, keine Scheinfensterkorrektur, keine Thumbnail-Galerie, keine Ausgabe mit höherer Farbtiefe und keine Videoverarbeitung. Eine gezielte Ghosting-Kompensation benötigt ein gesondert geprüftes Verfahren und gehört noch nicht zur abgestimmten Umsetzung.
 
 ## Quellcode und Builds
 

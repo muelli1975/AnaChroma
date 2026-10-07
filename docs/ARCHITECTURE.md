@@ -10,6 +10,7 @@ Ein kleiner Launcher startet das Paket `anachroma` unter `src/`. Die reine Verar
 | --- | --- |
 | `color_transfer.py` | Vorhandene sRGB-Funktionen aus SplatTricia unverändert übernehmen |
 | `matrices.py` | Verfahren, Anzeigenamen, Suffixe, Matrizen und Verarbeitungsmodi |
+| `presets.py` / `preset_editor.py` | Validierte eigene Verfahren, lokale Speicherung und Editor mit Zahlenfeldern/Reglern |
 | `engine.py` | Reine RGB-Paarverarbeitung; gemeinsame Mathematik für Vorschau und Export |
 | `inputs.py` | Bildliste, orientiertes RGB-Laden und sauberes SBS-Teilen |
 | `export.py` | Größenberechnung, Lanczos, JPEG 90/95 und sichere Zieldateien |
@@ -26,6 +27,12 @@ Weitere Trennungen erfolgen nur, wenn der tatsächliche Code sie benötigt. Kein
 Ein Exportauftrag erhält eine feste Bildliste und eine Kopie der gewählten Einstellungen. Laufende Aufträge lesen keine veränderlichen Tk-Variablen. Vorschauaufträge tragen Kennungen; Ergebnisse überholter Anforderungen werden verworfen.
 
 Der GUI-Thread verwaltet Widgets und liest die Nachrichtenqueue über `after()`. Worker melden Status, Ergebnis, Fehler oder Abbruch. Regelmäßige Abbruchprüfungen erfolgen in der streifenweisen Engine; externe Prozesse benötigen zusätzlich eine eigene Beendigung.
+
+Beim Einstellen eigener Verfahren werden die geladenen Vorschau-Halbbilder wiederverwendet. Während kontinuierlicher Reglerbewegungen verarbeitet die Vorschau regelmäßig den neuesten gültigen Entwurf, statt auf eine Bewegungspause zu warten. Überholte Anforderungen werden zusammengefasst; eine wachsende Warteschlange ist ausgeschlossen. Eine abschließende Aktualisierung stellt den letzten Wert nach Ende der Bewegung dar.
+
+Mausradereignisse gehören dem ausgewählten Regler und dürfen nicht zugleich Bildnavigation oder Dialogscrollen auslösen. Die Ereignisnormalisierung berücksichtigt Windows, macOS und Linux. Zahlenfeld und Regler teilen denselben Koeffizientenwert; Anzeigepräzision und Schrittweite verändern keine unberührten Preset-Werte.
+
+Eingebaute Referenzverfahren und eigene Preset-Entwürfe werden getrennt gehalten. Ein gespeichertes eigenes Preset beschreibt ausschließlich die im Editor sichtbaren Rechenschritte; nicht darstellbare Speziallogik wird nicht versteckt in eine Vorlage übernommen.
 
 ## Verarbeitung und Ausgabe
 

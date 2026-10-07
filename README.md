@@ -33,6 +33,8 @@ The current AnaglyphBatch provides 18 methods, including Dubois LCD with red-cha
 
 One method is selected at a time. Methods retain their individual processing rules; sRGB linearization is used only where required by the reference pipeline. Preview and export share the same processing core. Automatic preview is limited to a maximum long edge of 1024 px.
 
+An explicit **Create custom method…** action opens the planned preset editor. Two 3 × 3 matrices can be adjusted through numeric fields, sliders and the mouse wheel, with live preview. Custom presets also include an optional linear-light calculation, brightness/contrast adjustment and individual RGB correction values. Settings appear directly beneath the matrices and are stored locally; built-in methods retain their reference behavior.
+
 ## Output
 
 The standard output is **JPEG quality 90, 4:4:4 without chroma subsampling, with optimized JPEG coding**. A separate **JPEG quality 95 for print/archive** option is planned. Resizing uses Lanczos interpolation and preserves the aspect ratio.
@@ -53,7 +55,7 @@ Metadata is copied using ExifTool where possible, excluding embedded original pr
 
 AnaChroma focuses on SBS-to-anaglyph conversion. Stereo alignment and correction remain the purpose of [StereoFine](https://github.com/muelli1975/StereoFine); 2D-to-3D conversion remains the purpose of [SplatTricia](https://github.com/muelli1975/SplatTricia).
 
-Version 1 does not include separate left/right pair detection, MPO splitting, stereo-window correction, a matrix editor, a thumbnail gallery, high-bit-depth output or video processing.
+Version 1 does not include separate left/right pair detection, MPO splitting, stereo-window correction, a thumbnail gallery, high-bit-depth output or video processing. Dedicated ghosting compensation requires a separately validated method and is not yet part of the agreed implementation.
 
 ## Source and builds
 
