@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Builds and local packages
+build/
+dist/
+release/
+
+# User settings and processing data
+settings.json
+output/
+_temp/
+*.partial.jpg
+*.log
+
+# Local external tool distributions
+tools/
+
+# Operating systems
+.DS_Store
+Thumbs.db
+Desktop.ini
