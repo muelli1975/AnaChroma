@@ -1,8 +1,8 @@
-# AnaChroma – Prüfstand 0.1.0.dev1
+# AnaChroma – Prüfstand 0.1.0.dev2
 
 Stand: 7. Oktober 2026. Diese Datei unterscheidet automatisierte technische Prüfungen von noch ausstehender stereoskopischer Praxisprüfung.
 
-Lokaler Gesamtlauf: **61 Tests bestanden**, einschließlich GUI, tatsächlichem ExifTool und allen 17 internen FFmpeg-Referenzpipelines.
+Lokaler Gesamtlauf: **65 Tests bestanden**, einschließlich GUI, tatsächlichem ExifTool, aller 17 internen FFmpeg-Referenzpipelines, echter nativer CIELab-Berechnung und SBS-Startvorschau. Auch das gepackte Linux-Programm hat die Startvorschau berechnet und angezeigt; sein gebündeltes CIELab bestand den Unicode-/RGB8-/Größentest.
 
 ## Automatisierte Prüfungen
 
@@ -30,7 +30,7 @@ Der lokale Linux-PyInstaller-Build wurde erstellt und unter virtueller Anzeige e
 - Echte SBS-Fotos mit Rot/Cyan-, Grün/Magenta- und Amber/Blau-Brillen gegen die Batch beurteilen, insbesondere gesättigte Farben, Spitzlichter, tiefe Schatten und Ghosting.
 - Normalen Export und Vorschau über mehrere Auflösungen vergleichen; reduzierte Vorschau ist keine pixelgenaue Vollauflösungsansicht.
 - Lange Ordnerläufe, hochauflösende Bilder und native Windows-/macOS-Bedienung prüfen.
-- Tatsächliche CIELab-Binaries neu bauen bzw. verfügbar machen und deren Ergebnisse gegen die bestehende Batch prüfen.
+- Den Windows-Vergleich gegen das originale CIELab-Executable aus AnaglyphBatch 1.0 und die nativen Builds anhand der jeweiligen CI-Ergebnisse bewerten; eine bloße erfolgreiche Kompilierung belegt keine Pixelgleichheit.
 - Native Release-Pakete und vollständige Lizenzmaterialien prüfen.
 
 Allgemeine Helligkeit/Kontrast und Kanalpotenzen sind kontrollierbare Bildoperationen, keine behauptete automatische Ghosting-Korrektur. Eine solche Funktion setzt ein konkret validiertes, von Brille und Wiedergabemedium abhängiges Verfahren voraus.
@@ -43,3 +43,7 @@ python -m pytest -q
 ```
 
 Auf Linux die GUI-Prüfungen mit `xvfb-run -a python -m pytest -q` ausführen. FFmpeg und ExifTool auf PATH ermöglichen die unabhängigen Referenzprüfungen; ansonsten werden diese Tests ausdrücklich übersprungen. Die CI installiert beide im Linux-Job.
+
+## Native CIELab-Prüfung
+
+Der Linux-Build aus unveränderten Original-Rechenquellen verarbeitet das mitgelieferte SBS-Bild mit 1024 × 576 Ausgabepixeln hier in etwa 2,7 Sekunden. Das ist eine Messung auf dieser Entwicklungsmaschine, keine allgemeine Laufzeitzusage. Echte RGB8-Berechnung, Wiederholbarkeit, Größenprüfung, Unicode-Pfade, Skalierung vor CIELab und JPEG 4:4:4 werden separat geprüft. Windows vergleicht Zufallsfarben, Graustufen, Farbfelder und das verkleinerte SBS-Beispiel direkt mit der Binärdatei aus Batch 1.0. Bericht und verlustfreie Vergleichsbilder werden als CI-Artefakt gespeichert.

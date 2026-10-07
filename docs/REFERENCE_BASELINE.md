@@ -87,3 +87,9 @@ Upstream: [mbrown1413/anaglyph](https://github.com/mbrown1413/anaglyph). README 
 ## Ressourcen
 
 `assets/ready.wav` wird unverändert aus SplatTricia übernommen. Dieselbe Datei ist auch in StereoFine vorhanden; der geprüfte Git-Blob lautet in beiden Projekten `260fb0d49982873a13dabd750b997448acb675ca` (503.364 Byte). Das von Christoph Müller bereitgestellte `assets/anachroma.ico` wird unverändert übernommen; enthalten sind 16, 24, 32, 40, 48, 64 und 256 px. Der SHA-256-Hash steht in `assets/ASSET_HASHES.txt`.
+
+## CIELab PNG port and supplied SBS
+
+The native CIELab source baseline is `mbrown1413/anaglyph` at `4db425343687f796b85f04ae204e05a43e5742f0`. `native/cielab/SOURCES.json` pins unchanged calculation/solver source hashes and the downloaded libpng/zlib source archives. The obsolete OpenCV image front end is replaced by a separately licensed GPL PNG CLI. The original Windows comparison binary is taken from the hash-verified AnaglyphBatch 1.0 release ZIP.
+
+The user-supplied SBS image is preserved as `assets/anachroma.jpg` (2048 × 576 RGB; halves 1024 × 576). Its hash is in `assets/ASSET_HASHES.txt`; it serves as the live startup example and never enters the batch input list automatically.

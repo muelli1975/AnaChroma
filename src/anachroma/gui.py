@@ -46,6 +46,7 @@ class AnaChromaApp(ctk.CTk):
         self.ctk_image = None
         self.closed = False
         self.inputs = None
+        self.demo_path = resource_dir() / "assets" / "anachroma.jpg"
         self.index = 0
         self.scan_id = 0
         self.scan_cancel = Event()
@@ -77,6 +78,7 @@ class AnaChromaApp(ctk.CTk):
         self.bind("<KeyPress>", self._key)
         self.after(50, self._pump)
         self.after(200, self._startup_notes)
+        self.request_preview()
 
     def _button(self, parent, text, command, **kwargs):
         return ctk.CTkButton(parent, text=text, command=command, fg_color=GOLD,
@@ -306,23 +308,30 @@ class AnaChromaApp(ctk.CTk):
         return "break"
 
     def request_preview(self):
-        if not self.inputs:
+        path = self.preview_path()
+        if path is None:
             return
         self.preview_id += 1  # invalidate results immediately, even during throttle
-        path = self.inputs.files[self.index]
-        self.filename.configure(text=f"{self.index+1}/{len(self.inputs.files)} · {path.name}")
+        self.filename.configure(text=f"{self.index+1}/{len(self.inputs.files)} · {path.name}" if self.inputs
+                                else "AnaChroma · Beispielbild")
         method = self.draft or self.selected_method()
         label = "Entwurf · " if self.draft is not None else ""
         self.preview_note.configure(text=label + method.name + " · Vorschau max. 1024 px")
         if self.preview_after is None:
             self.preview_after = self.after(100, self._submit_preview)
 
+    def preview_path(self):
+        if self.inputs:
+            return self.inputs.files[self.index]
+        return self.demo_path if self.demo_path.is_file() else None
+
     def _submit_preview(self):
         self.preview_after = None
-        if self.closed or not self.inputs:
+        path = self.preview_path()
+        if self.closed or path is None:
             return
         method = self.draft or self.selected_method()
-        self.preview_worker.request(self.preview_id, self.inputs.files[self.index], method)
+        self.preview_worker.request(self.preview_id, path, method)
         if not self.batch_running:
             self.status.configure(text="CIELab-Vorschau wird erzeugt..." if method.mode == "cielab" else "Berechne Vorschau...")
 
@@ -514,14 +523,27 @@ def main():
     ctk.set_appearance_mode("dark")
     ctk.set_default_color_theme("dark-blue")
     app = AnaChromaApp()
-    # Development package check: exercise the real Tk/Pillow image bridge,
-    # then close normally. No input, presets or export data are changed.
+    # Development package check: load the bundled SBS through the actual
+    # preview worker and Tk/Pillow image bridge, then close normally.
     import sys
+    smoke_failed = []
     if "--smoke-test" in sys.argv:
-        app.preview_image = Image.new("RGB", (128, 64), (128, 64, 192))
-        app._fit_preview()
-        app.after(500, app.close)
+        from time import monotonic
+        deadline = monotonic() + 15
+        def smoke_check():
+            if app.preview_image is not None and app.ctk_image is not None:
+                if app.preview_image.size != (1024, 576) or app.inputs is not None:
+                    smoke_failed.append("Bundled SBS preview contract failed")
+                app.close()
+            elif monotonic() >= deadline:
+                smoke_failed.append("Bundled SBS preview did not load")
+                app.close()
+            else:
+                app.after(50, smoke_check)
+        app.after(100, smoke_check)
     app.mainloop()
+    if smoke_failed:
+        raise RuntimeError(smoke_failed[0])
 
 
 if __name__ == "__main__":

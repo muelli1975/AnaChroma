@@ -1,0 +1,46 @@
+{
+  "repository": "https://github.com/mbrown1413/anaglyph",
+  "commit": "4db425343687f796b85f04ae204e05a43e5742f0",
+  "files": {
+    "LICENSE.txt": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+    "color_tools.c": "62e958df663cce272d34cbbaf33d4533845919503b8168774e86c061b179ee35",
+    "color_tools.h": "76c2ef6c55ac6ec695a83c3e6e57827ba22b47e9d5a7fd4f78efde81f3e93702",
+    "levmar/Axb.c": "10d85175e095d967df5ca36515595301482399eda3fd7d1cc2bcc2f1f8dcbfad",
+    "levmar/Axb_core.c": "dea584a7c83ccbc80b4a17066543699bdf49ffb8090ba969b2baa9ec94a63f1b",
+    "levmar/LICENSE": "32b1062f7da84967e7019d01ab805935caa7ab7321a7ced0e30ebe75e5df1670",
+    "levmar/README.txt": "332358ea80344a89bf2b3c4aa3123e8a057737495d780a31a503a33f567accda",
+    "levmar/compiler.h": "8042517d5c9af2b99b80593cc05c2814268b868d8760a9ff1a5f783027bbfeb7",
+    "levmar/expfit.c": "6a74c40856c880449442b32b89a4f38c62e23d768e0cdd21e1281113186b8f30",
+    "levmar/levmar.h": "36ad1341cff87909aeb82ab7e58c452e6402da2af06bb6ab89a0dcb112c8cb24",
+    "levmar/lm.c": "d4c35e082cdc640a4e77c4f2d62a982ee8666ee1fcefd2e18356b3f5b8bd4a31",
+    "levmar/lm.h": "36ad1341cff87909aeb82ab7e58c452e6402da2af06bb6ab89a0dcb112c8cb24",
+    "levmar/lm_core.c": "6065fb6fe0731ec231efa4f39bec903cb0366ccd8bf764512c1dec1f8e9705e6",
+    "levmar/lmbc.c": "4957b5d9580d3bffd8ebdba23df3607954ffebf338931fb4a7b62a2873288cba",
+    "levmar/lmbc_core.c": "eaa1fbdcbc77b573d02ef44eac8e95176df3ff19a463dd59f97160f342446f17",
+    "levmar/lmblec.c": "f6d06f5a3a266bb42ea8da6320b6cdccd5ac6ce82326e5e732a6f301a9d6d596",
+    "levmar/lmblec_core.c": "5e52af05fc2cf0699fc1f82feb19d5c3dc2e082af92a7871408d75d9dc20a248",
+    "levmar/lmbleic.c": "e5b4cd1968f67bc29d7967e319e2d0882f34c146ba1b243e88af9b07c1e97266",
+    "levmar/lmbleic_core.c": "ed30b411c53b93df09b3a12bd794a3b88eb51a461f4d4e81476dade78fc1dbdc",
+    "levmar/lmdemo.c": "feb37a632bd4dc2d0765b7e6afd2e5d20ba3a95db2bf24dff337b1bb0a8e46e9",
+    "levmar/lmlec.c": "a77e4d516f70fd9ffacf9a17188ca9655140aa76931372c099cbac2573bd787a",
+    "levmar/lmlec_core.c": "c7dca37c0d6eb3f56b6b20d836ea7d41db0b6f8db33f34be1274a042a741df6a",
+    "levmar/misc.c": "5a51ea473c36555b50365ae248747ba3bc54328a7965cc281619a7bbd57813bb",
+    "levmar/misc.h": "7d6e6fc7fb4fcbc15cd8ae3ee3eae2cf2a891d3929f58d44918e763a3b69bcc8",
+    "levmar/misc_core.c": "f9a126f562e2a2af00c7682e9f6446c830a1959b98e40142282ca7112ef4ef92",
+    "methods/cielab.c": "2283341fea9e29a7ea7b44d47c99a671ad5f2a95f3978a164259b2c6d4b22892"
+  },
+  "dependencies": [
+    {
+      "name": "libpng",
+      "version": "1.6.59",
+      "url": "https://github.com/pnggroup/libpng/archive/refs/tags/v1.6.59.tar.gz",
+      "sha256": "2540302a1844ad2b2b501977abecfa850f265f97b78f065a712ab4074a89f5b5"
+    },
+    {
+      "name": "zlib",
+      "version": "1.3.2",
+      "url": "https://github.com/madler/zlib/archive/refs/tags/v1.3.2.tar.gz",
+      "sha256": "b99a0b86c0ba9360ec7e78c4f1e43b1cbdf1e6936c8fa0f6835c0cd694a495a1"
+    }
+  ]
+}

@@ -10,7 +10,7 @@ Die Anwendung ist für vollständig lokale Verarbeitung ausgelegt: kein Account,
 
 ## Entwicklungsstand
 
-Der erste lauffähige Entwicklungsstand ist **0.1.0.dev1**. Die deutsche Oberfläche, die gemeinsame Engine, der Editor für eigene Presets und Einzelbild-/Ordnerexport sind implementiert. Das ist ein Entwicklungsbuild, noch kein Release von Version 1. Das bereitgestellte AnaChroma-Icon ist eingebunden. Native CIELab-Builds stehen noch aus; echte Stereofotos und die native Bedienung unter Windows/macOS müssen praktisch geprüft werden.
+Der aktuelle Entwicklungsstand ist **0.1.0.dev2**. Die deutsche Oberfläche, die gemeinsame Engine, der Editor für eigene Presets und Einzelbild-/Ordnerexport sind implementiert. Das ist ein Entwicklungsbuild, noch kein Release von Version 1. Das bereitgestellte AnaChroma-Icon und das SBS-Beispielbild sind eingebunden. CIELab wird aus den Original-Rechenquellen nativ gebaut; echte Stereofotos und die native Bedienung unter Windows/macOS müssen weiterhin praktisch geprüft werden.
 
 GitHub Actions bereitet Entwicklungspakete für Windows, Linux und macOS vor. Erfolgreiches Packaging allein bestätigt weder die Bildqualität noch die native Desktop-Kompatibilität. Siehe [Build-Anleitung](docs/BUILD.md) und [Prüfstand](docs/VALIDATION.md).
 
@@ -33,7 +33,7 @@ Die EXIF-Orientierung wird beim Laden angewendet. Das ausgerichtete Bild muss ei
 
 Die aktuelle AnaglyphBatch liefert 18 Verfahren, darunter Dubois LCD mit Rotkanalkorrektur, Dubois, Compromise, Wimmer, Cosima 3/4, Rendepth 1/2, iaian7, Color, Half-Color, Grey, Oldschool, Frans van den Poel, John Wattie, Dubois grün/magenta, Dubois amber/blau und externes CIELab Least Squares.
 
-Es wird jeweils ein Verfahren ausgewählt. Die Verfahren behalten ihre eigenen Rechenregeln; sRGB-Linearisierung wird nur verwendet, wo die Referenzpipeline sie verlangt. Vorschau und Export nutzen denselben Verarbeitungskern. Die automatische Vorschau ist auf maximal 1024 px lange Seite begrenzt.
+Es wird jeweils ein Verfahren ausgewählt. Die Verfahren behalten ihre eigenen Rechenregeln; sRGB-Linearisierung wird nur verwendet, wo die Referenzpipeline sie verlangt. Vorschau und Export nutzen denselben Verarbeitungskern. Die automatische Vorschau ist auf maximal 1024 px lange Seite begrenzt. Beim Start erscheint das mitgelieferte SBS-Beispielbild als Anaglyphe. Es reagiert auf die Verfahrensauswahl und eigene Matrixentwürfe; es gehört nicht zur Eingabe- oder Stapelliste. Zum Speichern eigene Bilder laden.
 
 Der ausdrücklich sichtbare Einstieg **Eigenes Verfahren anlegen…** öffnet den Preset-Editor. Zwei 3 × 3-Matrizen lassen sich über Zahlenfelder, Schieberegler und das Mausrad mit einer eigenen Live-Vorschau einstellen. Die Matrixregler beginnen bei −2 bis +2 mit Schritten von 0,001; direkte Zahleneingaben erhalten feinere Koeffizienten und erweitern den Regler bei Bedarf. Das ist ein praktischer Bedienbereich, keine physikalische Grenze für Anaglyphen. Eigene Presets enthalten außerdem eine optionale Berechnung in linearem Licht, Helligkeits-/Kontrastanpassungen und einzelne RGB-Korrekturwerte. Die Einstellungen stehen direkt unter den Matrizen und werden lokal gespeichert; eingebaute Verfahren behalten ihr Referenzverhalten.
 
@@ -63,7 +63,7 @@ Version 1 enthält keine Erkennung separater Links/Rechts-Paare, kein MPO-Splitt
 
 Der Kern verwendet Python, Pillow und NumPy sowie CustomTkinter für die Oberfläche. Das vorhandene sRGB-Transfermodul aus SplatTricia wird unverändert übernommen. FFmpeg wird als reguläre Verarbeitungsengine nicht benötigt.
 
-Das Build-Skript erzeugt ein portables Verzeichnis für die jeweilige Plattform. ExifTool und CIELab bleiben externe Komponenten und werden in diesen ersten Entwicklungspaketen nicht gebündelt. Plattformspezifische CIELab-Builds müssen geprüft werden, bevor ihre Verfügbarkeit in einem Release zugesagt wird.
+Das Build-Skript erzeugt ein portables Verzeichnis für die jeweilige Plattform. CIELab bleibt ein separates Programm und wird in den Entwicklungspaketen zusammen mit den passenden Quellen und Lizenzen gebündelt. Die ursprüngliche CIELab-Berechnung und der Solver bleiben unverändert; eine PNG-Schnittstelle ersetzt die veraltete OpenCV-Bildanbindung. ExifTool wird weiterhin separat bereitgestellt. Siehe [CIELab-Build](native/cielab/README.md) und die tatsächlichen CI-Prüfergebnisse.
 
 Der abgestimmte Umfang steht in [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md), die Modulstruktur in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) und die Quellgrundlage in [docs/REFERENCE_BASELINE.md](docs/REFERENCE_BASELINE.md).
 

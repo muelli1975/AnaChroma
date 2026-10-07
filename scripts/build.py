@@ -1,4 +1,4 @@
-"""Build an unpack-and-run directory on the current platform, without tools."""
+"""Build an unpack-and-run directory, including a prepared native CIELab tool."""
 from __future__ import annotations
 import importlib.metadata as metadata
 import json
@@ -33,6 +33,15 @@ def main() -> None:
             arguments.append(f"--add-binary={library}:.")
     PyInstaller.__main__.run(arguments)
     portable = ROOT / "dist" / "AnaChroma"
+    native = ROOT / "tools" / "cielab"
+    native_name = "cielab.exe" if sys.platform == "win32" else "cielab"
+    if not (native / native_name).is_file() or not (native / "cielab-source.tar.gz").is_file():
+        raise RuntimeError("Run python scripts/build_cielab.py before packaging.")
+    shutil.copytree(native, portable / "tools" / "cielab", dirs_exist_ok=True)
+    # The optional macOS .app uses its own resource directory.
+    mac_resources = ROOT / "dist" / "AnaChroma.app" / "Contents" / "Resources"
+    if sys.platform == "darwin" and mac_resources.is_dir():
+        shutil.copytree(native, mac_resources / "tools" / "cielab", dirs_exist_ok=True)
     for filename in ("README.md", "README_DE.md", "LICENSE.txt", "THIRD_PARTY_NOTICES.md"):
         shutil.copy2(ROOT / filename, portable / filename)
     licenses = portable / "licenses"
@@ -63,7 +72,8 @@ def main() -> None:
         commit = "unknown"
     manifest = {"python": sys.version, "platform": sys.platform, "commit": commit,
                 "dependencies": {name: metadata.version(name) for name in runtime + ("pyinstaller", "pyinstaller-hooks-contrib")},
-                "external_tools_bundled": False}
+                "external_tools_bundled": {"cielab": True, "exiftool": False},
+                "cielab": json.loads((native / "BUILD_INFO.json").read_text())}
     (portable / "BUILD_INFO.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     print(f"Portable development build: {portable}")
 

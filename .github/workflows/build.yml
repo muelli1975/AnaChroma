@@ -28,6 +28,11 @@ jobs:
       - name: Install Linux reference and display tools
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y ffmpeg xvfb libimage-exiftool-perl
+      - name: Build native CIELab with matching source distribution
+        run: python scripts/build_cielab.py
+      - name: Compare with AnaglyphBatch 1.0 CIELab executable
+        if: runner.os == 'Windows'
+        run: python scripts/compare_cielab.py
       - name: Test with virtual display and reference tools
         if: runner.os == 'Linux'
         run: xvfb-run -a python -m pytest -q
@@ -36,6 +41,10 @@ jobs:
         run: python -m pytest -q
       - name: Build portable directory
         run: python scripts/build.py
+      - name: Test packaged CIELab executable
+        run: python scripts/smoke_cielab.py dist/AnaChroma/tools/cielab
+      - name: Archive standalone CIELab tool with corresponding sources
+        run: python scripts/archive_cielab.py ${{ matrix.os }}
       - name: Start built GUI under virtual display
         if: runner.os == 'Linux'
         run: xvfb-run -a python scripts/smoke_build.py
@@ -56,5 +65,24 @@ jobs:
           path: |
             dist/AnaChroma-*.zip
             dist/AnaChroma-*.tar.gz
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload CIELab comparison report
+        if: runner.os == 'Windows' && always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: CIELab-reference-comparison
+          path: |
+            build/cielab-comparison/*.json
+            build/cielab-comparison/*.png
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload standalone CIELab tool
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: CIELab-${{ matrix.os }}
+          path: |
+            dist/CIELab-*.zip
+            dist/CIELab-*.tar.gz
           if-no-files-found: error
           retention-days: 14

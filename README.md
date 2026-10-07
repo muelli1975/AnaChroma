@@ -10,7 +10,7 @@ The application is designed to work completely locally: no account, no cloud, no
 
 ## Development status
 
-The first runnable development version is **0.1.0.dev1**. The German desktop interface, shared processing engine, custom preset editor and single-image/folder export are implemented. This is a development build, not a version 1 release. Your supplied AnaChroma icon is integrated. Native CIELab builds are still pending; real stereoscopic photographs and native Windows/macOS use still need practical validation.
+The current development version is **0.1.0.dev2**. The German desktop interface, shared processing engine, custom preset editor and single-image/folder export are implemented. This is a development build, not a version 1 release. The supplied AnaChroma icon and SBS example image are integrated. Native CIELab builds use the original calculation sources; real stereoscopic photographs and native Windows/macOS use still need practical validation.
 
 GitHub Actions prepares development packages for Windows, Linux and macOS. Successful packaging alone does not establish image quality or native desktop compatibility. See [build instructions](docs/BUILD.md) and [validation](docs/VALIDATION.md).
 
@@ -63,7 +63,7 @@ Version 1 does not include separate left/right pair detection, MPO splitting, st
 
 The core uses Python, Pillow and NumPy, with CustomTkinter for the interface. The existing sRGB transfer module from SplatTricia is reused unchanged. FFmpeg is not required as the normal processing engine.
 
-The build script creates a portable directory on the current platform. ExifTool and CIELab are external components and are not bundled in these first development packages. Platform-specific CIELab builds must be verified before their availability is promised in a release.
+The build script creates a portable directory on the current platform. CIELab remains a separate executable and is bundled with matching source code and licenses in development packages. Its original calculation and solver are unchanged; a PNG interface replaces the obsolete OpenCV image front end. ExifTool is still provided separately. See the [CIELab build](native/cielab/README.md) and actual CI validation results.
 
 The agreed scope is documented in [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md), the module structure in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), and the source baseline in [docs/REFERENCE_BASELINE.md](docs/REFERENCE_BASELINE.md).
 

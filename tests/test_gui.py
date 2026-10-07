@@ -65,11 +65,26 @@ def test_exact_entry_slider_wheel_and_cancel(app):
     assert app.selected_method()==original
 
 
+def test_start_demo_live_preview_does_not_become_batch_input(app):
+    wait_for(app, lambda: app.preview_image is not None)
+    assert app.preview_image.size == (1024, 576)
+    assert app.inputs is None
+    assert app.save_button.cget("state") == "disabled"
+    assert app.all_button.cget("state") == "disabled"
+    assert app.previous_button.cget("state") == "disabled"
+    assert "Beispielbild" in app.filename.cget("text")
+    previous = np.asarray(app.preview_image).copy()
+    gray = next(method for method in app.methods.values() if method.suffix == "grey")
+    app._refresh_methods(gray.id); app._method_changed()
+    wait_for(app, lambda: app.preview_image is not None and
+             not np.array_equal(previous, np.asarray(app.preview_image)))
+
+
 def test_preview_navigation_and_preset_roundtrip(app,tmp_path):
     for i in range(2):
         Image.new("RGB",(32,8),(64+i*80,90,180)).save(tmp_path/f"bild{i}.png")
     app.load_input(tmp_path/"bild1.png")
-    wait_for(app,lambda: app.inputs is not None and app.preview_image is not None)
+    wait_for(app,lambda: app.inputs is not None and app.preview_image is not None and app.preview_image.size==(16,8))
     assert app.index==1 and app.preview_image.size==(16,8)
     app.navigate(-1)
     wait_for(app,lambda: app.index==0 and app.preview_after is None)
