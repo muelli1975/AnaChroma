@@ -1,6 +1,6 @@
-# AnaChroma – Geplante Architektur
+# AnaChroma – Architektur
 
-Stand: 7. Oktober 2026. Dies ist die vorgesehene Struktur, keine Beschreibung bereits implementierter Module.
+Stand: 7. Oktober 2026. Diese Module sind im ersten Entwicklungsstand implementiert; der praktische Plattform-Prüfstand steht in [VALIDATION.md](VALIDATION.md).
 
 ## Aufbau
 
@@ -8,7 +8,7 @@ Ein kleiner Launcher startet das Paket `anachroma` unter `src/`. Die reine Verar
 
 | Bereich | Aufgabe |
 | --- | --- |
-| `color_transfer.py` | Vorhandene sRGB-Funktionen aus SplatTricia unverändert übernehmen |
+| `color_transfer.py` | Unverändert übernommene sRGB-Funktionen aus SplatTricia |
 | `matrices.py` | Verfahren, Anzeigenamen, Suffixe, Matrizen und Verarbeitungsmodi |
 | `presets.py` / `preset_editor.py` | Validierte eigene Verfahren, lokale Speicherung und Editor mit Zahlenfeldern/Reglern |
 | `engine.py` | Reine RGB-Paarverarbeitung; gemeinsame Mathematik für Vorschau und Export |
@@ -45,7 +45,7 @@ Ein fertiges JPEG wird zunächst temporär geschrieben, mit Metadaten versehen u
 - `assets/`: eigener nachgelieferter Icon-Satz und unveränderte `ready.wav`.
 - `tools/`: lokale bzw. mit Releases gebündelte ExifTool-/CIELab-Distributionen; Binärdateien gehören nicht unkontrolliert in das Quellrepository.
 - `docs/`: Spezifikation und technische Quellen.
-- `tests/`: später gezielte Engine-, Pfad-, Metadaten- und Abbruchprüfungen.
-- Build-Skripte und GitHub Actions folgen, sobald eine lauffähige Basis vorhanden ist.
+- `tests/`: unabhängige Batch-Filtervergleiche sowie GUI-, Pfad-, Metadaten- und Abbruchprüfungen.
+- `scripts/build.py` und `.github/workflows/build.yml`: portable Entwicklungspakete und Tests für drei Plattformen. Externe Tools werden noch nicht gebündelt.
 
 Die Plattformunterschiede bleiben möglichst auf Ressourcenpfade, externe Tools, Soundwiedergabe und Packaging begrenzt. Kein Release wird als geprüft bezeichnet, bevor die betreffende Plattform tatsächlich getestet wurde.

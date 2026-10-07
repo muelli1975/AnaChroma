@@ -57,9 +57,15 @@ Geprüft am 7. Oktober 2026. Die Programmdokumentationen liefern Orientierung f�
 | [Cosima: Anaglyphen-Parameter](https://www.cosima-3d.de/par_anaglyph_en.html) | Der Suchindex der offiziellen Seite nennt für `Brightness (/BN=1.0)` **0,0 bis 2,0**, neutral **1,0**. Für Kontrast nennt er neutral **1,0**, verstärkten Kontrast bei Werten unter 1 und verringerten bei Werten über 1. | Vorläufige Recherchehinweise, noch keine übernommenen Formeln oder Grenzen: Die Seite selbst war beim Abruf mit HTTP 502 nicht erreichbar. Vollständige Dokumentation bzw. Implementierung vor Übernahme prüfen. |
 | [SPM: Ghost-reduced Anaglyph](https://stereo.jpn.org/eng/stphmkr/help/stereo_14.htm) | Beschreibt Lab- und RGB-Helligkeits-/Kontrastanpassungen und die Abhängigkeit von Brille und Wiedergabemedium. Liefert keine vollständigen Formeln und Reglergrenzen. | Daraus keine erfundenen Ghosting-Prozentwerte oder identische Nachimplementierung ableiten. |
 
-Für den vereinfachten Editor bleiben die Matrix-Endpunkte sowie die Helligkeits-/Kontrastformeln und deren Skalen offen. Die bestehende Kanalpotenz `x^p` hat neutral `p=1`; positive endliche Exponenten sind die mathematische Grundlage, aber noch kein praktisch begründeter Reglerbereich. Die Batch-Rotkorrektur `p=0,75` und die darstellbaren Rendepth-Potenzen müssen erhalten bleiben. Eingebaute Verfahren werden durch diese Recherche nicht verändert.
+Ergänzend dokumentiert [Adobe Photoshop: Channel Mixer](https://helpx.adobe.com/photoshop/desktop/adjust-color/selective-color-adjustments/mix-color-channels-with-channel-mixer.html) Kanalgewichte von −200 % bis +200 %. AnaChroma verwendet das als praktischen Reglerbereich **−2 bis +2**, zeigt aber direkte Koeffizienten. Die Batch liegt mit ihren Matrixwerten zwischen **−0,205 und 1,234**. Genauere und außerhalb liegende Zahlenwerte bleiben möglich; der Regler erweitert sich sichtbar. Das ist keine physikalische Begrenzung und keine Behauptung über SPM-Eingabegrenzen.
 
-Vor der Umsetzung wird jeder Regler mit Formel, Rechenfarbraum, Reihenfolge, Neutralwert, Endpunkten, Schrittweite und Quelle dokumentiert. Eine abweichende eigene Bedienentscheidung wird als solche begründet. Eine Prozentanzeige benötigt eine ausdrücklich definierte Umrechnung; sie darf keine Präzision vortäuschen, die das Verfahren nicht besitzt.
+Das vom Nutzer genannte [Cosima-Papier „Anaglyphen“](http://www.cosima-3d.de/download/tn_anaglyphen.pdf) (2012, insbesondere Seiten 7–11) beschreibt eine Kalibrierung über Testfelder mit diskreten Auswahlzahlen und Anpassung des Grünanteils. Diese Einstellungen betreffen Brille, Druck bzw. Wiedergabe und sind keine allgemeine Skala für freie Matrixkoeffizienten. Daraus wird kein Ghosting-Regler abgeleitet.
+
+Die Kanalpotenz `x^p` hat neutral `p=1`. Der Anfangsbereich **0,625 bis 1,25** umfasst die tatsächlich verwendeten, im Editor darstellbaren Batch-Potenzen: 0,625; 0,6666667; 0,75; 1; 1,25. Er ist für R/G/B gleichermaßen verfügbar; die bekannten Werte sind keine automatisch empfohlenen Korrekturen für Grün/Magenta oder Amber/Blau. Positive berechenbare Zahlenwerte erweitern den Bereich. SPMs Gammaformel wird damit nicht gleichgesetzt.
+
+Helligkeit und Kontrast haben zunächst **Zahlenfelder ohne Schieberegler**. Neutral ist jeweils 1; die eigene, explizit dokumentierte affine sRGB-Formel ist in [PRESET_EDITOR.md](PRESET_EDITOR.md) festgehalten. Sie ist keine Cosima-/SPM-Nachimplementierung. Eingebaute Verfahren werden durch diese Editorentscheidungen nicht verändert.
+
+Die implementierten Regler sind mit Formel, Rechenfarbraum, Reihenfolge, Neutralwert, Endpunkten, Schrittweite und Quelle in [PRESET_EDITOR.md](PRESET_EDITOR.md) dokumentiert. Eine abweichende eigene Bedienentscheidung wird als solche begründet. Eine Prozentanzeige benötigt eine ausdrücklich definierte Umrechnung; sie darf keine Präzision vortäuschen, die das Verfahren nicht besitzt.
 
 ## Größen und CIELab
 
@@ -80,4 +86,4 @@ Upstream: [mbrown1413/anaglyph](https://github.com/mbrown1413/anaglyph). README 
 
 ## Ressourcen
 
-`assets/ready.wav` wird unverändert aus SplatTricia übernommen. Dieselbe Datei ist auch in StereoFine vorhanden; der geprüfte Git-Blob lautet in beiden Projekten `260fb0d49982873a13dabd750b997448acb675ca` (503.364 Byte). Das AnaChroma-Icon wird später von Christoph Müller bereitgestellt.
+`assets/ready.wav` wird unverändert aus SplatTricia übernommen. Dieselbe Datei ist auch in StereoFine vorhanden; der geprüfte Git-Blob lautet in beiden Projekten `260fb0d49982873a13dabd750b997448acb675ca` (503.364 Byte). Das von Christoph Müller bereitgestellte `assets/anachroma.ico` wird unverändert übernommen; enthalten sind 16, 24, 32, 40, 48, 64 und 256 px. Der SHA-256-Hash steht in `assets/ASSET_HASHES.txt`.

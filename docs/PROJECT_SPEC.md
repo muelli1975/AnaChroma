@@ -1,6 +1,6 @@
 # AnaChroma – Projektgrundlage für Version 1
 
-Stand: 7. Oktober 2026. Diese Spezifikation hält die Projektbibel und die anschließend bestätigten Abgleiche mit den aktuellen GitHub-Ständen fest. Sie beschreibt den geplanten Funktionsumfang, nicht eine bereits fertige Anwendung.
+Stand: 7. Oktober 2026. Diese Spezifikation hält die Projektbibel und die anschließend bestätigten Abgleiche mit den aktuellen GitHub-Ständen fest. Sie beschreibt den vereinbarten v1-Funktionsumfang; der erste Entwicklungsstand ist implementiert, aber noch keine fertige v1. Der tatsächliche Prüfstand steht in [VALIDATION.md](VALIDATION.md).
 
 ## Name, Zweck und Grundhaltung
 
@@ -21,7 +21,7 @@ Die geprüften Quellstände sind in [REFERENCE_BASELINE.md](REFERENCE_BASELINE.m
 - In AnaChroma v1 wird **ein einzelnes Verfahren** ausgewählt. Die Mehrfachauswahl der heutigen Batch wird nicht übernommen.
 - 1080p und 2160p bedeuten Einpassen in die entsprechenden Breite/Höhe-Grenzen.
 - Bei CIELab werden die separaten Halbbilder **vor** der externen Berechnung auf Ausgabegröße gebracht, wie in der Batch.
-- Das Icon wird nachgeliefert. Als Abschlusssound wird die vorhandene **`ready.wav` unverändert** übernommen.
+- Das bereitgestellte Icon wird unverändert verwendet. Als Abschlusssound wird die vorhandene **`ready.wav` unverändert** übernommen.
 - Der ursprünglich ausgeschlossene Matrixeditor wird als übersichtlicher Editor für **eigene Verfahren und lokal gespeicherte Presets** in v1 aufgenommen. Ein sichtbarer Einstieg, Schieberegler, Mausradbedienung und laufende Vorschau gehören dazu.
 
 ## Kern und Verarbeitung
@@ -78,7 +78,7 @@ Der Editor zeigt **Matrix links** und **Matrix rechts** nebeneinander, jeweils a
 Quellenbasierte Festlegung der Regler:
 
 - Bereiche, Neutralwerte und Schrittweiten werden pro Parameter aus dokumentierten Referenzverfahren und der tatsächlich verwendeten Formel abgeleitet. Ein gemeinsamer pauschaler Bereich für alle Regler wird nicht festgelegt. Die Quellen und noch offenen Punkte stehen in [Technische Quellgrundlage](REFERENCE_BASELINE.md#regler-und-referenzprogramme).
-- Für Matrixkoeffizienten müssen negative Werte und Werte über 1 möglich bleiben. Die SPM-Hilfe zeigt beides; sie dokumentiert jedoch keine allgemeinen Eingabegrenzen. Die bereits vorhandenen Batch-Koeffizienten dürfen nicht begrenzt werden. Ein sinnvoller Bedienbereich ist von einer mathematischen Zulässigkeitsgrenze zu unterscheiden; die Regler-Endpunkte bleiben bis zur begründeten Festlegung offen.
+- Für Matrixkoeffizienten müssen negative Werte und Werte über 1 möglich bleiben. Die SPM-Hilfe zeigt beides; sie dokumentiert jedoch keine allgemeinen Eingabegrenzen. Die bereits vorhandenen Batch-Koeffizienten dürfen nicht begrenzt werden. Der Anfangsbereich **−2 bis +2** folgt der dokumentierten Kanalgewichtung in Photoshop (−200 % bis +200 %). Er deckt alle Batch-Koeffizienten ab und ist eine Bedienkonvention, keine physikalische Zulässigkeitsgrenze. Direkte Zahleneingaben erweitern den sichtbaren Bereich.
 - Eine Mausrad-Schrittweite von **0,001** für Matrixkoeffizienten lässt sich aus SPMs Darstellung in ganzzahligen Tausendsteln ableiten. Das ist eine begründete Bedienentscheidung für AnaChroma, keine Behauptung über SPMs Mausradverhalten. Feinere Zahlenwerte bleiben erhalten; weitere Schrittweiten für Zusatztasten werden erst mit einer begründeten Bedienentscheidung ergänzt.
 - Gamma, Kanalpotenz, Helligkeit und Kontrast sind unterschiedliche Parameter. Ein dokumentierter Bereich darf nur bei entsprechend geklärter Rechenvorschrift übertragen werden. Insbesondere ist SPMs Gamma-Bereich nicht automatisch der Bereich der bestehenden Batch-Kanalpotenzen.
 - Das Mausrad verändert nur den gezielt ausgewählten Regler. Dasselbe Ereignis darf nicht gleichzeitig den Dialog scrollen oder zum nächsten Bild wechseln. Kleine Trackpad-Deltas werden plattformgerecht gesammelt, ohne willkürlich große Sprünge zu erzeugen.
@@ -91,12 +91,12 @@ Direkt unter den Matrizen stehen drei sichtbare Abschnitte, ohne aufklappbaren B
 | Abschnitt | Bedienelemente und Hilfstext |
 | --- | --- |
 | Berechnung | **In linearem Licht berechnen**. Wandelt sRGB vor der Matrixberechnung in lineares Licht und anschließend wieder zurück; passend zur verwendeten Matrix wählen. |
-| Bildanpassung | **Helligkeit**, **Kontrast**, mit gemeinsamem **Zurücksetzen**. Formel, Skala, Neutralwert und Grenzen werden zusammen anhand der Referenzen festgelegt. Gemeinsame Anpassung beider Halbbilder vor der Matrixrechnung. |
-| Farbkanäle | **Farbkanäle korrigieren** mit **Rot**, **Grün**, **Blau**, neutral jeweils **1,0**. Kleinere Werte als 1 hellen auf, größere dunkeln ab. |
+| Bildanpassung | **Helligkeit (Faktor)**, **Kontrast (Faktor)**, neutral **1**. Vorerst Zahlenfelder ohne Regler; gemeinsame sRGB-Anpassung um die mittlere Helligkeit beider Halbbilder. Zurücksetzen übernimmt alle Einstellungen der Vorlage. Gemeinsame Anpassung beider Halbbilder vor der Matrixrechnung. |
+| Farbkanäle | **Farbkanäle korrigieren** mit **Rot**, **Grün**, **Blau**, neutral jeweils **1,0**, Anfangsbereich **0,625 bis 1,25** aus den Batch-Potenzen, Schritt **0,001**; Zahleneingabe kann ihn erweitern. Kleinere Werte als 1 hellen auf, größere dunkeln ab. |
 
 Die RGB-Korrektur ist eine Potenz auf den normierten Ausgabekanälen nach der Zusammenführung und gegebenenfalls der Rückwandlung nach sRGB. Die bekannte Rotkorrektur entspricht **Rot 0,75 / Grün 1,0 / Blau 1,0**. Es werden keine Korrekturwerte automatisch aus Rot/Cyan, Grün/Magenta oder Amber/Blau abgeleitet. Bei ausgeschalteter Korrektur bleiben die gespeicherten RGB-Werte sichtbar und ausgegraut. Gültige Potenzwerte müssen positiv und endlich sein.
 
-Clipping und Operationsreihenfolge werden für eigene Verfahren intern eindeutig und versioniert festgelegt; sie erhalten keine zusätzlichen Bedienelemente. Die genaue Helligkeits-/Kontrastformel und die bedienbaren Bereiche werden vor der Engine-Umsetzung festgehalten. Farbsättigung, frei zusammengestellte Operationsketten und zusätzliche Lab-Regler sind nicht Teil des vereinfachten Editors.
+Clipping und Operationsreihenfolge werden für eigene Verfahren intern eindeutig und versioniert festgelegt; sie erhalten keine zusätzlichen Bedienelemente. Die konkrete Rechenfolge und Formeln sind in [PRESET_EDITOR.md](PRESET_EDITOR.md) festgehalten. Farbsättigung, frei zusammengestellte Operationsketten und zusätzliche Lab-Regler sind nicht Teil des vereinfachten Editors.
 
 Die eingebauten 18 Verfahren bleiben unveränderliche Referenzen mit ihrer vollständigen Speziallogik. Als Vorlage kopierte Verfahren müssen im vereinfachten Schema vollständig darstellbar sein. Rendepth mit zusätzlicher Grünkorrektur kann entsprechend abgebildet werden; die getrennten iaian7-Halbbildpotenzen und dessen Abschlussmatrix können hier nicht stillschweigend entfallen. CIELab wird nicht als frei bearbeitbare Matrixvorlage angeboten. Eine nicht vollständig darstellbare Vorlage wird ausdrücklich als solche behandelt, ohne versteckte Verarbeitungsschritte in ein scheinbar einfaches Preset einzubauen.
 
@@ -122,13 +122,13 @@ Alle Größen beziehen sich auf die fertige Anaglyphe, nicht auf das gesamte SBS
 | 2048 lange Seite | Lange Seite auf 2048 px |
 | Benutzerdefiniert | Lange oder kurze Seite mit einem positiven Pixelwert; Anfangswert 2048 px |
 
-Lange/kurze Seite sind gegenseitig ausschließende Optionen. Keine freie Breite/Höhe und keine Verzerrung. Die Rundungs- und Vergrößerungsregeln werden vor der Engine-Umsetzung anhand der Batch festgehalten; kein stillschweigender Wechsel zu einer reinen Verkleinerungsfunktion.
+Lange/kurze Seite sind gegenseitig ausschließende Optionen. Keine freie Breite/Höhe und keine Verzerrung. Die Berechnung erlaubt wie die Batch Vergrößerung; die Seiten werden auf den nächsten ganzen Pixel gerundet (mindestens 1). Die Engine ist keine reine Verkleinerungsfunktion.
 
 Pillow schreibt JPEG mit **`quality=90`, `subsampling=0`, `optimize=True`**. Die Checkbox **JPEG-Qualität 95 für Druck/Archiv** ändert ausschließlich `quality` auf 95. 90 bleibt der hochwertige Standard. Lanczos betrifft die Skalierung, `optimize=True` die JPEG-Codierung.
 
 Dateinamenssuffixe und Ordnerabbildung folgen der aktuellen Batch. Bei Ordner-Eingabe enthält deren Ausgabe auch den Namen des gewählten Quellordners, z. B. `Urlaub/Tag1/bild001.jpg` → `output/Urlaub/Tag1/bild001_dubois_lcd.jpg`.
 
-Als Standard ist ein `output`-Ordner vorgesehen. Sein genauer Bezugspunkt (Programmordner oder Eingabeordner) und die sichtbare Auswahl des eigenen Ausgabeordners werden vor der GUI-Umsetzung abgestimmt: Die Batch nutzt den Programmordner, die aktuellen GUI-Tools standardmäßig den Eingabeordner. Ein neuer Input darf einen gespeicherten eigenen Ausgabeordner nicht ungefragt verändern.
+Standard ist `output` im Programm-/Quellordner wie in der Batch; bei schreibgeschütztem Programmordner im Benutzer-Konfigurationsordner. Ein gespeicherter eigener Ausgabeordner bleibt erhalten, auch beim Wechsel der Eingabe.
 
 Die bestehende Tool-Familie ersetzt fertige Dateien mit gleichem Zielnamen. Bei der Umsetzung werden Namenskollisionen verschiedener Quellen mit gleichem Stammnamen ausdrücklich behandelt. Fertige Dateien werden zunächst temporär vollständig geschrieben und erst danach am Ziel ersetzt.
 
@@ -138,7 +138,7 @@ Metadaten werden standardmäßig übernommen; eine zusätzliche Checkbox ist nic
 
 `-overwrite_original -TagsFromFile <input> --Preview:all --Orientation <output>`
 
-Die tatsächliche Befehlszeile wird anhand von Exporttests geprüft. Eingebettete Originalvorschauen/Thumbnails sowie bereits angewendete Orientation dürfen nicht übernommen werden. StereoFine schließt zusätzlich `--MPF:all` aus. ExifTool wird aus dem gebündelten `tools`-Ordner bzw. bei Quellcodeausführung aus einer passenden lokalen Installation gefunden.
+Die implementierte Befehlszeile ist mit einem tatsächlichen ExifTool-Export geprüft. Eingebettete Originalvorschauen/Thumbnails sowie bereits angewendete Orientation dürfen nicht übernommen werden. StereoFine schließt zusätzlich `--MPF:all` aus. ExifTool wird aus dem gebündelten `tools`-Ordner bzw. bei Quellcodeausführung aus einer passenden lokalen Installation gefunden.
 
 Ein Metadatenfehler lässt eine erfolgreich geschriebene Anaglyphe bestehen und erzeugt eine nachvollziehbare Warnung. Unter Windows soll kein zusätzliches Konsolenfenster aufblitzen. Prozesse benötigen geregelte Zeitlimits und Abbruchbehandlung.
 
@@ -180,13 +180,13 @@ Gemeinsame Farben: Hintergrund `#111111`, weiche Fläche `#181818`, Panels `#202
 
 Persistenz in einer kleinen JSON-Datei: letzter Eingabeordner, letzter Ausgabeordner und Unterordneroption. Matrix, Größe und JPEG-95 bleiben zunächst bewusst gesetzte Sitzungsoptionen; weitergehende Persistenz erfordert eine transparente Entscheidung.
 
-Das Icon wird später ergänzt; die unveränderte `ready.wav` ist für den üblichen Abschlusssound vorgesehen. Plattformabhängige Soundwiedergabe darf kein zusätzliches Pflichtpaket ohne konkreten Bedarf erzeugen. Die Frage einer deutschen/englischen Umschaltung der GUI wird vor deren Umsetzung abgestimmt; die öffentlichen READMEs liegen in beiden Sprachen vor.
+Das bereitgestellte Icon ist eingebunden; die unveränderte `ready.wav` ist für den üblichen Abschlusssound vorgesehen. Plattformabhängige Soundwiedergabe darf kein zusätzliches Pflichtpaket ohne konkreten Bedarf erzeugen. Der erste Entwicklungsstand hat eine deutsche GUI; die öffentlichen READMEs liegen in beiden Sprachen vor. Eine GUI-Sprachumschaltung ist noch nicht implementiert.
 
 ## Bewusste Nicht-Ziele
 
 Keine Stereojustage, Links/Rechts-Paarerkennung, MPO-Aufteilung, Scheinfensterkorrektur, Deviation-/Tiefenanalyse, Tiefenkarten, 2D-zu-3D-Konvertierung, Thumbnail-Galerie, komplexes ICC-Farbmanagement, PNG-16/TIFF-16-Ausgabe oder Videoverarbeitung. Kein FFmpeg als Standardengine, keine Cloud-, Account- oder Web-Funktionen. Der vereinfachte Editor für eigene Matrixverfahren ist inzwischen ausdrücklich Teil von v1; eine gesonderte Ghosting-Kompensation bleibt eine Prüffrage.
 
-Alpha wird verworfen und RGB verwendet; keine zusätzliche Alpha-Mischung. Ungerade orientierte SBS-Breite wird mit **Bildbreite ist nicht gerade – SBS kann nicht sauber geteilt werden.** abgelehnt, ohne Pixel abzuschneiden. Für v1 wird sRGB vorausgesetzt. Der Umgang mit kopierten ICC-Profilen und anderen geometrieabhängigen Metadaten muss vor dem Export geprüft werden, damit Metadaten die angenommene Ausgabe nicht falsch beschreiben.
+Alpha wird verworfen und RGB verwendet; keine zusätzliche Alpha-Mischung. Ungerade orientierte SBS-Breite wird mit **Bildbreite ist nicht gerade – SBS kann nicht sauber geteilt werden.** abgelehnt, ohne Pixel abzuschneiden. Für v1 wird sRGB vorausgesetzt. Der Export erhält ein erzeugtes sRGB-Profil. Alte ICC-Profile, ColorSpace, Orientation, MPF und eingebettete Vorschauen werden beim Metadatenkopieren ausgeschlossen; EXIF-Bildmaße und sRGB-ColorSpace werden für die fertige Datei gesetzt.
 
 Für TransCora separat vormerken: Bei Anaglyph-Video 4:4:4 ernst nehmen, eingeschränkte Browser-/Hardware-Kompatibilität berücksichtigen und höhere Farbtiefe nur bei nachgewiesenem Workflow-Nutzen ergänzen.
 
@@ -200,6 +200,6 @@ Für TransCora separat vormerken: Bei Anaglyph-Video 4:4:4 ernst nehmen, eingesc
 6. Navigation, Größenwahl und Einzelbildexport ergänzen.
 7. Ordnerauftrag, Unterordnerabbildung, Metadaten, Fortschritt und Abbruch ergänzen.
 8. Externe CIELab-Verarbeitung und Plattform-Builds prüfen.
-9. Oberfläche mit echten Bildern prüfen, Icon ergänzen und Release-Builds vorbereiten.
+9. Oberfläche mit echten Bildern prüfen und Release-Builds vorbereiten.
 
 Kleine robuste Schritte, verbindliche Matrixwerte, keine stillen Funktionsänderungen und keine unnötigen Abhängigkeiten. Das Repository bleibt die nachvollziehbare Quelle für Dokumentation, Code und spätere Releases.
