@@ -9,13 +9,15 @@ class Settings:
     last_input: str = ""
     output: str = ""
     recursive: bool = False
+    language: str = "de"
 
 
 def load_settings(path: Path) -> Settings:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
         return Settings(str(data.get("last_input", "")), str(data.get("output", "")),
-                        data.get("recursive", False) is True)
+                        data.get("recursive", False) is True,
+                        "en" if data.get("language") == "en" else "de")
     except (OSError, ValueError, AttributeError):
         return Settings()
 

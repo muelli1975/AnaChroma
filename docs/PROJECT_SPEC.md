@@ -59,7 +59,7 @@ Anzeige: beispielsweise `12/83 · bild012_sbs.jpg`. Keine Thumbnail-Galerie und 
 
 ## Vorschau
 
-- Maximal **1024 px lange Seite**, Seitenverhältnis erhalten.
+- An die Vorschaufläche angepasst, maximal **1600 px lange Seite**; CIELab maximal 1024 px. Seitenverhältnis erhalten.
 - Automatische Aktualisierung bei Bildwechsel, neuer Eingabe, Verfahrenswechsel und relevanten Einstellungen.
 - Einzelne Einstellungswechsel um etwa **150–250 ms** entprellen. Während fortlaufender Reglerbewegungen die neuesten Werte regelmäßig anzeigen (Startziel etwa alle **100 ms**); nicht erst nach Loslassen oder einer Bewegungspause aktualisieren.
 - Alte Berechnungsergebnisse dürfen eine neu angeforderte Vorschau nicht überschreiben.

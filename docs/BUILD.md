@@ -1,6 +1,6 @@
 # AnaChroma – Development builds
 
-The current implementation is **0.1.0.dev2**, not a v1 release. The current build creates an unpack-and-run directory for the platform on which it is executed. It includes Python/Tk, Pillow, NumPy, CustomTkinter and the shared sound; it bundles the separately built CIELab PNG executable, matching complete sources and licenses. ExifTool is supplied separately.
+The current implementation is **0.1.0.dev3**, not a v1 release. The current build creates an unpack-and-run directory for the platform on which it is executed. It includes Python/Tk, Pillow, NumPy, CustomTkinter and the shared sound; it bundles the separately built CIELab PNG executable, matching complete sources and licenses. The official ExifTool distribution is bundled with its support files, licenses and sources; Linux/macOS require system Perl.
 
 ## Build locally
 
@@ -11,6 +11,7 @@ python -m venv .venv
 # Activate .venv.
 python -m pip install -r requirements-build.txt -e .
 python scripts/build_cielab.py  # Requires a C compiler; downloads hash-verified PNG dependencies.
+python scripts/prepare_exiftool.py  # Downloads hash-verified official ExifTool distributions.
 python -m pytest -q
 python scripts/build.py
 python scripts/smoke_cielab.py dist/AnaChroma/tools/cielab
@@ -36,7 +37,7 @@ Place complete, licensed distributions under `tools` beside the executable, or i
 | Platform | ExifTool | CIELab |
 | --- | --- | --- |
 | Windows | `tools/exiftool.exe` with its original companion files | bundled `tools/cielab/cielab.exe`, matching sources and licenses |
-| Linux/macOS | executable `tools/exiftool` and its Perl distribution/runtime, or PATH installation | bundled executable `tools/cielab/cielab`, matching sources and licenses |
+| Linux/macOS | bundled `tools/exiftool` and Perl modules; a working system Perl interpreter is required | bundled executable `tools/cielab/cielab`, matching sources and licenses |
 
 The adapter uses `cielab left.png right.png -o output.png`, with separate already resized halves and an isolated temporary directory. The native PNG port keeps the original CIELab math and levmar solver byte-for-byte. It replaces the obsolete OpenCV front end with statically linked libpng/zlib. See `native/cielab/README.md` for source provenance, licensing and rebuilding offline from the included source archive. The executable itself does not resize images.
 

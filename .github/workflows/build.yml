@@ -30,6 +30,8 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y ffmpeg xvfb libimage-exiftool-perl
       - name: Build native CIELab with matching source distribution
         run: python scripts/build_cielab.py
+      - name: Prepare complete official ExifTool distribution
+        run: python scripts/prepare_exiftool.py
       - name: Compare with AnaglyphBatch 1.0 CIELab executable
         if: runner.os == 'Windows'
         run: python scripts/compare_cielab.py

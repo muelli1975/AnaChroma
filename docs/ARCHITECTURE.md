@@ -8,7 +8,7 @@ Ein kleiner Launcher startet das Paket `anachroma` unter `src/`. Die reine Verar
 
 | Bereich | Aufgabe |
 | --- | --- |
-| `color_transfer.py` | Unverändert übernommene sRGB-Funktionen aus SplatTricia |
+| `color_transfer.py` | sRGB-Transferfunktionen |
 | `matrices.py` | Verfahren, Anzeigenamen, Suffixe, Matrizen und Verarbeitungsmodi |
 | `presets.py` / `preset_editor.py` | Validierte eigene Verfahren, lokale Speicherung und Editor mit Zahlenfeldern/Reglern |
 | `engine.py` | Reine RGB-Paarverarbeitung; gemeinsame Mathematik für Vorschau und Export |

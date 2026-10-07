@@ -8,13 +8,14 @@ import customtkinter as ctk
 from PIL import Image
 
 from .matrices import BUILTINS, MAX_SAFE_VALUE, Method
-from .theme import BORDER, DANGER, GOLD, GOLD_HOVER, MUTED, PANEL_BG, TEXT
+from .i18n import translate_widgets
+from .theme import BORDER, DANGER, GOLD, GOLD_HOVER, MUTED, PANEL_BG, TEXT, FONT_FAMILY, PREVIEW_BG, preview_size, clear_preview, DISABLED
 
 
 class NumberControl(ctk.CTkFrame):
     """The number is authoritative; moving a thumb never rounds other values."""
     def __init__(self, master, value, changed, *, slider=True, lower=-2., upper=2.,
-                 step=.001, minimum=None, positive=False):
+                 step=.001, minimum=None, positive=False, horizontal=False):
         super().__init__(master, fg_color="transparent")
         self.changed = changed
         self.lower, self.upper, self.step = lower, upper, step
@@ -22,16 +23,14 @@ class NumberControl(ctk.CTkFrame):
         self.updating = False
         self.wheel_remainder = 0.
         self.var = tk.StringVar(value=repr(value))
-        self.entry = ctk.CTkEntry(self, width=126, textvariable=self.var, border_color=BORDER)
-        self.entry.pack(fill="x", padx=2, pady=2)
+        self.entry = ctk.CTkEntry(self, width=76 if horizontal else 112, height=26, textvariable=self.var, border_color=BORDER)
+        self.entry.pack(side="right" if horizontal else "top", fill="x", padx=2, pady=1)
         self.slider = None
         if slider:
-            self.slider = ctk.CTkSlider(self, width=120, height=16, from_=lower, to=upper,
-                button_color=GOLD, button_hover_color=GOLD_HOVER, progress_color=GOLD,
+            self.slider = ctk.CTkSlider(self, width=110, height=14, from_=lower, to=upper,
+                button_color=GOLD_HOVER, button_hover_color=GOLD_HOVER, progress_color=GOLD,
                 command=self._slide)
-            self.slider.pack(fill="x", padx=6, pady=(2, 2))
-            self.bounds = ctk.CTkLabel(self, text="", height=12, font=("Arial", 10), text_color=MUTED)
-            self.bounds.pack(fill="x")
+            self.slider.pack(side="left" if horizontal else "top", fill="x", expand=horizontal, padx=6, pady=3)
             self.slider.bind("<Button-1>", self._focus_slider, add="+")
             self.slider.bind("<MouseWheel>", self._wheel)
             self.slider.bind("<Button-4>", self._wheel)
@@ -65,7 +64,6 @@ class NumberControl(ctk.CTkFrame):
             low, high = min(self.lower, value), max(self.upper, value)
             self.slider.configure(from_=low, to=high)
             self.slider.set(value)
-            self.bounds.configure(text=f"{low:g} … {high:g}")
 
     def _edited(self, *_):
         if self.updating:
@@ -86,6 +84,8 @@ class NumberControl(ctk.CTkFrame):
         self.slider.focus_set()
 
     def _wheel(self, event):
+        if self.entry.cget("state") == "disabled":
+            return None
         focused = self.focus_get()
         if focused is None or not (focused == self or str(focused).startswith(str(self)+".")):
             # Consume only within the focused control; otherwise normal dialog scroll.
@@ -114,7 +114,9 @@ class NumberControl(ctk.CTkFrame):
     def enable(self, enabled):
         self.entry.configure(state="normal" if enabled else "disabled")
         if self.slider is not None:
-            self.slider.configure(state="normal" if enabled else "disabled")
+            self.slider.configure(state="normal" if enabled else "disabled",
+                                  progress_color=GOLD if enabled else BORDER,
+                                  button_color=GOLD_HOVER if enabled else DISABLED)
 
 
 class PresetEditor(ctk.CTkToplevel):
@@ -122,120 +124,115 @@ class PresetEditor(ctk.CTkToplevel):
         super().__init__(app)
         self.app = app
         self.title("AnaChroma – eigenes Verfahren")
-        self.geometry("1000x790")
-        self.minsize(930, 620)
+        self.geometry("1020x650")
+        self.minsize(960, 620)
         self.configure(fg_color=PANEL_BG)
         self.transient(app)
         self.protocol("WM_DELETE_WINDOW", self.cancel)
         self.existing = existing
         self.base = method.as_custom(existing=existing)
+        if not existing:
+            self.base = replace(self.base, name=self.app.t(self.base.name))
         self.original = self.base
         self.initializing = True
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
-        content = ctk.CTkScrollableFrame(self, fg_color=PANEL_BG)
-        content.grid(row=0, column=0, sticky="nsew", padx=12, pady=12)
+        content = ctk.CTkFrame(self, fg_color="transparent")
+        content.grid(row=0, column=0, sticky="nsew", padx=16, pady=(12, 6))
         content.grid_columnconfigure((0, 1), weight=1)
-        ctk.CTkLabel(content, text="Eigene Anaglyphenverfahren", font=("Arial", 20, "bold"),
-                     text_color=TEXT).grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 4))
-        ctk.CTkLabel(content, text="Matrizen bestimmen die Farbmischung beider Ansichten. Werte direkt aus einer Quelle übernehmen oder mit Vorschau einstellen.",
-                     wraplength=920, justify="left", text_color=MUTED).grid(row=1, column=0, columnspan=2, sticky="w")
         identity = ctk.CTkFrame(content, fg_color="transparent")
-        identity.grid(row=2, column=0, columnspan=2, sticky="ew", pady=8)
+        identity.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 8))
         identity.grid_columnconfigure(1, weight=1)
         self.name = tk.StringVar(value=self.base.name)
         self.suffix = tk.StringVar(value=self.base.suffix)
-        ctk.CTkLabel(identity, text="Name").grid(row=0, column=0, padx=8, sticky="w")
-        ctk.CTkEntry(identity, textvariable=self.name).grid(row=0, column=1, sticky="ew", padx=8, pady=4)
-        ctk.CTkLabel(identity, text="Dateinamenssuffix").grid(row=1, column=0, padx=8, sticky="w")
-        ctk.CTkEntry(identity, textvariable=self.suffix).grid(row=1, column=1, sticky="ew", padx=8, pady=4)
+        for row, label, variable in ((0, "Name", self.name), (1, "Dateinamenssuffix", self.suffix)):
+            ctk.CTkLabel(identity, text=label).grid(row=row, column=0, padx=(0, 8), sticky="w")
+            ctk.CTkEntry(identity, textvariable=variable).grid(row=row, column=1, sticky="ew", pady=3)
         self.templates = {m.name: m for m in BUILTINS if m.editable}
-        ctk.CTkLabel(identity, text="Vorlage übernehmen").grid(row=2, column=0, padx=8, sticky="w")
-        self.template = ctk.CTkOptionMenu(identity, values=list(self.templates), command=self._template,
-                                        fg_color=BORDER, button_color=GOLD)
-        self.template.grid(row=2, column=1, sticky="ew", padx=8, pady=4)
+        ctk.CTkLabel(identity, text="Vorlage").grid(row=2, column=0, sticky="w")
+        self.template = ctk.CTkOptionMenu(identity, values=list(self.templates), command=self._template)
+        self.template.grid(row=2, column=1, sticky="ew", pady=3)
         self.template.set(method.name if method.builtin else "Vorlage wählen…")
-        preview = ctk.CTkFrame(identity, fg_color="#000000", width=240, height=160)
-        preview.grid(row=0, column=2, rowspan=3, padx=(12, 0), sticky="nsew")
-        preview.grid_propagate(False)
-        preview.grid_rowconfigure(1, weight=1)
-        preview.grid_columnconfigure(0, weight=1)
-        ctk.CTkLabel(preview, text="Live-Vorschau", text_color=MUTED, height=20).grid(row=0, column=0)
-        self.live_preview = ctk.CTkLabel(preview, text="SBS-Bild laden", text_color=MUTED, wraplength=220)
-        self.live_preview.grid(row=1, column=0, sticky="nsew")
+        self.preview_panel = ctk.CTkFrame(identity, fg_color=PREVIEW_BG, width=250, height=116, corner_radius=0)
+        self.preview_panel.grid(row=0, column=2, rowspan=3, padx=(16, 0), sticky="nsew")
+        self.preview_panel.grid_propagate(False)
+        self.preview_panel.grid_rowconfigure(0, weight=1)
+        self.preview_panel.grid_columnconfigure(0, weight=1)
+        self.live_preview = ctk.CTkLabel(self.preview_panel, text="SBS-Bild laden", fg_color=PREVIEW_BG,
+                                       text_color=MUTED, wraplength=218)
+        self.live_preview.grid(row=0, column=0, sticky="nsew", padx=16, pady=16)
+        self.preview_panel.bind("<Configure>", lambda _: self.show_preview(app.preview_image)
+                                if app.preview_image is not None else None)
         self.preview_image = None
-        if app.preview_image is not None:
-            self.show_preview(app.preview_image)
         self.controls = []
         for side, values in enumerate((self.base.left, self.base.right)):
             grid = ctk.CTkFrame(content, fg_color="transparent")
-            grid.grid(row=3, column=side, sticky="nsew", padx=6)
-            ctk.CTkLabel(grid, text="Matrix links" if side == 0 else "Matrix rechts", font=("Arial", 16, "bold"))\
-                .grid(row=0, column=0, columnspan=4, sticky="w", pady=(4, 8))
+            grid.grid(row=1, column=side, sticky="nsew", padx=(0, 10) if side == 0 else (10, 0))
+            ctk.CTkLabel(grid, text="Matrix links" if side == 0 else "Matrix rechts", font=(FONT_FAMILY, 16, "bold"))\
+                .grid(row=0, column=0, columnspan=4, sticky="w", pady=(0, 4))
             for col, channel in enumerate(("Rot", "Grün", "Blau"), 1):
-                ctk.CTkLabel(grid, text=f"Eingang {channel}", text_color=MUTED).grid(row=1, column=col)
+                ctk.CTkLabel(grid, text=f"Eingang {channel}", height=22, text_color=MUTED).grid(row=1, column=col)
                 grid.grid_columnconfigure(col, weight=1)
             controls = []
             for row, channel in enumerate(("Rot", "Grün", "Blau")):
-                ctk.CTkLabel(grid, text=f"Ausgabe\n{channel}", text_color=MUTED).grid(row=row+2, column=0, padx=(0, 6))
+                ctk.CTkLabel(grid, text=f"Ausgabe\n{channel}", text_color=MUTED).grid(row=row+2, column=0, padx=(0, 4))
                 cells = []
                 for col in range(3):
                     cell = NumberControl(grid, values[row][col], self._changed)
-                    cell.grid(row=row+2, column=col+1, sticky="ew", padx=2, pady=4)
+                    cell.grid(row=row+2, column=col+1, sticky="ew", padx=2, pady=3)
                     cells.append(cell)
                 controls.append(cells)
             self.controls.append(controls)
-        ctk.CTkLabel(content, text="Direkte Koeffizienten: 0 = kein Beitrag, 1 = voller Beitrag. Negative Werte und Werte über 1 sind zulässig.\n"
-                     "Regler −2 bis +2; Zahlenfelder erhalten genauere Werte. Mausrad beim ausgewählten Feld/Regler: 0,001.",
-                     justify="left", text_color=MUTED).grid(row=4, column=0, columnspan=2, sticky="w", pady=8)
-        options = ctk.CTkFrame(content, fg_color="transparent")
-        options.grid(row=5, column=0, columnspan=2, sticky="ew")
         self.linear = tk.BooleanVar(value=self.base.mode == "linear")
-        ctk.CTkCheckBox(options, text="In linearem Licht berechnen", variable=self.linear,
-                        command=self._changed, fg_color=GOLD).grid(row=0, column=0, columnspan=4, sticky="w", pady=6)
-        ctk.CTkLabel(options, text="Für Matrizen wählen, die lineares RGB voraussetzen; anschließend wird wieder nach sRGB gewandelt.",
-                     text_color=MUTED).grid(row=1, column=0, columnspan=4, sticky="w")
-        ctk.CTkLabel(options, text="Bildanpassung", font=("Arial", 15, "bold")).grid(row=2, column=0, sticky="w", pady=(12, 2))
-        ctk.CTkLabel(options, text="Helligkeit (Faktor)").grid(row=3, column=0, sticky="w", padx=(0, 8))
-        self.brightness = NumberControl(options, self.base.brightness, self._changed, slider=False, minimum=0.)
-        self.brightness.grid(row=3, column=1, sticky="w")
-        ctk.CTkLabel(options, text="Kontrast (Faktor)").grid(row=3, column=2, sticky="w", padx=(20, 8))
-        self.contrast = NumberControl(options, self.base.contrast, self._changed, slider=False, minimum=0.)
-        self.contrast.grid(row=3, column=3, sticky="w")
-        ctk.CTkLabel(options, text="1 = unverändert. Gleiche Anpassung beider Ansichten; keine automatische Ghosting-Kalibrierung.",
-                     text_color=MUTED).grid(row=4, column=0, columnspan=4, sticky="w")
+        ctk.CTkCheckBox(content, text="In linearem Licht berechnen", variable=self.linear,
+                       command=self._changed).grid(row=2, column=0, columnspan=2, sticky="w", pady=(12, 10))
+        adjust = ctk.CTkFrame(content, fg_color="transparent")
+        adjust.grid(row=3, column=0, sticky="nsew", padx=(0, 12))
+        adjust.grid_columnconfigure(1, weight=1)
+        ctk.CTkLabel(adjust, text="Bildanpassung", font=(FONT_FAMILY, 15, "bold"))\
+            .grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 4))
+        self.brightness = NumberControl(adjust, self.base.brightness, self._changed,
+                                       lower=0., upper=2., step=.01, minimum=0., horizontal=True)
+        self.contrast = NumberControl(adjust, self.base.contrast, self._changed,
+                                     lower=0., upper=2., step=.01, minimum=0., horizontal=True)
+        for row, label, control in ((1, "Helligkeit", self.brightness), (2, "Kontrast", self.contrast)):
+            ctk.CTkLabel(adjust, text=label).grid(row=row, column=0, sticky="w", padx=(0, 8))
+            control.grid(row=row, column=1, sticky="ew", pady=4)
+        correction = ctk.CTkFrame(content, fg_color="transparent")
+        correction.grid(row=3, column=1, sticky="nsew", padx=(12, 0))
+        correction.grid_columnconfigure((0, 1, 2), weight=1)
         self.correct = tk.BooleanVar(value=self.base.correct_rgb)
-        ctk.CTkCheckBox(options, text="Farbkanäle korrigieren (Kanalpotenzen)", variable=self.correct,
-                        command=self._changed, fg_color=GOLD).grid(row=5, column=0, columnspan=4, sticky="w", pady=(12, 6))
-        channels = ctk.CTkFrame(options, fg_color="transparent")
-        channels.grid(row=6, column=0, columnspan=4, sticky="w")
+        ctk.CTkCheckBox(correction, text="Farbkorrektur", variable=self.correct, command=self._changed)\
+            .grid(row=0, column=0, columnspan=3, sticky="w", pady=(0, 6))
         self.powers = []
         for i, channel in enumerate(("Rot", "Grün", "Blau")):
-            ctk.CTkLabel(channels, text=channel).grid(row=0, column=i, sticky="w", padx=6)
-            control = NumberControl(channels, self.base.powers[i], self._changed,
+            ctk.CTkLabel(correction, text=channel, height=22).grid(row=1, column=i, sticky="w", padx=4)
+            control = NumberControl(correction, self.base.powers[i], self._changed,
                                     lower=.625, upper=1.25, positive=True)
-            control.grid(row=1, column=i, padx=6)
+            control.grid(row=2, column=i, padx=2, sticky="ew")
             self.powers.append(control)
-        ctk.CTkLabel(options, text="1 = unverändert; kleiner als 1 hellt auf, größer als 1 dunkelt ab.\n"
-                     "Bewährte Rotkorrektur: Rot 0,75; Grün/Blau 1. Reglerbereich aus den Batch-Potenzen, per Zahleneingabe erweiterbar.",
-                     justify="left", text_color=MUTED).grid(row=7, column=0, columnspan=4, sticky="w", pady=6)
         footer = ctk.CTkFrame(self, fg_color="transparent")
         footer.grid(row=1, column=0, sticky="ew", padx=16, pady=(0, 12))
-        self.error = ctk.CTkLabel(footer, text="", text_color=DANGER, wraplength=880, justify="left")
+        self.error = ctk.CTkLabel(footer, text="", height=18, text_color=DANGER, wraplength=940, justify="left")
         self.error.pack(fill="x")
         buttons = ctk.CTkFrame(footer, fg_color="transparent")
         buttons.pack(fill="x")
-        ctk.CTkButton(buttons, text="Auf Vorlage zurücksetzen", command=self.reset, fg_color=BORDER).pack(side="left", padx=4)
+        ctk.CTkButton(buttons, text="Zurücksetzen", command=self.reset, width=110).pack(side="left", padx=4)
         if existing:
-            ctk.CTkButton(buttons, text="Löschen", command=self.delete, width=90, fg_color=DANGER).pack(side="left", padx=4)
-        ctk.CTkButton(buttons, text="Abbrechen", command=self.cancel, fg_color=BORDER, width=110).pack(side="right", padx=4)
-        self.save_button = ctk.CTkButton(buttons, text="Verfahren speichern", command=self.save, fg_color=GOLD, hover_color=GOLD_HOVER)
+            ctk.CTkButton(buttons, text="Löschen", command=self.delete, width=90, border_color=DANGER).pack(side="left", padx=4)
+        ctk.CTkButton(buttons, text="Abbrechen", command=self.cancel, width=110).pack(side="right", padx=4)
+        self.save_button = app._button(buttons, "Verfahren speichern", self.save, primary=True)
         self.save_button.pack(side="right", padx=4)
         self.name.trace_add("write", lambda *_: self._changed())
         self.suffix.trace_add("write", lambda *_: self._changed())
         self.initializing = False
+        self.translate_ui()
         self._changed()
         self.lift_after = self.after(100, self.lift)
+
+    def translate_ui(self):
+        self.title("AnaChroma – " + self.app.t("Eigenes Verfahren"))
+        translate_widgets(self, self.app.language, (self.error, self.live_preview))
 
     def destroy(self):
         if hasattr(self, "lift_after"):
@@ -244,13 +241,13 @@ class PresetEditor(ctk.CTkToplevel):
 
     def show_preview(self, image: Image.Image | None, error="SBS-Bild laden"):
         if image is None:
+            clear_preview(self.live_preview, self.app.t(error))
             self.preview_image = None
-            self.live_preview.configure(image=None, text=error)
             return
-        factor = min(1., 228 / image.width, 132 / image.height)
-        size = (max(1, round(image.width * factor)), max(1, round(image.height * factor)))
+        size, border = preview_size(image.size, (self.preview_panel.winfo_width(), self.preview_panel.winfo_height()))
+        self.live_preview.grid_configure(padx=border, pady=border)
         self.preview_image = ctk.CTkImage(light_image=image, dark_image=image, size=size)
-        self.live_preview.configure(image=self.preview_image, text="")
+        self.live_preview.configure(image=self.preview_image, text=self.app.t(""))
 
     def draft(self):
         matrices = [tuple(tuple(c.get() for c in row) for row in grid) for grid in self.controls]
@@ -266,16 +263,27 @@ class PresetEditor(ctk.CTkToplevel):
             control.enable(self.correct.get())
         try:
             draft = self.draft()
-            self.error.configure(text="")
+            self.error.configure(text=self.app.t(""))
             self.save_button.configure(state="normal")
             self.app.editor_preview(draft)
         except (ValueError, OverflowError) as exc:
-            self.error.configure(text=f"{exc} Vorschau zeigt den letzten gültigen Entwurf.")
+            self.error.configure(text=self.app.t(f"{exc} Vorschau zeigt den letzten gültigen Entwurf."))
             self.save_button.configure(state="disabled")
 
     def _template(self, name):
         template = self.templates[name].as_custom()
-        self.original = replace(template, id=self.base.id, name=self.name.get(), suffix=self.suffix.get())
+        existing = [m for m in self.app.custom if m.id != self.base.id]
+        proposal_name, proposal_suffix = self.app.t(template.name), template.suffix
+        number = 2
+        while any(m.name.casefold() == proposal_name.casefold() or m.suffix == proposal_suffix for m in existing):
+            proposal_name = f"{self.app.t(template.name)} ({number})"
+            proposal_suffix = f"{template.suffix}_{number}"
+            number += 1
+        self.original = replace(template, id=self.base.id, name=proposal_name, suffix=proposal_suffix)
+        self.initializing = True
+        self.name.set(proposal_name)
+        self.suffix.set(proposal_suffix)
+        self.initializing = False
         self.reset()
 
     def reset(self):
@@ -297,7 +305,7 @@ class PresetEditor(ctk.CTkToplevel):
         try:
             self.app.save_custom(self.draft())
         except (ValueError, OSError) as exc:
-            messagebox.showerror("Verfahren speichern", str(exc), parent=self)
+            messagebox.showerror(self.app.t("Verfahren speichern"), self.app.t(str(exc)), parent=self)
             return
         self.app.finish_editor()
         self.destroy()
@@ -307,10 +315,10 @@ class PresetEditor(ctk.CTkToplevel):
         self.destroy()
 
     def delete(self):
-        if messagebox.askyesno("Eigenes Verfahren löschen", f"„{self.base.name}“ löschen?", parent=self):
+        if messagebox.askyesno(self.app.t("Eigenes Verfahren löschen"), self.app.t(f"„{self.base.name}“ löschen?"), parent=self):
             try:
                 self.app.delete_custom(self.base.id)
             except (ValueError, OSError) as exc:
-                messagebox.showerror("Löschen", str(exc), parent=self)
+                messagebox.showerror(self.app.t("Löschen"), self.app.t(str(exc)), parent=self)
                 return
             self.cancel()

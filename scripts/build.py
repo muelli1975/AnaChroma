@@ -38,10 +38,20 @@ def main() -> None:
     if not (native / native_name).is_file() or not (native / "cielab-source.tar.gz").is_file():
         raise RuntimeError("Run python scripts/build_cielab.py before packaging.")
     shutil.copytree(native, portable / "tools" / "cielab", dirs_exist_ok=True)
+    exif_name = "exiftool.exe" if sys.platform == "win32" else "exiftool"
+    if not (ROOT / "tools" / exif_name).is_file() or not (ROOT / "tools" / "exiftool-distribution" / "BUILD_INFO.json").is_file():
+        raise RuntimeError("Run python scripts/prepare_exiftool.py before packaging.")
+    for path in (ROOT / "tools").iterdir():
+        if path.name == "cielab":
+            continue
+        if path.is_dir():
+            shutil.copytree(path, portable / "tools" / path.name, dirs_exist_ok=True)
+        else:
+            shutil.copy2(path, portable / "tools" / path.name)
     # The optional macOS .app uses its own resource directory.
     mac_resources = ROOT / "dist" / "AnaChroma.app" / "Contents" / "Resources"
     if sys.platform == "darwin" and mac_resources.is_dir():
-        shutil.copytree(native, mac_resources / "tools" / "cielab", dirs_exist_ok=True)
+        shutil.copytree(ROOT / "tools", mac_resources / "tools", dirs_exist_ok=True)
     for filename in ("README.md", "README_DE.md", "LICENSE.txt", "THIRD_PARTY_NOTICES.md"):
         shutil.copy2(ROOT / filename, portable / filename)
     licenses = portable / "licenses"
@@ -72,7 +82,8 @@ def main() -> None:
         commit = "unknown"
     manifest = {"python": sys.version, "platform": sys.platform, "commit": commit,
                 "dependencies": {name: metadata.version(name) for name in runtime + ("pyinstaller", "pyinstaller-hooks-contrib")},
-                "external_tools_bundled": {"cielab": True, "exiftool": False},
+                "external_tools_bundled": {"cielab": True, "exiftool": True},
+                "exiftool": json.loads((ROOT / "tools" / "exiftool-distribution" / "BUILD_INFO.json").read_text()),
                 "cielab": json.loads((native / "BUILD_INFO.json").read_text())}
     (portable / "BUILD_INFO.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     print(f"Portable development build: {portable}")

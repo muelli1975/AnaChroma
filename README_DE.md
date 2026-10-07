@@ -10,7 +10,7 @@ Die Anwendung ist für vollständig lokale Verarbeitung ausgelegt: kein Account,
 
 ## Entwicklungsstand
 
-Der aktuelle Entwicklungsstand ist **0.1.0.dev2**. Die deutsche Oberfläche, die gemeinsame Engine, der Editor für eigene Presets und Einzelbild-/Ordnerexport sind implementiert. Die Version wird als Entwicklungsbuild bereitgestellt. Das bereitgestellte AnaChroma-Icon und das SBS-Beispielbild sind eingebunden. CIELab wird aus den Original-Rechenquellen nativ gebaut; echte Stereofotos und die native Bedienung unter Windows/macOS müssen weiterhin praktisch geprüft werden.
+Der aktuelle Entwicklungsstand ist **0.1.0.dev3**. Die zwischen Deutsch und Englisch umschaltbare Oberfläche, die gemeinsame Engine, der Editor für eigene Presets und Einzelbild-/Ordnerexport sind implementiert. Die Version wird als Entwicklungsbuild bereitgestellt. Das bereitgestellte AnaChroma-Icon und das SBS-Beispielbild sind eingebunden. CIELab wird aus den Original-Rechenquellen nativ gebaut; echte Stereofotos und die native Bedienung unter Windows/macOS müssen weiterhin praktisch geprüft werden.
 
 GitHub Actions bereitet Entwicklungspakete für Windows, Linux und macOS vor. Details zu Builds und Prüfungen stehen in [Build-Anleitung](docs/BUILD.md) und [Prüfstand](docs/VALIDATION.md).
 
@@ -19,7 +19,7 @@ GitHub Actions bereitet Entwicklungspakete für Windows, Linux und macOS vor. De
 1. Ein SBS-Bild öffnen oder einen Bildordner auswählen.
 2. Durch die Bilder blättern und ein Anaglyphenverfahren wählen; die Vorschau aktualisiert sich automatisch.
 3. Ausgabeordner und Bildgröße auswählen.
-4. **Aktuelles Bild speichern** oder **Alle verarbeiten** wählen.
+4. Im Einzelbildmodus **Bild speichern**, im Ordnermodus **Alle verarbeiten** wählen. Im Ordnermodus lässt sich auch nur das aktuelle Bild speichern.
 
 Beim Öffnen einer einzelnen Datei werden auch die anderen unterstützten Bilder im selben Ordner für die Navigation verfügbar. Die optionale Verarbeitung von Unterordnern erhält die Eingabeordnerstruktur in der Ausgabe.
 
@@ -33,7 +33,7 @@ Die EXIF-Orientierung wird beim Laden angewendet. Das ausgerichtete Bild muss ei
 
 Die aktuelle AnaglyphBatch liefert 18 Verfahren, darunter Dubois LCD mit Rotkanalkorrektur, Dubois, Compromise, Wimmer, Cosima 3/4, Rendepth 1/2, iaian7, Color, Half-Color, Grey, Oldschool, Frans van den Poel, John Wattie, Dubois grün/magenta, Dubois amber/blau und externes CIELab Least Squares.
 
-Es wird jeweils ein Verfahren ausgewählt. Die Verfahren behalten ihre eigenen Rechenregeln; sRGB-Linearisierung wird nur verwendet, wo die Referenzpipeline sie verlangt. Vorschau und Export nutzen denselben Verarbeitungskern. Die automatische Vorschau ist auf maximal 1024 px lange Seite begrenzt. Beim Start erscheint das mitgelieferte SBS-Beispielbild als Anaglyphe. Es reagiert auf die Verfahrensauswahl und eigene Matrixentwürfe und dient zum direkten Ausprobieren. Für den Export eigene Bilder laden.
+Es wird jeweils ein Verfahren ausgewählt. Die Verfahren behalten ihre eigenen Rechenregeln; sRGB-Linearisierung wird nur verwendet, wo die Referenzpipeline sie verlangt. Vorschau und Export nutzen denselben Verarbeitungskern. Die automatische Vorschau passt sich der Fensterfläche an, bis maximal 1600 px lange Seite. CIELab verwendet bis zu 1024 px. Ein schwarzer Rand umgibt die Vorschau, damit vorhandene schwebende Scheinfenster erkennbar bleiben. Beim Start erscheint das mitgelieferte SBS-Beispielbild als Anaglyphe. Es reagiert auf die Verfahrensauswahl und eigene Matrixentwürfe und dient zum direkten Ausprobieren. Für den Export eigene Bilder laden.
 
 Der ausdrücklich sichtbare Einstieg **Eigenes Verfahren anlegen…** öffnet den Preset-Editor. Zwei 3 × 3-Matrizen lassen sich über Zahlenfelder, Schieberegler und das Mausrad mit einer eigenen Live-Vorschau einstellen. Die Matrixregler beginnen bei −2 bis +2 mit Schritten von 0,001; direkte Zahleneingaben erhalten feinere Koeffizienten und erweitern den Regler bei Bedarf. Das ist ein praktischer Bedienbereich, keine physikalische Grenze für Anaglyphen. Eigene Presets enthalten außerdem eine optionale Berechnung in linearem Licht, Helligkeits-/Kontrastanpassungen und einzelne RGB-Korrekturwerte. Die Einstellungen stehen direkt unter den Matrizen und werden lokal gespeichert; eingebaute Verfahren behalten ihr Referenzverhalten.
 
@@ -55,9 +55,9 @@ Metadaten werden nach Möglichkeit mit ExifTool übernommen, ohne eingebettete O
 
 ## Quellcode und Builds
 
-Der Kern verwendet Python, Pillow und NumPy sowie CustomTkinter für die Oberfläche. Das vorhandene sRGB-Transfermodul aus SplatTricia wird unverändert übernommen.
+Der Kern verwendet Python, Pillow und NumPy sowie CustomTkinter für die Oberfläche.
 
-Das Build-Skript erzeugt ein portables Verzeichnis für die jeweilige Plattform. CIELab bleibt ein separates Programm und wird in den Entwicklungspaketen zusammen mit den passenden Quellen und Lizenzen gebündelt. Die ursprüngliche CIELab-Berechnung und der Solver bleiben unverändert; eine PNG-Schnittstelle ersetzt die veraltete OpenCV-Bildanbindung. ExifTool wird weiterhin separat bereitgestellt. Siehe [CIELab-Build](native/cielab/README.md) und die tatsächlichen CI-Prüfergebnisse.
+Das Build-Skript erzeugt ein portables Verzeichnis für die jeweilige Plattform. CIELab bleibt ein separates Programm und wird in den Entwicklungspaketen zusammen mit den passenden Quellen und Lizenzen gebündelt. Die ursprüngliche CIELab-Berechnung und der Solver bleiben unverändert; eine PNG-Schnittstelle ersetzt die veraltete OpenCV-Bildanbindung. ExifTool wird mit seinen ursprünglichen Begleitdateien und Lizenzinformationen gebündelt. Siehe [CIELab-Build](native/cielab/README.md) und die tatsächlichen CI-Prüfergebnisse.
 
 Der abgestimmte Umfang steht in [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md), die Modulstruktur in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) und die Quellgrundlage in [docs/REFERENCE_BASELINE.md](docs/REFERENCE_BASELINE.md).
 
@@ -76,7 +76,7 @@ Unter Windows mit `.venv\Scripts\activate` aktivieren, unter Linux/macOS mit `so
 
 ExifTool wird unter `tools/exiftool.exe` (Windows), `tools/exiftool` oder im System-PATH gefunden. Begleitdateien der Windows-ExifTool-Distribution müssen neben deren Programmdatei bleiben. CIELab wird unter `tools/cielab/cielab.exe`, `tools/cielab/cielab` oder im PATH gefunden. ExifTool ermöglicht die Metadatenübernahme; CIELab ergänzt die extern berechnete Least-Squares-Methode.
 
-Standardausgabe ist `output` neben dem Programm bzw. dem Quellcheckout. Pfade und Unterordneroption stehen in `settings.json`, eigene Verfahren in `presets.json`. Bei einem schreibgeschützten Programmordner wird der Benutzer-Konfigurationsordner verwendet. Fertige Ausgaben mit gleichem Namen werden erst nach vollständigem Schreiben des neuen Bildes ersetzt; kollidierende Eingabenamen werden abgelehnt.
+Standardausgabe ist `output` neben dem Programm bzw. dem Quellcheckout. Bei Bildordnern liegt darunter der Name des Eingabeordners mit seinen Unterordnern. Pfade, Sprache und Unterordneroption stehen in `settings.json`, eigene Verfahren in `presets.json`. Beide Dateien werden ausschließlich lokal gespeichert. Bei einem schreibgeschützten Programmordner wird der Benutzer-Konfigurationsordner verwendet. Fertige Ausgaben mit gleichem Namen werden erst nach vollständigem Schreiben des neuen Bildes ersetzt; kollidierende Eingabenamen werden abgelehnt.
 
 Die [Editorbeschreibung](docs/PRESET_EDITOR.md) erklärt Matrixrichtung, Linearisierung und Kanalkorrekturen. Bei einer übernommenen Matrix die Berechnung gemäß ihrer Rechenanleitung einstellen, insbesondere die Linearisierung.
 

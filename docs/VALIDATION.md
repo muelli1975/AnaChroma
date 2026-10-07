@@ -1,8 +1,8 @@
-# AnaChroma – Prüfstand 0.1.0.dev2
+# AnaChroma – Prüfstand 0.1.0.dev3
 
 Stand: 7. Oktober 2026. Diese Datei unterscheidet automatisierte technische Prüfungen von noch ausstehender stereoskopischer Praxisprüfung.
 
-Lokaler Gesamtlauf: **69 Tests bestanden**, einschließlich GUI, tatsächlichem ExifTool, aller 17 internen FFmpeg-Referenzpipelines, echter nativer CIELab-Berechnung und SBS-Startvorschau. Auch das gepackte Linux-Programm hat die Startvorschau berechnet und angezeigt; sein gebündeltes CIELab bestand den Unicode-/RGB8-/Größentest.
+Lokaler Gesamtlauf: **72 Tests bestanden**, einschließlich GUI, tatsächlichem ExifTool, aller 17 internen FFmpeg-Referenzpipelines, echter nativer CIELab-Berechnung und SBS-Startvorschau. Das gepackte Linux-Programm hat das SBS-Startbild angezeigt, über sein gebündeltes CIELab eine weitere Vorschau und ein JPEG erzeugt und mit dem ebenfalls gebündelten ExifTool den Artist-Tag übernommen. Sein CIELab bestand zusätzlich den Unicode-/RGB8-/Größentest.
 
 ## Automatisierte Prüfungen
 
@@ -17,7 +17,7 @@ Die Tests prüfen die Matrixdefinitionen unabhängig gegen die unveränderte Bat
 | Export | Lanczos-Größen, Vergrößerung, JPEG 4:4:4, sRGB-Profil, sichere Ersetzung und Schutz bei Abbruch. |
 | Eingabe/Pfade | Orientierung, ungerade Breite, Alpha-Verwerfen, natürliche Navigation, Rekursion und Namenskollisionen. |
 | Metadaten | Tatsächliches ExifTool: Artist erhalten, angewendete Orientierung nicht zurückkopiert, fertige EXIF-Maße und sRGB-Profil korrekt. |
-| GUI unter virtueller Linux-Anzeige | Zahleneingabe mit Dezimalkomma/hoher Präzision, Reglererweiterung, fokussiertes Mausrad, Validierung, Preset-Rundlauf, Abbrechen, Navigation und Einzelbildexport. |
+| GUI unter virtueller Linux-Anzeige | Zahleneingabe mit Dezimalkomma/hoher Präzision, Reglererweiterung, fokussiertes Mausrad, Validierung, Preset-Rundlauf, Abbrechen, Navigation, Vorlagenidentität, DE/EN-Wechsel, Regler für Helligkeit/Kontrast, Wiederaufnahme nach fehlendem CIELab/ExifTool und rekursiver Ordnermodus. |
 | Worker/Prozesse | Neueste Vorschau ersetzt veraltete Jobs; externe Prozesse mit umfangreicher Ausgabe, Abbruch und Zeitlimit. |
 | CIELab-Adapter | Testprozess prüft separate PNGs, Eingabegrößen und temporäre Bereinigung; dies prüft nicht den echten CIELab-Algorithmus. |
 

@@ -26,10 +26,10 @@ class PreviewWorker:
         self.thread = Thread(target=self._run, daemon=True, name="anachroma-preview")
         self.thread.start()
 
-    def request(self, identifier: int, path: Path, method: Method) -> None:
+    def request(self, identifier: int, path: Path, method: Method, max_edge: int = 1024) -> None:
         with self.condition:
             self.active_cancel.set()
-            self.pending = (identifier, path, method)
+            self.pending = (identifier, path, method, max_edge)
             self.condition.notify()
 
     def close(self) -> None:
@@ -45,14 +45,14 @@ class PreviewWorker:
                 self.condition.wait_for(lambda: self.closed or self.pending is not None)
                 if self.closed:
                     return
-                identifier, path, method = self.pending
+                identifier, path, method, max_edge = self.pending
                 self.pending = None
                 cancel = self.active_cancel = Event()
             try:
                 info = path.stat()
-                key = (path.resolve(), info.st_mtime_ns, info.st_size)
+                key = (path.resolve(), info.st_mtime_ns, info.st_size, max_edge)
                 if key != self.cached_key:
-                    pair = load_pair(path, max_edge=1024)
+                    pair = load_pair(path, max_edge=max_edge)
                     check_cancel(cancel)
                     self.cached_pair, self.cached_key = pair, key
                 left, right = self.cached_pair

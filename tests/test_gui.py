@@ -68,7 +68,8 @@ def test_exact_entry_slider_wheel_and_cancel(app):
 
 def test_start_demo_live_preview_does_not_become_batch_input(app):
     wait_for(app, lambda: app.preview_image is not None)
-    assert app.preview_image.size == (1024, 576)
+    w, h = app.preview_image.size
+    assert 0 < w <= 1024 and abs(w/h-16/9) < .01
     assert app.inputs is None
     assert app.save_button.cget("state") == "disabled"
     assert app.all_button.cget("state") == "disabled"
@@ -79,6 +80,71 @@ def test_start_demo_live_preview_does_not_become_batch_input(app):
     app._refresh_methods(gray.id); app._method_changed()
     wait_for(app, lambda: app.preview_image is not None and
              not np.array_equal(previous, np.asarray(app.preview_image)))
+
+
+def test_missing_cielab_can_switch_back_and_export(app, tmp_path, monkeypatch):
+    from anachroma import gui
+    monkeypatch.setattr(gui, "find_tool", lambda _: None)
+    monkeypatch.setattr("anachroma.metadata.find_tool", lambda _: None)
+    source = tmp_path / "sbs.png"
+    Image.new("RGB", (32, 12), (60, 120, 180)).save(source)
+    app.load_input(source)
+    wait_for(app, lambda: app.inputs is not None and app.preview_image is not None)
+    cielab = next(m for m in app.methods.values() if m.mode == "cielab")
+    app._refresh_methods(cielab.id); app._method_changed()
+    wait_for(app, lambda: "CIELab nicht gefunden" in app.status.cget("text"))
+    assert app.method_menu.cget("state") == "normal"
+    assert app.file_button.cget("state") == "normal"
+    app._refresh_methods("builtin:10"); app._method_changed()
+    wait_for(app, lambda: app.preview_image is not None)
+    app.start_export(False)
+    wait_for(app, lambda: not app.batch_running)
+    assert list((tmp_path / "output").glob("*.jpg"))
+    assert "Metadatenwarnung" in app.status.cget("text")
+
+
+def test_language_switch_editor_template_and_slider_factors(app, tmp_path):
+    app._language_changed("English"); app.update()
+    assert app.action_button.cget("text") == "Save image"
+    assert app.file_button.cget("text") == "Single image…"
+    app._size_selected("Custom"); app.update()
+    assert app.size_var.get() == "Benutzerdefiniert" and app.custom_size.winfo_ismapped()
+    app.create_custom(); app.update()
+    editor = app.editor
+    template = next(m for m in editor.templates.values() if m.suffix == "wimmer")
+    editor._template(template.name)
+    assert "Wimmer" in editor.name.get() and editor.suffix.get() == "eigen_wimmer"
+    assert editor.draft().left == template.left and editor.draft().right == template.right
+    editor.brightness._slide(1.25)
+    editor.contrast._slide(.85)
+    assert editor.draft().brightness == 1.25 and editor.draft().contrast == .85
+    # Template changes reset adjustments and update its proposed identity.
+    editor._template(next(m.name for m in editor.templates.values() if m.suffix == "color"))
+    assert editor.suffix.get() == "eigen_color"
+    assert editor.draft().brightness == editor.draft().contrast == 1
+    editor.cancel(); app._language_changed("Deutsch"); app.update()
+    assert app.file_button.cget("text") == "Einzelbild…"
+    assert app.settings.language == "de"
+
+
+def test_input_mode_action_and_recursive_output(app, tmp_path):
+    root = tmp_path / "Urlaub"
+    (root / "Tag1").mkdir(parents=True)
+    Image.new("RGB", (32, 8), (80, 90, 100)).save(root / "eins.png")
+    Image.new("RGB", (32, 8), (80, 90, 100)).save(root / "Tag1" / "zwei.png")
+    app.recursive.set(True)
+    app.load_input(root)
+    wait_for(app, lambda: app.inputs is not None and not app.scanning)
+    assert app.inputs.folder_input and len(app.inputs.files) == 2
+    assert "Bildordner" in app.input_label.cget("text")
+    assert app.action_button.cget("text") == "Alle verarbeiten"
+    app.primary_action()
+    wait_for(app, lambda: not app.batch_running)
+    assert list((tmp_path/"output"/"Urlaub"/"Tag1").glob("zwei_*.jpg"))
+    app.load_input(root / "eins.png")
+    wait_for(app, lambda: app.inputs is not None and not app.inputs.folder_input and not app.scanning)
+    assert app.action_button.cget("text") == "Bild speichern"
+    assert not app.save_button.winfo_ismapped()
 
 
 def test_preview_navigation_and_preset_roundtrip(app,tmp_path):

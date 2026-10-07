@@ -14,10 +14,10 @@ Die Felder zeigen **direkte Koeffizienten**, keine Prozentwerte. `0.4561` bzw. `
 | --- | --- | --- |
 | Matrixkoeffizienten | 0 = kein Beitrag, 1 = voller Beitrag; Regler −2 bis +2 | 0,001 beim Ziehen/Mausrad, entsprechend SPMs Tausendstel-Darstellung. Endpunkte als praktische Kanalgewichtung wie Photoshop −200 % bis +200 %, keine physikalische Grenze. |
 | Rot/Grün/Blau, Kanalpotenz | Neutral 1; Regler 0,625 bis 1,25 | 0,001; umfasst die im vereinfachten Editor darstellbaren Potenzen der Batch. |
-| Helligkeit (Faktor) | Neutral 1; endliche Werte ab 0 | Zahlenfeld, kein ungeprüfter Reglerbereich; fokussiertes Mausrad 0,001. |
-| Kontrast (Faktor) | Neutral 1; endliche Werte ab 0 | Zahlenfeld, kein ungeprüfter Reglerbereich; fokussiertes Mausrad 0,001. |
+| Helligkeit (Faktor) | Neutral 1; Regler 0 bis 2 | 0,01; 0 = schwarz, 1 = unverändert, 2 = doppelte Intensität vor Clipping. Höhere Faktoren per Zahleneingabe. |
+| Kontrast (Faktor) | Neutral 1; Regler 0 bis 2 | 0,01; 0 = gemeinsame mittlere Helligkeit, 1 = unverändert, 2 = doppelte Abweichung vom Mittelwert vor Clipping. |
 
-Direkte Eingaben außerhalb des Anfangsbereichs erweitern den jeweiligen Regler sichtbar. Feinere Zahlen werden gespeichert; Reglerbewegungen runden ausschließlich den veränderten Wert auf Tausendstel. Technische Grenzen verhindern Float32-Überlauf bzw. nicht darstellbare Kanalpotenzen; sie sind keine sinnvollen fotografischen Einstellbereiche. NaN, Unendlich und unvollständige Eingaben sind ungültig.
+Direkte Eingaben außerhalb des Anfangsbereichs erweitern den jeweiligen Regler sichtbar. Feinere Zahlen werden gespeichert; Reglerbewegungen runden ausschließlich den veränderten Wert auf dessen Schrittweite. Technische Grenzen verhindern Float32-Überlauf bzw. nicht darstellbare Kanalpotenzen; sie sind keine sinnvollen fotografischen Einstellbereiche. NaN, Unendlich und unvollständige Eingaben sind ungültig.
 
 Das Mausrad verändert nur das fokussierte Zahlenfeld bzw. den ausgewählten Regler. Es blättert dann weder Bilder weiter noch scrollt es zugleich den Dialog. Ungültige Eingaben bekommen einen roten Rahmen; Speichern bleibt gesperrt und die Vorschau zeigt den letzten gültigen Entwurf.
 
@@ -25,7 +25,7 @@ Das Mausrad verändert nur das fokussierte Zahlenfeld bzw. den ausgewählten Reg
 
 **In linearem Licht berechnen** decodiert sRGB vor der Matrixrechnung und codiert das Ergebnis danach wieder nach sRGB. Dies entsprechend der Matrixquelle auswählen. Beispielsweise benötigen die Dubois-Vorlagen diesen Schritt; eine beliebige sRGB-Matrix wird durch Einschalten nicht automatisch besser.
 
-**Farbkanäle korrigieren (Kanalpotenzen)** wendet nach der Farbmischung auf die normierten sRGB-Kanäle `x` jeweils `x^p` an. `p=1` verändert nichts, `p<1` hellt Zwischenwerte auf, `p>1` dunkelt sie ab. Die bekannte Rotkorrektur lautet **Rot 0,75; Grün/Blau 1**. Der Editor bietet alle drei Farben, leitet jedoch keine passenden Werte allein aus der Brillenfarbkombination ab. Ausgeschaltete Korrektur erhält die gespeicherten Werte, wendet sie aber nicht an.
+**Farbkorrektur** wendet nach der Farbmischung auf die normierten sRGB-Kanäle `x` jeweils `x^p` an. `p=1` verändert nichts, `p<1` hellt Zwischenwerte auf, `p>1` dunkelt sie ab. Die bekannte Rotkorrektur lautet **Rot 0,75; Grün/Blau 1**. Der Editor bietet alle drei Farben, leitet jedoch keine passenden Werte allein aus der Brillenfarbkombination ab. Ausgeschaltete Korrektur erhält die gespeicherten Werte, wendet sie aber nicht an.
 
 ## Versionierte Rechenfolge
 
@@ -39,13 +39,13 @@ Preset-Schema **1** beschreibt diese feste Reihenfolge:
 6. Bei linearer Berechnung wieder nach sRGB wandeln.
 7. Optionale R/G/B-Potenzen anwenden und nach 8-Bit RGB runden.
 
-Vorschau und Export verwenden dieselbe Engine. Die Vorschau verkleinert die Halbbilder zuvor auf höchstens 1024 px; der normale Export berechnet die volle Auflösung und skaliert danach. Clipping und nichtlineare Operationen können daher kleine Unterschiede zur verkleinerten Vorschau verursachen. Bei verändertem Kontrast kann auch der aus der jeweiligen Auflösung bestimmte Mittelwert leicht abweichen.
+Vorschau und Export verwenden dieselbe Engine. Die Vorschau verkleinert die Halbbilder passend zur Fensterfläche auf höchstens 1600 px (CIELab: 1024 px); der normale Export berechnet die volle Auflösung und skaliert danach. Clipping und nichtlineare Operationen können daher kleine Unterschiede zur verkleinerten Vorschau verursachen. Bei verändertem Kontrast kann auch der aus der jeweiligen Auflösung bestimmte Mittelwert leicht abweichen.
 
 ## Vorlagen und Speicherung
 
 Die 18 eingebauten Verfahren bleiben unverändert. 16 sind vollständig als einfache Matrixvorlagen darstellbar, einschließlich Rendepth mit Rot-/Grünpotenz. **iaian7** hat getrennte Augenpotenzen und eine zusätzliche Abschlussmatrix; **CIELab** ist ein externer Optimierer. Diese beiden werden nicht als vereinfachte Vorlagen angeboten. Bei diesem Ausgangspunkt weist die GUI darauf hin und beginnt mit Color.
 
-**Auf Vorlage zurücksetzen** stellt sämtliche Rechenwerte der übernommenen Vorlage wieder her. Name und Suffix bleiben erhalten. **Verfahren speichern** validiert und speichert den Entwurf; **Abbrechen** stellt das zuvor gewählte Verfahren wieder her.
+**Zurücksetzen** stellt sämtliche Rechenwerte der übernommenen Vorlage wieder her. Name und Suffix bleiben beim Zurücksetzen erhalten. Der Wechsel zu einer anderen Vorlage aktualisiert auch den Namens- und Suffixvorschlag; vorhandene eigene Verfahren werden bei der Vorschlagsbildung berücksichtigt. **Verfahren speichern** validiert und speichert den Entwurf; **Abbrechen** stellt das zuvor gewählte Verfahren wieder her.
 
 `presets.json` speichert Schema, stabile Kennung, Name, Suffix, beide Matrizen, Farbraum, Potenzen und Faktoren. Name/Suffix müssen unter eigenen Presets eindeutig sein; eingebaute Suffixe sind reserviert. Eine beschädigte oder unbekannte Preset-Datei wird gemeldet und nicht überschrieben. Nutzerdateien gehören nicht ins Repository.
 
