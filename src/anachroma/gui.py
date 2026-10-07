@@ -514,6 +514,13 @@ def main():
     ctk.set_appearance_mode("dark")
     ctk.set_default_color_theme("dark-blue")
     app = AnaChromaApp()
+    # Development package check: exercise the real Tk/Pillow image bridge,
+    # then close normally. No input, presets or export data are changed.
+    import sys
+    if "--smoke-test" in sys.argv:
+        app.preview_image = Image.new("RGB", (128, 64), (128, 64, 192))
+        app._fit_preview()
+        app.after(500, app.close)
     app.mainloop()
 
 

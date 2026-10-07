@@ -12,6 +12,7 @@ python -m venv .venv
 python -m pip install -r requirements-build.txt -e .
 python -m pytest -q
 python scripts/build.py
+python scripts/smoke_build.py  # Linux: run this check under xvfb-run if needed.
 ```
 
 The output is `dist/AnaChroma`. Run `AnaChroma.exe` on Windows or `./AnaChroma` on Linux/macOS inside that folder. Keep `_internal` beside the executable. macOS packaging is currently a portable directory rather than a signed/notarized installer; PyInstaller also creates an app bundle locally, but the workflow archives the directory.
@@ -22,7 +23,7 @@ The output is `dist/AnaChroma`. Run `AnaChroma.exe` on Windows or `./AnaChroma` 
 
 `.github/workflows/build.yml` tests and builds on Ubuntu 24.04, Windows Server 2022 and macOS 14. The Linux job installs FFmpeg, ExifTool and Xvfb **for validation**, including the real Batch-filter and GUI tests. Missing optional reference tools and an unavailable display are reported as test skips elsewhere. FFmpeg is never a production processing dependency.
 
-Packages are downloadable as GitHub Actions artifacts after a successful run, retained for 14 days. Linux/macOS use a tar archive to preserve executable permissions; Windows uses ZIP. These are development artifacts, not published releases. The actions themselves are pinned by commit.
+Packages are downloadable as GitHub Actions artifacts after a successful run, retained for 14 days. Linux/macOS use a tar archive to preserve executable permissions; Windows uses ZIP. These are development artifacts, not published releases. The actions themselves are pinned by commit. After building, the workflow launches the actual packaged GUI with an image and requires normal shutdown before uploading an artifact.
 
 Native macOS Intel builds and final release publication are not configured yet. Native desktop checks and a decision on each platform's external tool distribution remain necessary before a release.
 

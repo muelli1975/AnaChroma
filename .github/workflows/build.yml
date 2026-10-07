@@ -36,6 +36,12 @@ jobs:
         run: python -m pytest -q
       - name: Build portable directory
         run: python scripts/build.py
+      - name: Start built GUI under virtual display
+        if: runner.os == 'Linux'
+        run: xvfb-run -a python scripts/smoke_build.py
+      - name: Start built GUI on Windows or macOS
+        if: runner.os != 'Linux'
+        run: python scripts/smoke_build.py
       - name: Archive package (Windows)
         if: runner.os == 'Windows'
         shell: pwsh

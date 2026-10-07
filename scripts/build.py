@@ -15,6 +15,7 @@ def main() -> None:
     arguments = [str(ROOT / "run_anachroma.py"), "--name=AnaChroma", "--onedir",
                  "--windowed", "--clean", "--noconfirm", "--noupx",
                  f"--paths={ROOT / 'src'}", "--collect-all=customtkinter",
+                 "--hidden-import=PIL._tkinter_finder",
                  f"--add-data={ROOT / 'assets'}:assets",
                  f"--distpath={ROOT / 'dist'}", f"--workpath={ROOT / 'build'}",
                  f"--specpath={ROOT / 'build'}"]
