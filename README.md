@@ -10,9 +10,9 @@ The application is designed to work completely locally: no account, no cloud, no
 
 ## Development status
 
-The current development version is **0.1.0.dev2**. The German desktop interface, shared processing engine, custom preset editor and single-image/folder export are implemented. This is a development build, not a version 1 release. The supplied AnaChroma icon and SBS example image are integrated. Native CIELab builds use the original calculation sources; real stereoscopic photographs and native Windows/macOS use still need practical validation.
+The current development version is **0.1.0.dev2**. The German desktop interface, shared processing engine, custom preset editor and single-image/folder export are implemented. The version is provided as a development build. The supplied AnaChroma icon and SBS example image are integrated. Native CIELab builds use the original calculation sources; real stereoscopic photographs and native Windows/macOS use still need practical validation.
 
-GitHub Actions prepares development packages for Windows, Linux and macOS. Successful packaging alone does not establish image quality or native desktop compatibility. See [build instructions](docs/BUILD.md) and [validation](docs/VALIDATION.md).
+GitHub Actions prepares development packages for Windows, Linux and macOS. Details about builds and checks are in [build instructions](docs/BUILD.md) and [validation](docs/VALIDATION.md).
 
 ## Workflow
 
@@ -25,7 +25,7 @@ Opening a single image also makes the other supported images in the same folder 
 
 ## Supported input
 
-AnaChroma accepts parallel Full-SBS images in JPEG/JPG, PNG, TIFF/TIF, BMP and WebP format. The left view is on the left and the right view is on the right. Both views must have their full width; Half-SBS decompression is outside the current scope.
+AnaChroma accepts parallel Full-SBS images in JPEG/JPG, PNG, TIFF/TIF, BMP and WebP format. The left view is on the left and the right view is on the right. Both views are placed side by side at their full width.
 
 EXIF orientation is applied when loading. The oriented image must have an even width so it can be divided into two equal views.
 
@@ -33,7 +33,7 @@ EXIF orientation is applied when loading. The oriented image must have an even w
 
 The current AnaglyphBatch provides 18 methods, including Dubois LCD with red-channel correction, Dubois, Compromise, Wimmer, Cosima 3/4, Rendepth 1/2, iaian7, Color, Half-Color, Grey, Oldschool, Frans van den Poel, John Wattie, Dubois green/magenta, Dubois amber/blue and external CIELab Least Squares.
 
-One method is selected at a time. Methods retain their individual processing rules; sRGB linearization is used only where required by the reference pipeline. Preview and export share the same processing core. Automatic preview is limited to a maximum long edge of 1024 px.
+One method is selected at a time. Methods retain their individual processing rules; sRGB linearization is used only where required by the reference pipeline. Preview and export share the same processing core. Automatic preview uses a maximum long edge of 1024 px. At startup, the bundled SBS example appears as an anaglyph and responds to method selection and custom matrix drafts. It provides an immediate way to try the available methods. Load your own images for export.
 
 An explicit **Create custom method…** action opens the preset editor. Two 3 × 3 matrices can be adjusted through numeric fields, sliders and the mouse wheel, with a dedicated live preview. Matrix sliders start at −2 to +2 with 0.001 steps; direct numeric entry preserves finer coefficients and extends the slider when necessary. This is a practical editing range, not a physical limit for anaglyphs. Custom presets also include an optional linear-light calculation, brightness/contrast adjustment and individual RGB correction values. Settings appear directly beneath the matrices and are stored locally; built-in methods retain their reference behavior.
 
@@ -53,15 +53,9 @@ Output filenames use the current AnaglyphBatch suffixes, such as `image_dubois_l
 
 Metadata is copied using ExifTool where possible, excluding embedded original previews, thumbnails and orientation tags. A metadata failure will be reported without discarding a successfully written image.
 
-## Scope
-
-AnaChroma focuses on SBS-to-anaglyph conversion. Stereo alignment and correction remain the purpose of [StereoFine](https://github.com/muelli1975/StereoFine); 2D-to-3D conversion remains the purpose of [SplatTricia](https://github.com/muelli1975/SplatTricia).
-
-Version 1 does not include separate left/right pair detection, MPO splitting, stereo-window correction, a thumbnail gallery, high-bit-depth output or video processing. Dedicated ghosting compensation requires a separately validated method and is not yet part of the agreed implementation.
-
 ## Source and builds
 
-The core uses Python, Pillow and NumPy, with CustomTkinter for the interface. The existing sRGB transfer module from SplatTricia is reused unchanged. FFmpeg is not required as the normal processing engine.
+The core uses Python, Pillow and NumPy, with CustomTkinter for the interface. The existing sRGB transfer module from SplatTricia is reused unchanged.
 
 The build script creates a portable directory on the current platform. CIELab remains a separate executable and is bundled with matching source code and licenses in development packages. Its original calculation and solver are unchanged; a PNG interface replaces the obsolete OpenCV image front end. ExifTool is still provided separately. See the [CIELab build](native/cielab/README.md) and actual CI validation results.
 
@@ -80,11 +74,11 @@ python run_anachroma.py
 
 On Windows activate with `.venv\Scripts\activate`; on Linux/macOS use `source .venv/bin/activate`. Some Linux Python distributions require their separate Tk package.
 
-ExifTool is found in `tools/exiftool.exe` (Windows), `tools/exiftool` or the system PATH. The Windows ExifTool distribution's companion files must remain beside its executable. CIELab is found in `tools/cielab/cielab.exe`, `tools/cielab/cielab` or PATH. Without ExifTool, export succeeds with a metadata warning; without CIELab, the other 17 methods remain usable.
+ExifTool is found in `tools/exiftool.exe` (Windows), `tools/exiftool` or the system PATH. The Windows ExifTool distribution's companion files must remain beside its executable. CIELab is found in `tools/cielab/cielab.exe`, `tools/cielab/cielab` or PATH. ExifTool provides metadata transfer; CIELab adds the externally calculated Least Squares method.
 
 The default output is `output` beside the program/source checkout. Paths and the recursive option are remembered in `settings.json`; custom methods are saved in `presets.json`. A read-only program folder uses the user's configuration folder. Existing outputs with the same name are replaced only after a complete new image has been written; conflicting input names are rejected.
 
-Read [custom presets](docs/PRESET_EDITOR.md) for coefficient orientation, linearization and channel corrections. The editor does not infer whether a copied web matrix requires linear RGB; use its source's processing instructions.
+Read [custom presets](docs/PRESET_EDITOR.md) for coefficient orientation, linearization and channel corrections. Set the calculation according to the source instructions for any copied matrix, especially its linearization setting.
 
 ## License
 
