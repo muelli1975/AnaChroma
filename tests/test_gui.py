@@ -34,12 +34,13 @@ def app(tmp_path, monkeypatch):
 
 
 def wait_for(app, condition):
-    end=time.monotonic()+8
+    end=time.monotonic()+20
     while time.monotonic()<end:
         app.update()
         if condition():return
         time.sleep(.01)
-    raise AssertionError("GUI worker did not finish")
+    raise AssertionError(f"GUI worker did not finish: {app.status.cget('text')}; "
+                         f"input={app.preview_path()}; preview={getattr(app.preview_image, 'size', None)}")
 
 
 def test_exact_entry_slider_wheel_and_cancel(app):

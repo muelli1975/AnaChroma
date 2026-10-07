@@ -29,10 +29,11 @@ if(APPLE)
 endif()
 if(MSVC)
   target_compile_definitions(cielab_math PRIVATE _CRT_SECURE_NO_WARNINGS)
-  target_compile_options(cielab_math PRIVATE /O2 /fp:fast)
+  target_compile_options(cielab_math PRIVATE /O2 /fp:precise)
 else()
-  # Original upstream Makefiles used these arithmetic/optimization flags.
-  target_compile_options(cielab_math PRIVATE -O3 -ffast-math -funroll-loops)
+  # Fast math changed the iterative solver's results in the Batch comparison.
+  # Preserve operation order and avoid fused rounding on all architectures.
+  target_compile_options(cielab_math PRIVATE -O2 -ffp-contract=off)
 endif()
 add_executable(cielab main.c)
 target_include_directories(cielab PRIVATE compat)

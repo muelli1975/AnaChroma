@@ -47,3 +47,5 @@ Auf Linux die GUI-Prüfungen mit `xvfb-run -a python -m pytest -q` ausführen. F
 ## Native CIELab-Prüfung
 
 Der Linux-Build aus unveränderten Original-Rechenquellen verarbeitet das mitgelieferte SBS-Bild mit 1024 × 576 Ausgabepixeln hier in etwa 2,7 Sekunden. Das ist eine Messung auf dieser Entwicklungsmaschine, keine allgemeine Laufzeitzusage. Echte RGB8-Berechnung, Wiederholbarkeit, Größenprüfung, Unicode-Pfade, Skalierung vor CIELab und JPEG 4:4:4 werden separat geprüft. Windows vergleicht Zufallsfarben, Graustufen, Farbfelder und das verkleinerte SBS-Beispiel direkt mit der Binärdatei aus Batch 1.0. Bericht und verlustfreie Vergleichsbilder werden als CI-Artefakt gespeichert.
+
+Die aufgezeichneten verlustfreien Ausgaben der tatsächlichen Batch-1.0-Datei liegen als hashgeprüfte PNG-Testdaten in `tests/fixtures/cielab_reference.json`. Sie werden auf jeder Plattform gegen den neu gebauten CIELab-Prozess geprüft. Mit präzisen Compileroptionen stimmen hier unter Linux alle vier Referenzfälle pixelgenau überein. Fast-Math verursachte einzelne Abweichungen und wird deshalb nicht verwendet.

@@ -2,6 +2,7 @@
 from __future__ import annotations
 import hashlib
 import json
+import platform
 from pathlib import Path
 import shutil
 import subprocess
@@ -63,11 +64,14 @@ def main():
     with tarfile.open(out / "cielab-source.tar.gz", "w:gz") as archive:
         archive.add(SOURCE, arcname="cielab-source/native")
         archive.add(Path(__file__), arcname="cielab-source/build_cielab.py")
+        archive.add(ROOT / "LICENSE.txt", arcname="cielab-source/AnaChroma-MIT-LICENSE.txt")
         for dependency in info["dependencies"]:
             name = f"{dependency['name']}-{dependency['version']}"
             archive.add(deps / name, arcname=f"cielab-source/dependencies/{name}")
     executable = out / ("cielab.exe" if sys.platform == "win32" else "cielab")
     info["platform"] = sys.platform
+    info["architecture"] = platform.machine()
+    info["floating_point"] = "precise; no fast-math or fused contraction"
     info["binary_sha256"] = hashlib.sha256(executable.read_bytes()).hexdigest()
     (out / "BUILD_INFO.json").write_text(json.dumps(info, indent=2) + "\n")
     shutil.copy2(SOURCE / "README.md", out / "README.md")

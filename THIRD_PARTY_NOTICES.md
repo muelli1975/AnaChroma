@@ -8,7 +8,7 @@ AnaChroma's own source code and original documentation are licensed under the MI
 - `tests/reference_batch.bat` is an unchanged reference from [AnaglyphBatch](https://github.com/muelli1975/AnaglyphBatch/tree/8ef0a5dc4a5fbea865bab120d566161a0fb5b3fa), by Christoph Müller, MIT licensed. It is used for independent validation, not as the runtime engine.
 - `assets/ready.wav` is the unchanged completion sound reused from the StereoFine/SplatTricia project family. Its provenance/hash is recorded in `docs/REFERENCE_BASELINE.md` and `assets/ASSET_HASHES.txt`.
 
-`native/cielab/upstream` contains unchanged GPL CIELab and levmar sources. `native/cielab/main.c`, `compat/cv.h`, and its build instructions form a separate GPL-3.0-or-later PNG port; this directory is explicitly excluded from AnaChroma’s MIT licensing. The source repository contains no external binaries and no embedded Python runtime. The supplied `assets/anachroma.jpg` is preserved unchanged; its SHA-256 is recorded with the icon and sound.
+`native/cielab/upstream` contains unchanged GPL CIELab and levmar sources. `native/cielab/main.c`, `compat/`, and its build instructions form a separate GPL-3.0-or-later PNG port; this directory is explicitly excluded from AnaChroma’s MIT licensing. The source repository contains no external binaries and no embedded Python runtime. The supplied `assets/anachroma.jpg` is preserved unchanged; its SHA-256 is recorded with the icon and sound.
 
 ## Runtime and development packages
 

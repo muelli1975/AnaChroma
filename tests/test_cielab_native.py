@@ -1,5 +1,10 @@
 """Real CIELab execution when the platform's native tool has been built."""
 from threading import Event
+from pathlib import Path
+import base64
+import hashlib
+import io
+import json
 import numpy as np
 from PIL import Image
 import pytest
@@ -10,6 +15,20 @@ from anachroma.matrices import BUILTINS
 from anachroma.resources import find_tool
 
 pytestmark = pytest.mark.skipif(find_tool("cielab") is None, reason="Build native CIELab first")
+
+
+@pytest.mark.parametrize("name", ("random", "gray", "colors", "demo"))
+def test_native_matches_recorded_batch_executable_on_every_platform(name):
+    fixture = json.loads((Path(__file__).parent / "fixtures" / "cielab_reference.json").read_text())
+    arrays = {}
+    for side, recorded in fixture["cases"][name].items():
+        data = base64.b64decode(recorded["png_base64"])
+        assert hashlib.sha256(data).hexdigest() == recorded["sha256"]
+        with Image.open(io.BytesIO(data)) as image:
+            arrays[side] = np.array(image.convert("RGB"))
+    actual = np.asarray(make_cielab(arrays["left"], arrays["right"]))
+    difference = np.abs(actual.astype(np.int16) - arrays["reference"].astype(np.int16))
+    assert difference.max() <= 2, (name, difference.max(), difference.mean())
 
 
 def test_real_cielab_rgb_grayscale_and_repeatability():

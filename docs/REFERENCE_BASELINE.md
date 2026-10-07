@@ -93,3 +93,5 @@ Upstream: [mbrown1413/anaglyph](https://github.com/mbrown1413/anaglyph). README 
 The native CIELab source baseline is `mbrown1413/anaglyph` at `4db425343687f796b85f04ae204e05a43e5742f0`. `native/cielab/SOURCES.json` pins unchanged calculation/solver source hashes and the downloaded libpng/zlib source archives. The obsolete OpenCV image front end is replaced by a separately licensed GPL PNG CLI. The original Windows comparison binary is taken from the hash-verified AnaglyphBatch 1.0 release ZIP.
 
 The user-supplied SBS image is preserved as `assets/anachroma.jpg` (2048 × 576 RGB; halves 1024 × 576). Its hash is in `assets/ASSET_HASHES.txt`; it serves as the live startup example and never enters the batch input list automatically.
+
+Lossless CIELab reference PNGs were captured by the Windows comparison job in run `37641459630` and preserved with their individual SHA-256 values in `tests/fixtures/cielab_reference.json`. All platform tests compare against these actual executable outputs in addition to the fresh Windows executable comparison.

@@ -22,6 +22,8 @@ by the calling application, not by this executable.
 The solver, color/filter constants and iteration limits remain unchanged.
 Input RGB is mapped to the upstream BGR scalar convention, and output is
 rounded to nearest (ties to even) and clipped to RGB8 as by OpenCV `cvSet2D`.
+The build uses precise floating-point arithmetic without fast-math or fused
+contraction, because aggressive optimizations changed isolated solver results.
 Compiler/platform floating-point differences must be checked independently.
 The Windows CI compares this port with the executable shipped in
 AnaglyphBatch 1.0; see the recorded validation results before replacing it.
