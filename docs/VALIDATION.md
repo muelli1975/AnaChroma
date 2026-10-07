@@ -2,7 +2,7 @@
 
 Stand: 7. Oktober 2026. Diese Datei unterscheidet automatisierte technische Prüfungen von noch ausstehender stereoskopischer Praxisprüfung.
 
-Lokaler Gesamtlauf: **65 Tests bestanden**, einschließlich GUI, tatsächlichem ExifTool, aller 17 internen FFmpeg-Referenzpipelines, echter nativer CIELab-Berechnung und SBS-Startvorschau. Auch das gepackte Linux-Programm hat die Startvorschau berechnet und angezeigt; sein gebündeltes CIELab bestand den Unicode-/RGB8-/Größentest.
+Lokaler Gesamtlauf: **69 Tests bestanden**, einschließlich GUI, tatsächlichem ExifTool, aller 17 internen FFmpeg-Referenzpipelines, echter nativer CIELab-Berechnung und SBS-Startvorschau. Auch das gepackte Linux-Programm hat die Startvorschau berechnet und angezeigt; sein gebündeltes CIELab bestand den Unicode-/RGB8-/Größentest.
 
 ## Automatisierte Prüfungen
 
@@ -46,6 +46,8 @@ Auf Linux die GUI-Prüfungen mit `xvfb-run -a python -m pytest -q` ausführen. F
 
 ## Native CIELab-Prüfung
 
-Der Linux-Build aus unveränderten Original-Rechenquellen verarbeitet das mitgelieferte SBS-Bild mit 1024 × 576 Ausgabepixeln hier in etwa 2,7 Sekunden. Das ist eine Messung auf dieser Entwicklungsmaschine, keine allgemeine Laufzeitzusage. Echte RGB8-Berechnung, Wiederholbarkeit, Größenprüfung, Unicode-Pfade, Skalierung vor CIELab und JPEG 4:4:4 werden separat geprüft. Windows vergleicht Zufallsfarben, Graustufen, Farbfelder und das verkleinerte SBS-Beispiel direkt mit der Binärdatei aus Batch 1.0. Bericht und verlustfreie Vergleichsbilder werden als CI-Artefakt gespeichert.
+Der Linux-Build aus unveränderten Original-Rechenquellen verarbeitet das mitgelieferte SBS-Bild mit 1024 × 576 Ausgabepixeln hier in etwa 2,8 Sekunden. Das ist eine Messung auf dieser Entwicklungsmaschine, keine allgemeine Laufzeitzusage. Echte RGB8-Berechnung, Wiederholbarkeit, Größenprüfung, Unicode-Pfade, Skalierung vor CIELab und JPEG 4:4:4 werden separat geprüft. Windows vergleicht Zufallsfarben, Graustufen, Farbfelder und das verkleinerte SBS-Beispiel direkt mit der Binärdatei aus Batch 1.0. Bericht und verlustfreie Vergleichsbilder werden als CI-Artefakt gespeichert.
 
 Die aufgezeichneten verlustfreien Ausgaben der tatsächlichen Batch-1.0-Datei liegen als hashgeprüfte PNG-Testdaten in `tests/fixtures/cielab_reference.json`. Sie werden auf jeder Plattform gegen den neu gebauten CIELab-Prozess geprüft. Mit präzisen Compileroptionen stimmen hier unter Linux alle vier Referenzfälle pixelgenau überein. Fast-Math verursachte einzelne Abweichungen und wird deshalb nicht verwendet.
+
+Der letzte Plattformlauf mit präziser Rechnung ist [37642392107](https://github.com/muelli1975/AnaChroma/actions/runs/37642392107). Er stand bei dieser Dokumentationsaktualisierung noch in der GitHub-Warteschlange. Die lokalen Ergebnisse sind deshalb keine Aussage über die finalen Windows-/macOS-Pakete.
