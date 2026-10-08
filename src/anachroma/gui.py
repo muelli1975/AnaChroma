@@ -318,12 +318,13 @@ class AnaChromaApp(ctk.CTk):
             self.load_input(Path(selected))
 
     def choose_output(self):
-        if self.batch_running or self.scanning or self.use_program_output.get():
+        if self.batch_running or self.scanning:
             return
         selected = filedialog.askdirectory(parent=self, title=self.t("Ausgabeordner wählen"),
             initialdir=self.output_var.get() or str(self.default_output))
         if selected:
             self.output_var.set(selected)
+            self.use_program_output.set(False)
             self._output_changed()
 
     def _output_changed(self):
@@ -346,8 +347,8 @@ class AnaChromaApp(ctk.CTk):
         text = self.output_var.get() or "–"
         self.output_label.configure(text=self.t(text))
         custom_active = not self.use_program_output.get() and not (self.batch_running or self.scanning)
-        self.output_button.configure(state="normal" if custom_active else "disabled")
-        self.custom_output_label.configure(text_color=MUTED if custom_active else DISABLED)
+        self.output_button.configure(state="disabled" if self.batch_running or self.scanning else "normal")
+        self.custom_output_label.configure(text_color=TEXT if custom_active else DISABLED)
         self.output_label.configure(text_color=TEXT if custom_active else DISABLED)
 
     def primary_action(self):

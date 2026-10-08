@@ -156,17 +156,18 @@ def test_stereofine_output_selection_and_persistence(app, tmp_path, monkeypatch)
     assert app.output_checkbox.cget("text") == "Unterordner im Programmordner verwenden"
     assert app.custom_output_label.cget("text") == "Eigener Ausgabeordner"
     assert app.output_button.cget("text") == "Auswählen"
-    assert app.output_button.cget("state") == "disabled"
+    assert app.output_button.cget("state") == "normal"
     assert app.custom_output_label.cget("text_color") == DISABLED
     chosen = []
     custom = tmp_path / "Urlaub" / "fertig"
-    monkeypatch.setattr(gui.filedialog, "askdirectory", lambda **kw: chosen.append(kw) or str(custom))
-    app.choose_output()
-    assert not chosen
-    app.output_checkbox.toggle()
-    assert app._effective_output() is None
+    monkeypatch.setattr(gui.filedialog, "askdirectory", lambda **kw: chosen.append(kw) or "")
+    app.output_button.invoke()
+    assert len(chosen) == 1
+    assert app.use_program_output.get() and not app.output_var.get()
     assert app.output_button.cget("state") == "normal"
-    app.choose_output()
+    monkeypatch.setattr(gui.filedialog, "askdirectory", lambda **kw: str(custom))
+    app.output_button.invoke()
+    assert not app.use_program_output.get()
     assert app._effective_output() == custom.resolve()
     assert app.output_label.cget("text_color") == TEXT
     saved = load_settings(app.settings_path)
@@ -192,7 +193,7 @@ def test_stereofine_output_selection_and_persistence(app, tmp_path, monkeypatch)
     app.output_checkbox.toggle()
     wait_for(app, lambda: not app.scanning)
     assert len(app.inputs.files) == 2
-    assert app.output_button.cget("state") == "disabled"
+    assert app.output_button.cget("state") == "normal"
     app.output_checkbox.toggle()
     wait_for(app, lambda: not app.scanning)
     assert len(app.inputs.files) == 1 and app._effective_output() == custom.resolve()
