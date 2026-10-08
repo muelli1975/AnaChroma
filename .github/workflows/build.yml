@@ -37,10 +37,10 @@ jobs:
         run: python scripts/compare_cielab.py
       - name: Test with virtual display and reference tools
         if: runner.os == 'Linux'
-        run: xvfb-run -a python -m pytest -q
+        run: xvfb-run -a python scripts/run_tests.py
       - name: Test on Windows or macOS
         if: runner.os != 'Linux'
-        run: python -m pytest -q
+        run: python scripts/run_tests.py
       - name: Build portable directory
         run: python scripts/build.py
       - name: Test packaged CIELab executable
