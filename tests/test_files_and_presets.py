@@ -20,6 +20,19 @@ def image(path, size=(12,4)):
     return path
 
 
+def test_output_mode_settings_migrate_and_roundtrip(tmp_path):
+    from anachroma.settings import load_settings, save_settings
+    path = tmp_path / "settings.json"
+    assert load_settings(path).use_program_output
+    path.write_text(json.dumps({"output": str(tmp_path / "custom")}), encoding="utf-8")
+    settings = load_settings(path)
+    assert not settings.use_program_output
+    settings.use_program_output = True
+    save_settings(path, settings)
+    restored = load_settings(path)
+    assert restored.use_program_output and restored.output == str(tmp_path / "custom")
+
+
 def test_orientation_and_odd_width(tmp_path):
     path=tmp_path/"oriented.jpg"
     im=Image.new("RGB",(6,4))

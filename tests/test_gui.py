@@ -147,6 +147,61 @@ def test_input_mode_action_and_recursive_output(app, tmp_path):
     assert not app.save_button.winfo_ismapped()
 
 
+def test_stereofine_output_selection_and_persistence(app, tmp_path, monkeypatch):
+    from anachroma import gui
+    from anachroma.settings import load_settings
+    from anachroma.theme import DISABLED, TEXT
+    assert app.use_program_output.get()
+    assert app._effective_output() == (tmp_path / "output").resolve()
+    assert app.output_checkbox.cget("text") == "Unterordner im Programmordner verwenden"
+    assert app.custom_output_label.cget("text") == "Eigener Ausgabeordner"
+    assert app.output_button.cget("text") == "Auswählen"
+    assert app.output_button.cget("state") == "disabled"
+    assert app.custom_output_label.cget("text_color") == DISABLED
+    chosen = []
+    custom = tmp_path / "Urlaub" / "fertig"
+    monkeypatch.setattr(gui.filedialog, "askdirectory", lambda **kw: chosen.append(kw) or str(custom))
+    app.choose_output()
+    assert not chosen
+    app.output_checkbox.toggle()
+    assert app._effective_output() is None
+    assert app.output_button.cget("state") == "normal"
+    app.choose_output()
+    assert app._effective_output() == custom.resolve()
+    assert app.output_label.cget("text_color") == TEXT
+    saved = load_settings(app.settings_path)
+    assert not saved.use_program_output and saved.output == str(custom)
+    app.output_checkbox.toggle()
+    assert app._effective_output() == (tmp_path / "output").resolve()
+    assert app.output_var.get() == str(custom)
+    assert app.output_label.cget("text_color") == DISABLED
+    assert load_settings(app.settings_path).use_program_output
+    app.output_checkbox.toggle()
+    assert app._effective_output() == custom.resolve()
+    root = tmp_path / "Urlaub"
+    (root / "Tag1").mkdir(parents=True)
+    custom.mkdir()
+    Image.new("RGB", (32, 8)).save(root / "Tag1" / "original.png")
+    Image.new("RGB", (32, 8)).save(custom / "already-created.png")
+    app.recursive.set(True)
+    app.load_input(root)
+    assert app.output_button.cget("state") == "disabled"
+    wait_for(app, lambda: not app.scanning)
+    assert len(app.inputs.files) == 1
+    assert app.output_button.cget("state") == "normal"
+    app.output_checkbox.toggle()
+    wait_for(app, lambda: not app.scanning)
+    assert len(app.inputs.files) == 2
+    assert app.output_button.cget("state") == "disabled"
+    app.output_checkbox.toggle()
+    wait_for(app, lambda: not app.scanning)
+    assert len(app.inputs.files) == 1 and app._effective_output() == custom.resolve()
+    app._language_changed("English")
+    assert app.output_checkbox.cget("text") == "Use subfolder in program folder"
+    assert app.custom_output_label.cget("text") == "Custom output folder"
+    assert app.output_button.cget("text") == "Choose"
+
+
 def test_preview_navigation_and_preset_roundtrip(app,tmp_path):
     for i in range(2):
         Image.new("RGB",(32,8),(64+i*80,90,180)).save(tmp_path/f"bild{i}.png")

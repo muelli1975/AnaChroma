@@ -30,6 +30,7 @@ class PackagedSmokeCheck:
             image.save(source, exif=exif)
             app.settings_path = self.root / "settings.json"
             app.output_var.set(str(self.root / "output"))
+            app.use_program_output.set(False)
             app.preview_image = None
             app._refresh_methods(next(m.id for m in app.methods.values() if m.mode == "cielab"))
             app.load_input(source)

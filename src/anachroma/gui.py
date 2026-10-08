@@ -18,7 +18,7 @@ from .preset_editor import PresetEditor
 from .presets import load_presets, save_presets
 from .resources import app_dir, find_tool, resource_dir, user_dir
 from .settings import load_settings, save_settings
-from .theme import (APP_BG, BORDER, GOLD, GOLD_HOVER, MUTED, PANEL_BG, SECONDARY_BG,
+from .theme import (APP_BG, BORDER, DISABLED, GOLD, GOLD_HOVER, MUTED, PANEL_BG, SECONDARY_BG,
                     TEXT, HOVER_BG, FONT_FAMILY, PREVIEW_BG, configure_theme, preview_size, clear_preview)
 from .worker import PreviewWorker, run_batch
 
@@ -78,7 +78,9 @@ class AnaChromaApp(ctk.CTk):
         self.pixel_var = tk.StringVar(value="2048")
         self.recursive = tk.BooleanVar(value=self.settings.recursive)
         self.quality95 = tk.BooleanVar(value=False)
-        self.output_var = tk.StringVar(value=self.settings.output or str(user_dir()/"output"))
+        self.default_output = user_dir()/"output"
+        self.use_program_output = tk.BooleanVar(value=self.settings.use_program_output)
+        self.output_var = tk.StringVar(value=self.settings.output)
         self._build()
         self._translate_ui()
         self._refresh_methods(BUILTINS[0].id)
@@ -161,9 +163,14 @@ class AnaChromaApp(ctk.CTk):
                                           fg_color=GOLD, command=self._recursive_changed)
         self.recursive_box.pack(anchor="w", padx=12, pady=(8, 12))
         output = self._section(sidebar, "Ausgabe")
-        self.output_button = self._button(output, "Ausgabeordner wählen", self.choose_output)
+        self.output_checkbox = ctk.CTkCheckBox(output, text="Unterordner im Programmordner verwenden",
+            variable=self.use_program_output, command=self._output_changed, fg_color=GOLD)
+        self.output_checkbox.pack(anchor="w", padx=12, pady=(0, 8))
+        self.custom_output_label = ctk.CTkLabel(output, text="Eigener Ausgabeordner", text_color=MUTED, anchor="w")
+        self.custom_output_label.pack(fill="x", padx=12, pady=(0, 3))
+        self.output_button = self._button(output, "Auswählen", self.choose_output)
         self.output_button.pack(fill="x", padx=12, pady=4)
-        self.output_label = ctk.CTkLabel(output, text="output im Eingabeordner", text_color=MUTED,
+        self.output_label = ctk.CTkLabel(output, text="–", text_color=DISABLED,
                                        wraplength=270, justify="left", anchor="w")
         self.output_label.pack(fill="x", padx=12, pady=4)
         self.quality_box = ctk.CTkCheckBox(output, text="JPEG-Qualität 95 für Druck/Archiv", variable=self.quality95, fg_color=GOLD)
@@ -273,7 +280,7 @@ class AnaChromaApp(ctk.CTk):
 
     def _state(self):
         busy = self.batch_running or self.scanning
-        for widget in (self.file_button, self.folder_button, self.recursive_box, self.output_button,
+        for widget in (self.file_button, self.folder_button, self.recursive_box, self.output_checkbox,
                        self.size_menu, self.quality_box):
             widget.configure(state="disabled" if busy else "normal")
         for widget in (self.method_menu, self.create_button):
@@ -311,19 +318,37 @@ class AnaChromaApp(ctk.CTk):
             self.load_input(Path(selected))
 
     def choose_output(self):
-        selected = filedialog.askdirectory(parent=self, title=self.t("Ausgabeordner wählen"), initialdir=self.output_var.get())
+        if self.batch_running or self.scanning or self.use_program_output.get():
+            return
+        selected = filedialog.askdirectory(parent=self, title=self.t("Ausgabeordner wählen"),
+            initialdir=self.output_var.get() or str(self.default_output))
         if selected:
             self.output_var.set(selected)
-            self.settings.output = selected
-            self._persist_settings()
-            self._refresh_output()
+            self._output_changed()
+
+    def _output_changed(self):
+        if self.batch_running or self.scanning:
+            return
+        self.settings.output = self.output_var.get()
+        self.settings.use_program_output = self.use_program_output.get()
+        self._persist_settings()
+        if self.inputs and self.inputs.folder_input:
+            self.load_input(self.inputs.root)
+        else:
+            self._state()
 
     def _effective_output(self):
+        if self.use_program_output.get():
+            return self.default_output.resolve()
         return Path(self.output_var.get()).expanduser().resolve() if self.output_var.get().strip() else None
 
     def _refresh_output(self):
-        text = self.output_var.get() or "Ausgabeordner wählen"
+        text = self.output_var.get() or "–"
         self.output_label.configure(text=self.t(text))
+        custom_active = not self.use_program_output.get() and not (self.batch_running or self.scanning)
+        self.output_button.configure(state="normal" if custom_active else "disabled")
+        self.custom_output_label.configure(text_color=MUTED if custom_active else DISABLED)
+        self.output_label.configure(text_color=TEXT if custom_active else DISABLED)
 
     def primary_action(self):
         self.start_export(bool(self.inputs and self.inputs.folder_input))
@@ -347,12 +372,12 @@ class AnaChromaApp(ctk.CTk):
         self.scan_cancel.set()
         cancel = self.scan_cancel = Event()
         self.scanning = True
-        recursive, output = self.recursive.get(), Path(self.output_var.get())
+        recursive, output = self.recursive.get(), self._effective_output()
         self.status.configure(text=self.t("Suche SBS-Bilder..."))
         self._state()
         def scan():
             try:
-                found = discover(path, recursive, (output,), cancel)
+                found = discover(path, recursive, (output,) if output is not None else (), cancel)
                 self.events.put(("scan", identifier, found))
             except Cancelled:
                 self.events.put(("scan_cancelled", identifier))
