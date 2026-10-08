@@ -94,7 +94,7 @@ class AnaChromaApp(ctk.CTk):
         return translate(text, self.language)
 
     def _translate_ui(self):
-        skip = (self.input_label, self.output_label, self.filename, self.preview_note, self.preview_label,
+        skip = (self.input_label, self.output_label, self.output_status, self.filename, self.preview_note, self.preview_label,
                 self.status, self.action_button)
         translate_widgets(self, self.language, skip)
         self.size_names = {self.t(label): label for label in SIZE_LABELS}
@@ -156,7 +156,7 @@ class AnaChromaApp(ctk.CTk):
         self.file_button.grid(row=0, column=0, sticky="ew", padx=(0, 4))
         self.folder_button = self._button(load_row, "Bildordner…", self.open_folder, width=120)
         self.folder_button.grid(row=0, column=1, sticky="ew", padx=(4, 0))
-        self.input_label = ctk.CTkLabel(entry, text="Kein Eingang gewählt", anchor="w", justify="left",
+        self.input_label = ctk.CTkLabel(entry, text="Keine Bilder gewählt", anchor="w", justify="left",
                                        text_color=MUTED, wraplength=266)
         self.input_label.pack(fill="x", padx=12, pady=4)
         self.recursive_box = ctk.CTkCheckBox(entry, text="Unterordner mitverarbeiten", variable=self.recursive,
@@ -173,15 +173,19 @@ class AnaChromaApp(ctk.CTk):
         self.output_label = ctk.CTkLabel(output, text="–", text_color=DISABLED,
                                        wraplength=270, justify="left", anchor="w")
         self.output_label.pack(fill="x", padx=12, pady=4)
+        ctk.CTkLabel(output, text="Ausgabeziel", anchor="w").pack(fill="x", padx=12, pady=(4, 0))
+        self.output_status = ctk.CTkLabel(output, text="", text_color=TEXT,
+                                        wraplength=270, justify="left", anchor="w")
+        self.output_status.pack(fill="x", padx=12, pady=(0, 4))
         self.quality_box = ctk.CTkCheckBox(output, text="JPEG-Qualität 95 für Druck/Archiv", variable=self.quality95, fg_color=GOLD)
         self.quality_box.pack(anchor="w", padx=12, pady=(8, 12))
-        methods = self._section(sidebar, "Anaglyphe")
-        self.create_button = self._button(methods, "Eigenes Verfahren anlegen…", self.create_custom)
-        self.create_button.pack(fill="x", padx=12, pady=4)
+        methods = self._section(sidebar, "Anaglyph")
         ctk.CTkLabel(methods, text="Verfahren", anchor="w").pack(fill="x", padx=12)
         self.method_menu = ctk.CTkOptionMenu(methods, variable=self.method_var, values=[""],
                                            command=lambda _: self._method_changed())
         self.method_menu.pack(fill="x", padx=12, pady=4)
+        self.create_button = self._button(methods, "Eigenes Verfahren anlegen…", self.create_custom)
+        self.create_button.pack(fill="x", padx=12, pady=4)
         self.edit_button = self._button(methods, "Bearbeiten…", self.edit_custom)
         self.edit_button.pack(fill="x", padx=12, pady=4)
         ctk.CTkLabel(methods, text="Größe", anchor="w").pack(fill="x", padx=12, pady=(8, 0))
@@ -303,7 +307,7 @@ class AnaChromaApp(ctk.CTk):
             path = self.inputs.root if folder_mode else self.inputs.files[self.index]
             self.input_label.configure(text=self.t(f"{self.t(mode)}\n{path}"))
         else:
-            self.input_label.configure(text=self.t("Kein Eingang gewählt"))
+            self.input_label.configure(text=self.t("Keine Bilder gewählt"))
         self._refresh_output()
         self.cancel_button.configure(state="normal" if busy else "disabled")
         self.previous_button.configure(state="normal" if self.inputs and self.index > 0 and not self.scanning else "disabled")
@@ -348,7 +352,12 @@ class AnaChromaApp(ctk.CTk):
 
     def _refresh_output(self):
         text = self.output_var.get() or "–"
-        self.output_label.configure(text=self.t(text))
+        self.output_label.configure(text=text)
+        target = self._effective_output()
+        if target is not None and self.inputs and self.inputs.folder_input:
+            target = target / self.inputs.root.name
+        self.output_status.configure(text=str(target) if target is not None
+                                     else self.t("Kein eigener Ausgabeordner gewählt"))
         custom_active = not self.use_program_output.get() and not (self.batch_running or self.scanning)
         self.output_button.configure(state="disabled" if self.batch_running or self.scanning else "normal")
         self.custom_output_label.configure(text_color=TEXT if custom_active else DISABLED)

@@ -5,12 +5,14 @@ from string import Formatter
 
 EN = {
     "Hochwertige Anaglyphen aus SBS-Bildern": "High-quality anaglyphs from SBS images",
-    "Eingabe": "Input", "Ausgabe": "Output", "Anaglyphe": "Anaglyph", "Verarbeitung": "Processing",
+    "Eingabe": "Input", "Ausgabe": "Output", "Anaglyph": "Anaglyph", "Verarbeitung": "Processing",
     "Einzelbild…": "Single image…", "Bildordner…": "Image folder…", "Einzelbild": "Single image",
-    "Kein Eingang gewählt": "No input selected", "Kein Bild geladen": "No image loaded",
+    "Keine Bilder gewählt": "No images selected", "Kein Bild geladen": "No image loaded",
     "Unterordner mitverarbeiten": "Include subfolders",
     "Unterordner im Programmordner verwenden": "Use subfolder in program folder",
     "Eigener Ausgabeordner": "Custom output folder",
+    "Ausgabeziel": "Output destination",
+    "Kein eigener Ausgabeordner gewählt": "No custom output folder selected",
     "Auswählen": "Choose",
     "Unterordner im Input-Ordner\nverwenden": "Use subfolder in\ninput folder",
     "output im Eingabeordner": "output in input folder",
