@@ -24,6 +24,10 @@ def configure_theme():
         if isinstance(font, dict):
             font["family"] = FONT_FAMILY
     styles = {
+        "CTk": dict(fg_color=APP_BG),
+        "CTkToplevel": dict(fg_color=APP_BG),
+        "CTkFrame": dict(fg_color=SECONDARY_BG, top_fg_color=PANEL_BG, border_color=BORDER),
+        "CTkScrollableFrame": dict(label_fg_color=SECONDARY_BG),
         "CTkLabel": dict(text_color=TEXT),
         "CTkEntry": dict(fg_color=SECONDARY_BG, border_color=BORDER, text_color=TEXT,
                          placeholder_text_color=MUTED, corner_radius=8),
@@ -35,11 +39,12 @@ def configure_theme():
                                text_color=TEXT, text_color_disabled=DISABLED),
         "CTkOptionMenu": dict(fg_color=PANEL_BG, button_color=HOVER_BG, button_hover_color=BORDER,
                               dropdown_fg_color=SECONDARY_BG, dropdown_hover_color=HOVER_BG,
-                              text_color=TEXT, dropdown_text_color=TEXT, corner_radius=8),
+                              text_color=TEXT, text_color_disabled=DISABLED, dropdown_text_color=TEXT, corner_radius=8),
         "CTkSlider": dict(fg_color=BORDER, progress_color=GOLD, button_color=GOLD_HOVER,
                           button_hover_color=GOLD_HOVER),
-        "CTkProgressBar": dict(fg_color=BORDER, progress_color=GOLD),
+        "CTkProgressBar": dict(fg_color=BORDER, progress_color=GOLD, border_color=BORDER),
         "CTkScrollbar": dict(button_color=BORDER, button_hover_color=HOVER_BG),
+        "DropdownMenu": dict(fg_color=SECONDARY_BG, hover_color=HOVER_BG, text_color=TEXT),
     }
     for name, style in styles.items():
         theme[name].update(style)

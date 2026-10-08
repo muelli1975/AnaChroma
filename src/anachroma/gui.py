@@ -283,6 +283,9 @@ class AnaChromaApp(ctk.CTk):
         for widget in (self.file_button, self.folder_button, self.recursive_box, self.output_checkbox,
                        self.size_menu, self.quality_box):
             widget.configure(state="disabled" if busy else "normal")
+            if isinstance(widget, ctk.CTkCheckBox):
+                widget.configure(fg_color=DISABLED if busy else GOLD,
+                                 hover_color=DISABLED if busy else GOLD_HOVER)
         for widget in (self.method_menu, self.create_button):
             widget.configure(state="disabled" if busy or self.editor is not None else "normal")
         self.edit_button.configure(state="normal" if not busy and self.editor is None and not self.selected_method().builtin else "disabled")

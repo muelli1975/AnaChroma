@@ -248,3 +248,70 @@ def test_corrupt_preset_file_is_not_replaced(tmp_path,monkeypatch):
             try:root.update()
             except Exception:break
             time.sleep(.01)
+
+
+def assert_family_palette(root):
+    """Inspect actual widget colors, including hidden controls and disabled states."""
+    import tkinter as tk
+    palette = {"#111111", "#181818", "#202020", "#282828", "#333333", "#f2f2f2",
+               "#b8b8b8", "#727272", "#9c7c38", "#c6a95e", "#000000", "#7f3939", "#944545"}
+    def visit(widget):
+        if type(widget).__name__.startswith("CTk"):
+            for option in ("fg_color", "bg_color", "border_color", "hover_color", "text_color",
+                           "text_color_disabled", "button_color", "button_hover_color", "progress_color",
+                           "scrollbar_button_color", "scrollbar_button_hover_color", "placeholder_text_color",
+                           "dropdown_fg_color", "dropdown_hover_color", "dropdown_text_color"):
+                try:
+                    if option == "border_color" and widget.cget("border_width") == 0:
+                        continue
+                    color = widget.cget(option)
+                except (ValueError, AttributeError, tk.TclError):
+                    continue
+                if isinstance(color, (list, tuple)):
+                    color = color[-1]
+                if not color or color == "transparent":
+                    continue
+                rgb = "#" + "".join(f"{part//257:02x}" for part in root.winfo_rgb(color))
+                assert rgb in palette, (type(widget).__name__, option, color, rgb)
+        for child in widget.winfo_children():
+            visit(child)
+    visit(root)
+
+
+def test_family_palette_and_rectangular_preview_surround(app):
+    assert_family_palette(app)
+    assert app.file_button.cget("fg_color") == "#181818"
+    assert app.file_button.cget("hover_color") == "#282828"
+    assert app.file_button.cget("border_color") == "#333333"
+    assert app.size_menu.cget("fg_color") == "#202020"
+    assert app.size_menu.cget("text_color_disabled") == "#727272"
+    assert app.preview_panel.cget("fg_color") == "#000000"
+    assert app.preview_panel.cget("corner_radius") == 0
+    app.scanning = True; app._state()
+    for box in (app.recursive_box, app.output_checkbox, app.quality_box):
+        assert box.cget("fg_color") == box.cget("hover_color") == "#727272"
+    assert_family_palette(app)
+    app.scanning = False; app._state()
+    assert app.output_checkbox.cget("fg_color") == "#9c7c38"
+    assert app.output_checkbox.cget("hover_color") == "#c6a95e"
+    wait_for(app, lambda: app.preview_image is not None)
+    # Use actual image widgets in both windows: the displayed width determines
+    # StereoFine's surround (3% + 2 pixels, at least 16 pixels).
+    def check_preview(panel, label, displayed):
+        width, height = displayed.cget("size")
+        border = max(16, round(width * .03) + 2)
+        info = label.grid_info()
+        assert info["padx"] == info["pady"] == border
+        assert width + 2*border <= panel.winfo_width()
+        assert height + 2*border <= panel.winfo_height()
+        assert panel.cget("corner_radius") == 0
+    for size in ((1600, 900), (900, 1600), (32, 8)):
+        app.preview_image = Image.new("RGB", size)
+        app._fit_preview(); app.update_idletasks()
+        check_preview(app.preview_panel, app.preview_label, app.ctk_image)
+    app.create_custom(); app.update()
+    editor = app.editor
+    wait_for(app, lambda: editor.preview_image is not None)
+    assert_family_palette(editor)
+    check_preview(editor.preview_panel, editor.live_preview, editor.preview_image)
+    editor.cancel(); app.update()
