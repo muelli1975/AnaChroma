@@ -33,8 +33,8 @@ def app(tmp_path, monkeypatch):
     assert not callback_errors, callback_errors
 
 
-def wait_for(app, condition):
-    end=time.monotonic()+20
+def wait_for(app, condition, timeout=20):
+    end=time.monotonic()+timeout
     while time.monotonic()<end:
         app.update()
         if condition():return
@@ -98,7 +98,7 @@ def test_missing_cielab_can_switch_back_and_export(app, tmp_path, monkeypatch):
     app._refresh_methods("builtin:10"); app._method_changed()
     wait_for(app, lambda: app.preview_image is not None)
     app.start_export(False)
-    wait_for(app, lambda: not app.batch_running)
+    wait_for(app, lambda: not app.batch_running, timeout=45)
     assert list((tmp_path / "output").glob("*.jpg"))
     assert "Metadatenwarnung" in app.status.cget("text")
 
@@ -139,7 +139,7 @@ def test_input_mode_action_and_recursive_output(app, tmp_path):
     assert "Bildordner" in app.input_label.cget("text")
     assert app.action_button.cget("text") == "Alle verarbeiten"
     app.primary_action()
-    wait_for(app, lambda: not app.batch_running)
+    wait_for(app, lambda: not app.batch_running, timeout=45)
     assert list((tmp_path/"output"/"Urlaub"/"Tag1").glob("zwei_*.jpg"))
     app.load_input(root / "eins.png")
     wait_for(app, lambda: app.inputs is not None and not app.inputs.folder_input and not app.scanning)
@@ -227,7 +227,8 @@ def test_preview_navigation_and_preset_roundtrip(app,tmp_path):
     app.size_var.set("Original");app._size_changed();app.update()
     assert not app.custom_size.winfo_ismapped()
     app.start_export(False)
-    wait_for(app,lambda: not app.batch_running)
+    # Real metadata copying has a 30-second tool timeout; allow it to finish.
+    wait_for(app,lambda: not app.batch_running, timeout=45)
     assert (tmp_path/"output"/"bild0_mein_rotcyan.jpg").is_file()
 
 
