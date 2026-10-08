@@ -15,7 +15,7 @@ from .theme import BORDER, DANGER, GOLD, GOLD_HOVER, MUTED, PANEL_BG, TEXT, FONT
 class NumberControl(ctk.CTkFrame):
     """The number is authoritative; moving a thumb never rounds other values."""
     def __init__(self, master, value, changed, *, slider=True, lower=-2., upper=2.,
-                 step=.001, minimum=None, positive=False, horizontal=False):
+                 step=.001, minimum=None, positive=False, horizontal=False, width=112):
         super().__init__(master, fg_color="transparent")
         self.changed = changed
         self.lower, self.upper, self.step = lower, upper, step
@@ -23,11 +23,11 @@ class NumberControl(ctk.CTkFrame):
         self.updating = False
         self.wheel_remainder = 0.
         self.var = tk.StringVar(value=repr(value))
-        self.entry = ctk.CTkEntry(self, width=76 if horizontal else 112, height=26, textvariable=self.var, border_color=BORDER)
+        self.entry = ctk.CTkEntry(self, width=76 if horizontal else width, height=26, textvariable=self.var, border_color=BORDER)
         self.entry.pack(side="right" if horizontal else "top", fill="x", padx=2, pady=1)
         self.slider = None
         if slider:
-            self.slider = ctk.CTkSlider(self, width=110, height=14, from_=lower, to=upper,
+            self.slider = ctk.CTkSlider(self, width=max(40, width-2), height=14, from_=lower, to=upper,
                 button_color=GOLD_HOVER, button_hover_color=GOLD_HOVER, progress_color=GOLD,
                 command=self._slide)
             self.slider.pack(side="left" if horizontal else "top", fill="x", expand=horizontal, padx=6, pady=3)
@@ -124,8 +124,8 @@ class PresetEditor(ctk.CTkToplevel):
         super().__init__(app)
         self.app = app
         self.title("AnaChroma – eigenes Verfahren")
-        self.geometry("1020x650")
-        self.minsize(960, 620)
+        self.geometry("1280x700")
+        self.minsize(1120, 660)
         self.configure(fg_color=PANEL_BG)
         self.transient(app)
         self.protocol("WM_DELETE_WINDOW", self.cancel)
@@ -137,9 +137,14 @@ class PresetEditor(ctk.CTkToplevel):
         self.initializing = True
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
-        content = ctk.CTkFrame(self, fg_color="transparent")
-        content.grid(row=0, column=0, sticky="nsew", padx=16, pady=(12, 6))
-        content.grid_columnconfigure((0, 1), weight=1)
+        body = ctk.CTkFrame(self, fg_color="transparent")
+        body.grid(row=0, column=0, sticky="nsew", padx=16, pady=(12, 6))
+        body.grid_columnconfigure(0, weight=0, minsize=700)
+        body.grid_columnconfigure(1, weight=1, minsize=360)
+        body.grid_rowconfigure(0, weight=1)
+        content = ctk.CTkFrame(body, fg_color="transparent")
+        content.grid(row=0, column=0, sticky="nsew", padx=(0, 16))
+        content.grid_columnconfigure((0, 1), weight=1, uniform="matrix")
         identity = ctk.CTkFrame(content, fg_color="transparent")
         identity.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 8))
         identity.grid_columnconfigure(1, weight=1)
@@ -153,13 +158,13 @@ class PresetEditor(ctk.CTkToplevel):
         self.template = ctk.CTkOptionMenu(identity, values=list(self.templates), command=self._template)
         self.template.grid(row=2, column=1, sticky="ew", pady=3)
         self.template.set(method.name if method.builtin else "Vorlage wählen…")
-        self.preview_panel = ctk.CTkFrame(identity, fg_color=PREVIEW_BG, width=250, height=116, corner_radius=0)
-        self.preview_panel.grid(row=0, column=2, rowspan=3, padx=(16, 0), sticky="nsew")
+        self.preview_panel = ctk.CTkFrame(body, fg_color=PREVIEW_BG, corner_radius=0)
+        self.preview_panel.grid(row=0, column=1, sticky="nsew")
         self.preview_panel.grid_propagate(False)
         self.preview_panel.grid_rowconfigure(0, weight=1)
         self.preview_panel.grid_columnconfigure(0, weight=1)
         self.live_preview = ctk.CTkLabel(self.preview_panel, text="SBS-Bild laden", fg_color=PREVIEW_BG,
-                                       text_color=MUTED, wraplength=218)
+                                       text_color=MUTED, wraplength=330)
         self.live_preview.grid(row=0, column=0, sticky="nsew", padx=16, pady=16)
         self.preview_panel.bind("<Configure>", lambda _: self.show_preview(app.preview_image)
                                 if app.preview_image is not None else None)
@@ -178,7 +183,7 @@ class PresetEditor(ctk.CTkToplevel):
                 ctk.CTkLabel(grid, text=f"Ausgabe\n{channel}", text_color=MUTED).grid(row=row+2, column=0, padx=(0, 4))
                 cells = []
                 for col in range(3):
-                    cell = NumberControl(grid, values[row][col], self._changed)
+                    cell = NumberControl(grid, values[row][col], self._changed, width=90)
                     cell.grid(row=row+2, column=col+1, sticky="ew", padx=2, pady=3)
                     cells.append(cell)
                 controls.append(cells)
@@ -221,7 +226,7 @@ class PresetEditor(ctk.CTkToplevel):
         if existing:
             ctk.CTkButton(buttons, text="Löschen", command=self.delete, width=90, border_color=DANGER).pack(side="left", padx=4)
         ctk.CTkButton(buttons, text="Abbrechen", command=self.cancel, width=110).pack(side="right", padx=4)
-        self.save_button = app._button(buttons, "Verfahren speichern", self.save, primary=True)
+        self.save_button = app._button(buttons, "Verfahren speichern", self.save, primary=True, width=210)
         self.save_button.pack(side="right", padx=4)
         self.name.trace_add("write", lambda *_: self._changed())
         self.suffix.trace_add("write", lambda *_: self._changed())
