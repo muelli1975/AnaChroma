@@ -8,7 +8,7 @@ from PIL import Image
 
 from .cielab import make_cielab
 from .engine import Cancelled, check_cancel, make_anaglyph
-from .export import SizeSpec, export_image
+from .export import ExportJob, SizeSpec, export_image
 from .inputs import load_pair
 from .matrices import Method
 
@@ -82,21 +82,29 @@ def run_batch(files: tuple[Path, ...], targets: tuple[Path, ...], method: Method
               report: Callable[[tuple], None]) -> BatchResult:
     if len(files) != len(targets):
         raise ValueError("Für jedes Eingabebild wird genau ein Ausgabeziel benötigt.")
+    return run_jobs(tuple(ExportJob(source, target, method) for source, target in zip(files, targets)),
+                    size, quality, cancel, report)
+
+
+def run_jobs(jobs: tuple[ExportJob, ...], size: SizeSpec, quality: int, cancel: Event,
+             report: Callable[[tuple], None]) -> BatchResult:
     result = BatchResult()
-    for index, (source, target) in enumerate(zip(files, targets), 1):
+    for index, job in enumerate(jobs, 1):
+        source, target, method = job.source, job.target, job.method
+        label = f"{source.name} · {method.name}"
         try:
             check_cancel(cancel)
-            report(("batch_progress", index, len(files), source.name, "Lade SBS..."))
+            report(("batch_progress", index, len(jobs), label, "Lade SBS..."))
             warning = export_image(source, target, method, size, quality, cancel,
-                lambda message: report(("batch_progress", index, len(files), source.name, message)))
+                lambda message: report(("batch_progress", index, len(jobs), label, message)))
             result.processed += 1
             if warning:
-                result.warnings.append(f"{source.name}: {warning}")
-            report(("batch_file_done", index, len(files)))
+                result.warnings.append(f"{label}: {warning}")
+            report(("batch_file_done", index, len(jobs)))
         except Cancelled:
             result.cancelled = True
             break
         except Exception as exc:
-            result.errors.append(f"{source.name}: {exc}")
-            report(("batch_file_done", index, len(files)))
+            result.errors.append(f"{label}: {exc}")
+            report(("batch_file_done", index, len(jobs)))
     return result

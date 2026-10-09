@@ -69,7 +69,7 @@ def test_exact_entry_slider_wheel_and_cancel(app):
 def test_start_demo_live_preview_does_not_become_batch_input(app):
     wait_for(app, lambda: app.preview_image is not None)
     w, h = app.preview_image.size
-    assert 0 < w <= 1024 and abs(w/h-16/9) < .01
+    assert 0 < w <= 1600 and abs(w/h-16/9) < .01
     assert app.inputs is None
     assert app.save_button.cget("state") == "disabled"
     assert app.all_button.cget("state") == "disabled"
@@ -115,13 +115,12 @@ def test_language_switch_editor_template_and_slider_factors(app, tmp_path):
     editor._template(template.name)
     assert "Wimmer" in editor.name.get() and editor.suffix.get() == "eigen_wimmer"
     assert editor.draft().left == template.left and editor.draft().right == template.right
-    editor.brightness._slide(1.25)
-    editor.contrast._slide(.85)
-    assert editor.draft().brightness == 1.25 and editor.draft().contrast == .85
+    assert not hasattr(editor, "brightness") and not hasattr(editor, "contrast")
+    assert all(c.slider.cget("from_") == .625 and c.slider.cget("to") == 1.25 for c in editor.powers)
+    assert all(m.mode in {"linear", "srgb"} for m in editor.templates.values())
     # Template changes reset adjustments and update its proposed identity.
     editor._template(next(m.name for m in editor.templates.values() if m.suffix == "color"))
     assert editor.suffix.get() == "eigen_color"
-    assert editor.draft().brightness == editor.draft().contrast == 1
     editor.cancel(); app._language_changed("Deutsch"); app.update()
     assert app.file_button.cget("text") == "Einzelbild…"
     assert app.settings.language == "de"
@@ -227,7 +226,7 @@ def test_preview_navigation_and_preset_roundtrip(app,tmp_path):
     wait_for(app,lambda: app.index==0 and app.preview_after is None)
     app.create_custom();app.update()
     editor=app.editor
-    wait_for(app, lambda: editor.preview_image is not None)
+    wait_for(app, lambda: app.preview_image is not None and app.draft is not None)
     editor.name.set("Mein Rot/Cyan")
     editor.suffix.set("mein_rotcyan")
     editor.controls[0][0][0].var.set("0.456100123456")
@@ -312,7 +311,7 @@ def test_family_palette_and_rectangular_preview_surround(app):
     # Use actual image widgets in both windows: the displayed width determines
     # StereoFine's surround (3% + 2 pixels, at least 16 pixels).
     def check_preview(panel, label, displayed):
-        width, height = displayed.cget("size")
+        width, height = displayed.width(), displayed.height()
         border = max(16, round(width * .03) + 2)
         info = label.grid_info()
         assert info["padx"] == info["pady"] == border
@@ -322,10 +321,78 @@ def test_family_palette_and_rectangular_preview_surround(app):
     for size in ((1600, 900), (900, 1600), (32, 8)):
         app.preview_image = Image.new("RGB", size)
         app._fit_preview(); app.update_idletasks()
-        check_preview(app.preview_panel, app.preview_label, app.ctk_image)
+        check_preview(app.preview_panel, app.preview_label, app.preview_photo)
     app.create_custom(); app.update()
     editor = app.editor
-    wait_for(app, lambda: editor.preview_image is not None)
+    wait_for(app, lambda: app.preview_image is not None and app.draft is not None)
     assert_family_palette(editor)
-    check_preview(editor.preview_panel, editor.live_preview, editor.preview_image)
+    assert not hasattr(editor, "live_preview")
+    assert editor.save_button.winfo_width() >= 210
+    check_preview(app.preview_panel, app.preview_label, app.preview_photo)
     editor.cancel(); app.update()
+
+
+def test_modeless_editor_and_export_checklist(app):
+    from anachroma.matrices import BUILTINS
+    original = BUILTINS[2].as_custom()
+    app.custom = [original]; app._refresh_methods(original.id)
+    app.edit_custom(); app.update()
+    editor = app.editor
+    assert not editor.grab_current()
+    editor.controls[0][0][0].var.set("0.42")
+    editor.cancel(); app.update()
+    app.choose_export_methods(); app.update()
+    dialog = app.export_dialog
+    dialog.current.set(False); dialog._state()
+    for _, variable, _ in dialog.choices: variable.set(False)
+    dialog._state(); assert dialog.apply_button.cget("state") == "disabled"
+    for _, variable, _ in dialog.choices[:2]: variable.set(True)
+    dialog._state(); dialog.apply(); app.update()
+    assert len(app.output_methods()) == 2
+    old_selection = app.export_ids
+    app._refresh_methods(BUILTINS[3].id); app._method_changed()
+    assert app.export_ids == old_selection
+    values = app.method_menu.cget("values")
+    assert values[len(BUILTINS)] == app.t("Eigenes Verfahren anlegen…")
+    assert values[len(BUILTINS)+1].endswith(original.name)
+
+
+def test_preview_physical_pixels_at_increased_scaling(app):
+    import customtkinter as ctk
+    try:
+        ctk.set_widget_scaling(1.5); app.update()
+        for size in ((1600, 900), (900, 1600), (32, 8)):
+            app.preview_image = Image.new("RGB", size)
+            app._fit_preview(); app.update_idletasks()
+            width, height = app.preview_photo.width(), app.preview_photo.height()
+            border = max(16, round(width*.03)+2)
+            assert width + 2*border <= app.preview_panel.winfo_width()
+            assert height + 2*border <= app.preview_panel.winfo_height()
+    finally:
+        ctk.set_widget_scaling(1.)
+
+
+def test_navigation_focus_guard_and_multiple_exports(app, tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    from anachroma.matrices import BUILTINS
+    monkeypatch.setattr("anachroma.metadata.copy_metadata", lambda *a, **k: "")
+    for i in range(2): Image.new("RGB", (32, 8), (i*80, 90, 150)).save(tmp_path/f"bild{i}.png")
+    app.load_input(tmp_path/"bild0.png")
+    wait_for(app, lambda: not app.scanning and app.inputs is not None)
+    app._size_selected("Benutzerdefiniert"); app.update()
+    app.pixel_entry.focus_force(); app.update()
+    app._key(SimpleNamespace(keysym="Next", state=0, widget=app.pixel_entry._entry))
+    assert app.index == 0
+    app.preview_label.focus_force(); app.update()
+    app._key(SimpleNamespace(keysym="Next", state=0, widget=app))
+    assert app.index == 1
+    original = app.selected_method().id
+    app._key(SimpleNamespace(keysym="Right", state=4, widget=app))
+    assert app.selected_method().id != original
+    app.export_ids = (BUILTINS[0].id, BUILTINS[1].id)
+    app.start_export(False)
+    assert app.language_menu.cget("state") == app.pixel_entry.cget("state") == "disabled"
+    wait_for(app, lambda: not app.batch_running, timeout=45)
+    files = sorted(p.name for p in (tmp_path/"output").glob("*.jpg"))
+    assert files == ["bild1_dubois.jpg", "bild1_dubois_lcd.jpg"]
+    assert "2 Ausgaben gespeichert" in app.status.cget("text")

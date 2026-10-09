@@ -1,8 +1,8 @@
 # AnaChroma – Projektgrundlage für Version 1
 
-Stand: 9. Oktober 2026. Diese Spezifikation hält die Projektbibel und die anschließend bestätigten Abgleiche mit den aktuellen GitHub-Ständen fest. Sie beschreibt den vereinbarten v1-Funktionsumfang; der erste Entwicklungsstand ist implementiert, aber noch keine fertige v1. Der tatsächliche Prüfstand steht in [VALIDATION.md](VALIDATION.md).
+Stand: 9. Oktober 2026. Diese Spezifikation hält die Projektbibel und die anschließend bestätigten Abgleiche mit den aktuellen GitHub-Ständen fest. Sie beschreibt den implementierten Funktionsumfang für Version 1.0. Der tatsächliche Prüfstand einschließlich der noch ausstehenden Plattformpakete steht in [VALIDATION.md](VALIDATION.md).
 
-Der gemeinsame [Gestaltungs- und Bedienstandard](../DESIGN_STANDARD_STEREOTOOLS.txt), Version 1.1 vom 9. Oktober 2026, ist für Farben, Beschriftungen, Vorschauen, Ausgabeanzeige und Original-Assets verbindlich. Er enthält ausdrücklich gekennzeichnete Projektbesonderheiten und vereinbarte Ergänzungen. Der Implementierungsstand ist davon getrennt; insbesondere Mehrfachausgabe, neue Shortcuts und die einheitliche Anzeigegröße der CIELab-Vorschau sind noch gesondert umzusetzen und zu prüfen.
+Der gemeinsame [Gestaltungs- und Bedienstandard](../DESIGN_STANDARD_STEREOTOOLS.txt), Version 1.2 vom 9. Oktober 2026, ist für Farben, Beschriftungen, Vorschauen, Ausgabeanzeige und Original-Assets verbindlich. Er enthält ausdrücklich gekennzeichnete Projektbesonderheiten. Mehrfachausgabe, vereinbarte Shortcuts und die einheitliche Anzeigegröße der CIELab-Vorschau sind implementiert und lokal geprüft; native Plattformpakete werden separat geprüft.
 
 ## Name, Zweck und Grundhaltung
 
@@ -94,7 +94,6 @@ Direkt unter den Matrizen stehen drei sichtbare Abschnitte, ohne aufklappbaren B
 | Abschnitt | Bedienelemente und Hilfstext |
 | --- | --- |
 | Berechnung | **In linearem Licht berechnen**. Wandelt sRGB vor der Matrixberechnung in lineares Licht und anschließend wieder zurück; passend zur verwendeten Matrix wählen. |
-| Bildanpassung | **Helligkeit (Faktor)**, **Kontrast (Faktor)**, neutral **1**. Vorerst Zahlenfelder ohne Regler; gemeinsame sRGB-Anpassung um die mittlere Helligkeit beider Halbbilder. Zurücksetzen übernimmt alle Einstellungen der Vorlage. Gemeinsame Anpassung beider Halbbilder vor der Matrixrechnung. |
 | Farbkanäle | **Farbkanäle korrigieren** mit **Rot**, **Grün**, **Blau**, neutral jeweils **1,0**, Anfangsbereich **0,625 bis 1,25** aus den Batch-Potenzen, Schritt **0,001**; Zahleneingabe kann ihn erweitern. Kleinere Werte als 1 hellen auf, größere dunkeln ab. |
 
 Die RGB-Korrektur ist eine Potenz auf den normierten Ausgabekanälen nach der Zusammenführung und gegebenenfalls der Rückwandlung nach sRGB. Die bekannte Rotkorrektur entspricht **Rot 0,75 / Grün 1,0 / Blau 1,0**. Es werden keine Korrekturwerte automatisch aus Rot/Cyan, Grün/Magenta oder Amber/Blau abgeleitet. Bei ausgeschalteter Korrektur bleiben die gespeicherten RGB-Werte sichtbar und ausgegraut. Gültige Potenzwerte müssen positiv und endlich sein.
@@ -111,7 +110,7 @@ Editoränderungen sind zunächst ein Entwurf mit laufender Vorschau. **Speichern
 
 Die [offizielle SPM-Hilfe](https://stereo.jpn.org/eng/stphmkr/help/stereo_14.htm) beschreibt zur Ghosting-Verminderung zuerst Lab-Helligkeit/-Kontrast und danach RGB-Helligkeit/-Kontrast. Sie weist auf die Abhängigkeit von Brille und Wiedergabemedium sowie mögliches erneut auftretendes Ghosting hin. Diese Beschreibung liefert keine vollständige Rechenvorschrift für eine identische Nachimplementierung.
 
-AnaChromas allgemeine Helligkeits-/Kontrastanpassung ist deshalb kein zugesagter Algorithmus zur Ghosting-Kompensation. Ein eigener Bereich **Geisterbilder reduzieren** wird erst nach Prüfung eines konkreten Verfahrens mit realen Bildern und Betrachtungsbedingungen aufgenommen. Die [SPM-Matrixhilfe](https://stereo.jpn.org/eng/stphmkr/help/stereo_13.htm) bestätigt dagegen direkt den Ansatz gespeicherter eigener RGB-Mischungen.
+
 
 ## Ausgabegrößen und JPEG
 
@@ -206,3 +205,7 @@ Für TransCora separat vormerken: Bei Anaglyph-Video 4:4:4 ernst nehmen, eingesc
 9. Oberfläche mit echten Bildern prüfen und Release-Builds vorbereiten.
 
 Kleine robuste Schritte, verbindliche Matrixwerte, keine stillen Funktionsänderungen und keine unnötigen Abhängigkeiten. Das Repository bleibt die nachvollziehbare Quelle für Dokumentation, Code und spätere Releases.
+
+## Finaler Stand 1.0
+
+Kompakter, modeless Editor; Entwürfe erscheinen in der Hauptvorschau. Zwei Matrizen, optionale Linearisierung und RGB-Potenzen. Helligkeit/Kontrast vollständig entfernt. Spezialverfahren bleiben unverändert eingebaut. Mehrfachausgabe ist unabhängig von der Vorschau. Links/Rechts und Bild auf/ab navigieren Bilder, Strg+Links/Rechts Verfahren. Original-Asset 7680 × 2160 bytegetreu erhalten.

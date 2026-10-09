@@ -41,7 +41,7 @@ def validate_presets(methods: list[Method]) -> None:
         names.add(m.name.casefold())
 
 
-def load_presets(path: Path) -> list[Method]:
+def load_presets(path: Path, notices: list[str] | None = None) -> list[Method]:
     if not path.exists():
         return []
     try:
@@ -49,13 +49,20 @@ def load_presets(path: Path) -> list[Method]:
         if payload["schema_version"] != SCHEMA_VERSION:
             raise ValueError("Unbekannte Preset-Version; Datei wurde nicht verändert.")
         methods = []
+        adjusted = []
         for entry in payload["presets"]:
             entry = dict(entry)
+            if entry.get("brightness", 1.0) != 1.0 or entry.get("contrast", 1.0) != 1.0:
+                adjusted.append(str(entry.get("name", "")))
+            entry.pop("brightness", None)
+            entry.pop("contrast", None)
             entry["left"] = tuple(tuple(row) for row in entry["left"])
             entry["right"] = tuple(tuple(row) for row in entry["right"])
             entry["powers"] = tuple(entry["powers"])
             methods.append(Method(**entry))
         validate_presets(methods)
+        if notices is not None:
+            notices.extend(adjusted)
         return methods
     except (ValueError, TypeError, KeyError, AttributeError, OverflowError) as exc:
         raise ValueError(f"Eigene Verfahren konnten nicht geladen werden: {exc}") from exc
@@ -63,4 +70,18 @@ def load_presets(path: Path) -> list[Method]:
 
 def save_presets(path: Path, methods: list[Method]) -> None:
     validate_presets(methods)
+    # Preserve a development preset file before removing its old adjustments.
+    # Exclusive creation keeps every earlier backup intact.
+    if path.exists():
+        original = path.read_bytes()
+        payload = json.loads(original)
+        if any("brightness" in entry or "contrast" in entry for entry in payload.get("presets", [])):
+            backup = path.with_name(path.name + ".pre-1.0.bak")
+            index = 1
+            while backup.exists() and backup.read_bytes() != original:
+                backup = path.with_name(path.name + f".pre-1.0.{index}.bak")
+                index += 1
+            if not backup.exists():
+                with backup.open("xb") as stream:
+                    stream.write(original)
     atomic_json(path, {"schema_version": SCHEMA_VERSION, "presets": [asdict(m) for m in methods]})

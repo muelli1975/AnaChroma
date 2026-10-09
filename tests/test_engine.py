@@ -67,31 +67,16 @@ def test_custom_template_preserves_pipeline():
         BUILTINS[15].as_custom()
 
 
-def test_powers_and_adjustment_neutral_and_cancellation():
+def test_powers_and_cancellation():
     image = np.full((5,7,3), 64, dtype=np.uint8)
     base = BUILTINS[9].as_custom()
     corrected = replace(base, correct_rgb=True, powers=(.75,1,1))
     result = make_anaglyph(image, image, corrected)
     assert result[0,0,0] == round((64/255)**.75*255)
     assert result[0,0,1] == 64
-    np.testing.assert_array_equal(make_anaglyph(image,image,replace(base,brightness=0)), np.zeros_like(image))
     cancel = Event(); cancel.set()
     with pytest.raises(Cancelled):
         make_anaglyph(image, image, base, cancel)
-
-
-def test_joint_contrast_and_brightness_formula():
-    left = np.full((1, 1, 3), 64, dtype=np.uint8)
-    right = np.full((1, 1, 3), 192, dtype=np.uint8)
-    base = BUILTINS[9].as_custom()
-    # Joint luminance midpoint 128: halfway toward that midpoint is 96/160.
-    result = make_anaglyph(left, right, replace(base, contrast=.5))
-    np.testing.assert_array_equal(result, [[[96, 160, 160]]])
-    result = make_anaglyph(left, right, replace(base, contrast=0, brightness=.5))
-    np.testing.assert_array_equal(result, [[[64, 64, 64]]])
-    with np.errstate(over="raise", invalid="raise"):
-        result = make_anaglyph(left, right, replace(base, contrast=1e30, brightness=1e30))
-    np.testing.assert_array_equal(result, [[[0, 255, 255]]])
 
 
 def ffmpeg_filter(number):

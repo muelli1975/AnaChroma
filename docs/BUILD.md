@@ -1,6 +1,6 @@
 # AnaChroma – Development builds
 
-The current implementation is **0.1.0.dev3**, not a v1 release. The current build creates an unpack-and-run directory for the platform on which it is executed. It includes Python/Tk, Pillow, NumPy, CustomTkinter and the shared sound; it bundles the separately built CIELab PNG executable, matching complete sources and licenses. The official ExifTool distribution is bundled with its support files, licenses and sources; Linux/macOS require system Perl.
+The current version is **1.0.0**. The current build creates an unpack-and-run directory for the platform on which it is executed. It includes Python/Tk, Pillow, NumPy, CustomTkinter and the shared sound; it bundles the separately built CIELab PNG executable, matching complete sources and licenses. The official ExifTool distribution is bundled with its support files, licenses and sources; Linux/macOS require system Perl.
 
 ## Build locally
 
@@ -26,9 +26,9 @@ The output is `dist/AnaChroma`. Run `AnaChroma.exe` on Windows or `./AnaChroma` 
 
 `.github/workflows/build.yml` tests and builds on Ubuntu 24.04, Windows Server 2022 and macOS 14. The Linux job installs FFmpeg, ExifTool and Xvfb **for validation**, including the real Batch-filter and GUI tests. Missing optional reference tools and an unavailable display are reported as test skips elsewhere. FFmpeg is never a production processing dependency.
 
-Packages are downloadable as GitHub Actions artifacts after a successful run, retained for 14 days. Linux/macOS use a tar archive to preserve executable permissions; Windows uses ZIP. These are development artifacts, not published releases. The actions themselves are pinned by commit. After building, the workflow launches the actual packaged GUI with the bundled SBS example, checks the native CIELab executable including Unicode paths, and requires normal shutdown before uploading an artifact. Windows additionally compares lossless PNG pixels against the actual CIELab executable from AnaglyphBatch 1.0; a difference above 2/255 stops the job and produces a report artifact for investigation.
+Packages are downloadable as GitHub Actions artifacts after a successful run, retained for 14 days. Linux/macOS use a tar archive to preserve executable permissions; Windows uses ZIP. Branch builds are development artifacts. The v1.0 tag builds all platforms and publishes a release after every package passes its checks. The actions themselves are pinned by commit. After building, the workflow launches the actual packaged GUI with the bundled SBS example, checks the native CIELab executable including Unicode paths, and requires normal shutdown before uploading an artifact. Windows additionally compares lossless PNG pixels against the actual CIELab executable from AnaglyphBatch 1.0; a difference above 2/255 stops the job and produces a report artifact for investigation.
 
-Native macOS Intel builds and final release publication are not configured yet. Native desktop checks and a decision on each platform's external tool distribution remain necessary before a release.
+macOS packages use Apple Silicon. Native Intel builds are not configured. Native desktop testing remains useful in addition to automated checks.
 
 ## External tools
 

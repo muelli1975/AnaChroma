@@ -36,27 +36,11 @@ def make_anaglyph(left: np.ndarray, right: np.ndarray, method: Method,
     ml = np.asarray(method.left, dtype=np.float32).T
     mr = np.asarray(method.right, dtype=np.float32).T
     output = np.empty_like(left)
-    # Joint mean preserves equal adaptation of the two eyes. Contrast is an
-    # affine interpolation around this mean in sRGB, before linearization.
-    pivot = 0.
-    if method.contrast != 1.:
-        luma = np.array([.299, .587, .114], dtype=np.float32)
-        total = 0.
-        for start in range(0, left.shape[0], block_rows):
-            check_cancel(cancel)
-            total += float((left[start:start+block_rows].astype(np.float32) @ luma).sum(dtype=np.float64))
-            total += float((right[start:start+block_rows].astype(np.float32) @ luma).sum(dtype=np.float64))
-        pivot = total / (2 * left.shape[0] * left.shape[1] * 255.)
     for start in range(0, left.shape[0], block_rows):
         check_cancel(cancel)
         end = start + block_rows
         l = left[start:end].astype(np.float32) / np.float32(255.)
         r = right[start:end].astype(np.float32) / np.float32(255.)
-        if method.contrast != 1. or method.brightness != 1.:
-            # Numeric fields can exceed the practical slider ranges. Use wider
-            # intermediates for the two factors, then return to the core dtype.
-            l = np.clip((pivot + (l.astype(np.float64)-pivot)*method.contrast)*method.brightness, 0., 1.).astype(np.float32)
-            r = np.clip((pivot + (r.astype(np.float64)-pivot)*method.contrast)*method.brightness, 0., 1.).astype(np.float32)
         if method.mode == "linear":
             l, r = srgb_to_linear(l), srgb_to_linear(r)
         if method.mode == "iaian7":

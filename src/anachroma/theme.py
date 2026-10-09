@@ -55,19 +55,23 @@ def preview_border_px(displayed_image_width):
 
 
 def preview_size(image_size, viewport):
-    """Fit without enlarging the image; reserve StereoFine's black surround."""
+    """Fit in physical display pixels, reserving the complete black surround."""
     iw, ih = image_size
-    w, h = viewport
-    border = preview_border_px(min(iw, w))
-    for _ in range(4):
-        factor = min(1., max(1, w-2*border)/iw, max(1, h-2*border)/ih)
+    w, h = (max(1, int(n)) for n in viewport)
+    # A monotone search avoids rounding oscillations around the 3% boundary.
+    low, high = 0., min(w/iw, h/ih)
+    for _ in range(40):
+        factor = (low + high)/2
         size = (max(1, round(iw*factor)), max(1, round(ih*factor)))
         border = preview_border_px(size[0])
+        if size[0] + 2*border <= w and size[1] + 2*border <= h:
+            low = factor
+        else:
+            high = factor
+    size = (max(1, round(iw*low)), max(1, round(ih*low)))
+    border = preview_border_px(size[0])
     return size, border
 
 
 def clear_preview(label, text):
-    # CustomTkinter 5.2.2 does not clear the underlying Tk image option when
-    # image=None. Leaving a deleted PhotoImage there breaks later redraws.
-    label._label.configure(image="")
-    label.configure(image=None, text=text)
+    label.configure(image="", text=text)

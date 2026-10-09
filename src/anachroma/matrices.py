@@ -34,13 +34,11 @@ class Method:
     mode: str = "srgb"
     powers: tuple[float, float, float] = (1., 1., 1.)
     correct_rgb: bool = False
-    brightness: float = 1.
-    contrast: float = 1.
     builtin: bool = True
 
     @property
     def editable(self) -> bool:
-        return self.mode not in {"iaian7", "cielab"}
+        return self.mode in {"srgb", "linear"}
 
     def validate(self) -> "Method":
         if not isinstance(self.name, str) or not self.name.strip() or len(self.name) > 120:
@@ -62,8 +60,6 @@ class Method:
                     raise ValueError("Matrixwerte müssen endlich und in Float32 berechenbar sein.")
         if len(self.powers) != 3 or any(isinstance(x, bool) or not math.isfinite(x) or x < MIN_POWER or x > MAX_SAFE_VALUE for x in self.powers):
             raise ValueError("Kanalpotenzen müssen positiv und endlich sein.")
-        if any(isinstance(x, bool) or not math.isfinite(x) or x < 0 or x > MAX_SAFE_VALUE for x in (self.brightness, self.contrast)):
-            raise ValueError("Helligkeits-/Kontrastfaktoren müssen endlich und mindestens 0 sein.")
         if not isinstance(self.correct_rgb, bool):
             raise ValueError("Ungültige Einstellung zur Kanalkorrektur.")
         return self

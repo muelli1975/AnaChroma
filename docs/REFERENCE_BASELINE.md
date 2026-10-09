@@ -63,7 +63,7 @@ Das vom Nutzer genannte [Cosima-Papier „Anaglyphen“](http://www.cosima-3d.de
 
 Die Kanalpotenz `x^p` hat neutral `p=1`. Der Anfangsbereich **0,625 bis 1,25** umfasst die tatsächlich verwendeten, im Editor darstellbaren Batch-Potenzen: 0,625; 0,6666667; 0,75; 1; 1,25. Er ist für R/G/B gleichermaßen verfügbar; die bekannten Werte sind keine automatisch empfohlenen Korrekturen für Grün/Magenta oder Amber/Blau. Positive berechenbare Zahlenwerte erweitern den Bereich. SPMs Gammaformel wird damit nicht gleichgesetzt.
 
-Helligkeit und Kontrast haben zunächst **Zahlenfelder ohne Schieberegler**. Neutral ist jeweils 1; die eigene, explizit dokumentierte affine sRGB-Formel ist in [PRESET_EDITOR.md](PRESET_EDITOR.md) festgehalten. Sie ist keine Cosima-/SPM-Nachimplementierung. Eingebaute Verfahren werden durch diese Editorentscheidungen nicht verändert.
+Der Editor der Version 1.0 enthält zwei Matrizen, optionale Linearisierung und RGB-Potenzen; Entwürfe erscheinen in der Hauptvorschau. Helligkeits- und Kontrastanpassung wurden vor dem produktiven Einsatz entfernt.
 
 Die implementierten Regler sind mit Formel, Rechenfarbraum, Reihenfolge, Neutralwert, Endpunkten, Schrittweite und Quelle in [PRESET_EDITOR.md](PRESET_EDITOR.md) dokumentiert. Eine abweichende eigene Bedienentscheidung wird als solche begründet. Eine Prozentanzeige benötigt eine ausdrücklich definierte Umrechnung; sie darf keine Präzision vortäuschen, die das Verfahren nicht besitzt.
 
@@ -92,6 +92,6 @@ Upstream: [mbrown1413/anaglyph](https://github.com/mbrown1413/anaglyph). README 
 
 The native CIELab source baseline is `mbrown1413/anaglyph` at `4db425343687f796b85f04ae204e05a43e5742f0`. `native/cielab/SOURCES.json` pins unchanged calculation/solver source hashes and the downloaded libpng/zlib source archives. The obsolete OpenCV image front end is replaced by a separately licensed GPL PNG CLI. The original Windows comparison binary is taken from the hash-verified AnaglyphBatch 1.0 release ZIP.
 
-The current bundled `assets/anachroma.jpg` is a reduced 2048 × 576 RGB copy (halves 1024 × 576), not the original-resolution asset. The user's original supplied in `AnaChroma.zip` on 9 October 2026 is 7680 × 2160 RGB, 4,044,550 bytes, SHA-256 `932910b06a95927c62ee9421b4971b833c985fb9b598381a990094e9627a4e32`. Restoring that file byte-for-byte is required; this documentation update does not replace the bundled image. `assets/ASSET_HASHES.txt` currently describes the reduced file. The startup example never enters the batch input list automatically.
+The original supplied in `AnaChroma.zip` on 9 October 2026 is bundled byte-for-byte as `assets/anachroma.jpg`: 7680 × 2160 RGB, 4,044,550 bytes, SHA-256 `932910b06a95927c62ee9421b4971b833c985fb9b598381a990094e9627a4e32`. `assets/ASSET_HASHES.txt` records that original. The startup example never enters the batch input list automatically.
 
 Lossless CIELab reference PNGs were captured by the Windows comparison job in run `37641459630` and preserved with their individual SHA-256 values in `tests/fixtures/cielab_reference.json`. All platform tests compare against these actual executable outputs in addition to the fresh Windows executable comparison.

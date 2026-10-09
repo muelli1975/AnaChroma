@@ -1,4 +1,12 @@
-# AnaChroma – Prüfstand 0.1.0.dev3
+# AnaChroma – Validierung
+
+## Version 1.0
+
+Lokaler Abschlusslauf vom 9. Oktober 2026: **100 Kerntests und 12 isolierte GUI-Prüfungen bestanden**. Die Prüfungen decken Mehrfachausgabe/Kollisionen/Abbruch, echte CIELab- und FFmpeg-Referenzen, Metadaten mit ExifTool, EXIF-Tags 1–8 für JPEG/PNG/TIFF/WebP, modeless Editor und große Hauptvorschau, DE/EN und physische Vorschauabmessungen bei 150 % Skalierung ab. Die anschließende Erweiterung zum Hinweis und zur bytegetreuen Sicherung älterer Helligkeits-/Kontrast-Presets bestand alle 15 Preset-/Dateitests. Das originale SBS-Asset ist 7680 × 2160 px und entspricht SHA-256 `932910b06a95927c62ee9421b4971b833c985fb9b598381a990094e9627a4e32`. Plattformbuilds und Paketprüfungen werden für jeden Commit in GitHub Actions ausgeführt. Ein erfolgreicher älterer Lauf belegt nicht den aktuellen Build.
+
+Parallel geprüfter Freeda-1.2-Stand: 110 Unit-Tests und alle zwölf auf Linux anwendbaren GUI-Skripte bestanden ohne Tk-Callback-Fehler; die Windows-Taskbar-Prüfung ist unter Linux ausdrücklich nicht anwendbar. Die portierte Anaglyphenrechnung und sRGB-Transferdatei sind bytegleich mit SplatTricias Referenz. SplatTricias unveränderter Ladeweg bestand zudem 16 synthetische Smartphone-Hochformatfälle (JPEG/HEIC, Orientierungen 1–8) einschließlich Höhenbegrenzung. Dies ist kein Nachweis anhand der früheren Original-Smartphone-Dateien. Die AnaglyphBatch-Verarbeitung wurde nicht geändert; die früheren Windows-Praxistests konnten nicht aus dem Gesprächsarchiv rekonstruiert werden.
+
+## Historischer Stand 0.1.0.dev3
 
 Stand: 7. Oktober 2026. Diese Datei unterscheidet automatisierte technische Prüfungen von noch ausstehender stereoskopischer Praxisprüfung.
 

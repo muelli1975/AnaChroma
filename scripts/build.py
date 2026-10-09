@@ -52,7 +52,7 @@ def main() -> None:
     mac_resources = ROOT / "dist" / "AnaChroma.app" / "Contents" / "Resources"
     if sys.platform == "darwin" and mac_resources.is_dir():
         shutil.copytree(ROOT / "tools", mac_resources / "tools", dirs_exist_ok=True)
-    for filename in ("README.md", "README_DE.md", "LICENSE.txt", "THIRD_PARTY_NOTICES.md"):
+    for filename in ("README.md", "README_DE.md", "LICENSE.txt", "THIRD_PARTY_NOTICES.md", "RELEASE_NOTES_1.0.md"):
         shutil.copy2(ROOT / filename, portable / filename)
     licenses = portable / "licenses"
     licenses.mkdir(exist_ok=True)
@@ -86,7 +86,17 @@ def main() -> None:
                 "exiftool": json.loads((ROOT / "tools" / "exiftool-distribution" / "BUILD_INFO.json").read_text()),
                 "cielab": json.loads((native / "BUILD_INFO.json").read_text())}
     (portable / "BUILD_INFO.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-    print(f"Portable development build: {portable}")
+    from release_support import prepare
+    allowed = {"src", "scripts", "native", "assets", "docs", "tests", "licenses",
+               "run_anachroma.py", "pyproject.toml", "requirements-build.txt", "requirements-runtime.txt",
+               "README.md", "README_DE.md", "LICENSE.txt", "THIRD_PARTY_NOTICES.md",
+               "RELEASE_NOTES_1.0.md", "DESIGN_STANDARD_STEREOTOOLS.txt", "AGENTS.md"}
+    prepare(ROOT, portable, allowed)
+    if sys.platform == "darwin":
+        bundle = ROOT / "dist" / "AnaChroma.app"
+        subprocess.run(["codesign", "--force", "--deep", "--sign", "-", str(bundle)], check=True)
+        subprocess.run(["codesign", "--verify", "--deep", "--strict", str(bundle)], check=True)
+    print(f"Portable build: {portable}")
 
 
 if __name__ == "__main__":

@@ -8,6 +8,7 @@ import numpy as np
 from PIL import Image, ImageOps
 
 from .engine import check_cancel
+from .matrices import BUILTINS
 
 EXTENSIONS = {".jpg", ".jpeg", ".png", ".tif", ".tiff", ".bmp", ".webp"}
 
@@ -21,7 +22,7 @@ class InputList:
 
 
 def discover(path: Path, recursive: bool = False, exclude: tuple[Path, ...] = (),
-             cancel: Event | None = None) -> InputList:
+             cancel: Event | None = None, generated_suffixes: tuple[str, ...] = ()) -> InputList:
     path = path.resolve()
     is_file = path.is_file()
     if is_file and path.suffix.lower() not in EXTENSIONS:
@@ -30,18 +31,27 @@ def discover(path: Path, recursive: bool = False, exclude: tuple[Path, ...] = ()
     if not root.is_dir():
         raise ValueError("Der Eingabeordner existiert nicht.")
     excluded = tuple(p.resolve() for p in exclude)
-    # Never exclude the whole source when output equals source. Named generated
-    # subfolders are excluded, and each export uses a frozen discovery snapshot.
+    destinations = tuple(q / root.name if not is_file else q for q in excluded)
+    blocked_roots = tuple(q for q in excluded + destinations
+                          if q != root and q.is_relative_to(root))
+    same_folder_output = root in excluded or root in destinations
+    suffixes = tuple('_' + s for s in dict.fromkeys(
+        [m.suffix for m in BUILTINS] + list(generated_suffixes)))
     def blocked(p):
-        return any(p == q or q in p.parents for q in excluded if q != root)
+        p = p.resolve()
+        return any(p == q or q in p.parents for q in blocked_roots)
+    def failed(error):
+        raise error
     files = []
-    for directory, dirs, names in os.walk(root, followlinks=False):
+    for directory, dirs, names in os.walk(root, followlinks=False, onerror=failed):
         check_cancel(cancel)
         d = Path(directory)
-        dirs[:] = [n for n in dirs if n not in {"output", "tmp", "_temp"} and not blocked(d/n)]
+        dirs[:] = [n for n in dirs if n.casefold() not in {"output", "tmp", "_temp"}
+                   and not (d/n).is_symlink() and not getattr(d/n, "is_junction", lambda: False)() and not blocked(d/n)]
         for name in names:
             p = d/name
-            if p.suffix.lower() in EXTENSIONS and not blocked(p) and p.is_file():
+            generated = same_folder_output and p.stem.casefold().endswith(suffixes)
+            if p.suffix.lower() in EXTENSIONS and not generated and not blocked(p) and p.is_file() and not p.is_symlink():
                 files.append(p)
         if not recursive:
             break

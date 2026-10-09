@@ -52,7 +52,7 @@ def target_paths(inputs: InputList, files: tuple[Path, ...], output: Path, metho
     method.validate()
     targets = []
     seen = set()
-    sources = {p.resolve() for p in files}
+    sources = {str(p.resolve()).casefold() for p in inputs.files}
     for source in files:
         relative = source.relative_to(inputs.root)
         folder = Path(inputs.root.name) / relative.parent if inputs.folder_input else relative.parent
@@ -60,11 +60,32 @@ def target_paths(inputs: InputList, files: tuple[Path, ...], output: Path, metho
         key = str(target.resolve()).casefold()
         if key in seen:
             raise ValueError(f"Mehrere Eingaben würden dieselbe Ausgabedatei erzeugen: {target.name}")
-        if target.resolve() in sources:
+        if key in sources:
             raise ValueError("Eine Ausgabedatei würde ein ausgewähltes Original überschreiben.")
         seen.add(key)
         targets.append(target)
     return tuple(targets)
+
+
+@dataclass(frozen=True)
+class ExportJob:
+    source: Path
+    target: Path
+    method: Method
+
+
+def export_jobs(inputs: InputList, files: tuple[Path, ...], output: Path,
+                methods: tuple[Method, ...]) -> tuple[ExportJob, ...]:
+    """Freeze the complete job and detect collisions before any files are written."""
+    if not methods:
+        raise ValueError("Bitte mindestens ein Ausgabeverfahren auswählen.")
+    by_method = [target_paths(inputs, files, output, method) for method in methods]
+    jobs = tuple(ExportJob(source, targets[i], method)
+                 for i, source in enumerate(files) for method, targets in zip(methods, by_method))
+    destinations = [str(job.target.resolve()).casefold() for job in jobs]
+    if len(set(destinations)) != len(destinations):
+        raise ValueError("Ausgabeverfahren würden dieselbe Datei erzeugen.")
+    return jobs
 
 
 @lru_cache(maxsize=1)

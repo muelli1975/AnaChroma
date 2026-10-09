@@ -1,8 +1,9 @@
-name: Test and build development packages
+name: Test and build AnaChroma
 
 on:
   push:
     branches: [main]
+    tags: [v1.0]
   pull_request:
   workflow_dispatch:
 
@@ -53,6 +54,9 @@ jobs:
       - name: Start built GUI on Windows or macOS
         if: runner.os != 'Linux'
         run: python scripts/smoke_build.py
+      - name: Add macOS application bundle to portable directory
+        if: runner.os == 'macOS'
+        run: ditto dist/AnaChroma.app dist/AnaChroma/AnaChroma.app
       - name: Archive package (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
@@ -88,3 +92,25 @@ jobs:
             dist/CIELab-*.tar.gz
           if-no-files-found: error
           retention-days: 14
+
+  publish:
+    needs: build
+    if: github.ref == 'refs/tags/v1.0'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: AnaChroma-*
+          path: artifacts
+          merge-multiple: true
+      - name: Publish AnaChroma 1.0
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd artifacts
+          sha256sum *.zip *.tar.gz > SHA256SUMS.txt
+          cd ..
+          gh release create v1.0 artifacts/* --verify-tag --title 'AnaChroma 1.0' --notes-file RELEASE_NOTES_1.0.md

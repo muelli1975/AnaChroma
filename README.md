@@ -1,87 +1,57 @@
-# AnaChroma
+# AnaChroma 1.0
 
 [Deutsch](README_DE.md)
 
 **High-quality anaglyphs from SBS images**
 
-AnaChroma is a compact local desktop tool being developed to convert Full-SBS stereoscopic images into high-quality anaglyphs. It builds on the proven processing methods of [AnaglyphBatch](https://github.com/muelli1975/AnaglyphBatch), adding automatic preview, image navigation and convenient single-image and folder processing.
+AnaChroma converts Full-SBS stereo images into high-quality anaglyphs with automatic preview, image navigation and single-image or folder export. It works completely locally, without an account, cloud or tracking.
 
-The application is designed to work completely locally: no account, no cloud, no tracking and no online dependencies during use.
+## Quick start
 
-## Development status
+1. Open a single image or an image folder. Opening a single image also enables navigation through neighbouring images.
+2. Choose an anaglyph method and inspect the preview.
+3. Choose the output folder and image size. Under **Output methods**, optionally select several methods for simultaneous export.
+4. Use **Save image** or **Process all**. Folder processing can include subfolders.
 
-The current development version is **0.1.0.dev3**. The German desktop interface, shared processing engine, custom preset editor and single-image/folder export are implemented. The version is provided as a development build. The supplied AnaChroma icon and SBS example image are integrated. Native CIELab builds use the original calculation sources; real stereoscopic photographs and native Windows/macOS use still need practical validation.
+JPEG/JPG, PNG, TIFF/TIF, BMP and WebP are supported. Full-SBS means two views at full width, left eye on the left and right eye on the right. EXIF orientation is applied before splitting; the oriented image must have an even width.
 
-GitHub Actions prepares development packages for Windows, Linux and macOS. Details about builds and checks are in [build instructions](docs/BUILD.md) and [validation](docs/VALIDATION.md).
+## Methods and preview
 
-## Workflow
+18 methods include Dubois LCD with red correction, Dubois, Compromise, Wimmer, Cosima, Rendepth, iaian7, Grey, Color, green/magenta, amber/blue and CIELab Least Squares. Preview and export use the same processing rules.
 
-1. Open an SBS image or select an image folder.
-2. Browse the images and choose an anaglyph method; the preview updates automatically.
-3. Select the output folder and image size.
-4. Choose **Save image** in single-image mode or **Process all** in folder mode. In folder mode, the current image can also be saved separately.
+The automatic preview follows the available window area, up to a 1600 px long edge; CIELab uses up to 1024 px. Both fill the same display area. A black surround keeps existing floating stereo windows visible. The original 7680 × 2160 SBS example image is included.
 
-Opening a single image also makes the other supported images in the same folder available for navigation. Optional recursive folder processing preserves the input folder structure in the output.
+**Create custom method…**, beneath the standard methods in the menu, opens a compact editor. Adjust two 3 × 3 matrices with exact numeric entry, sliders and the mouse wheel. Optional linear-light calculation and RGB colour correction are available. Changes appear in the main preview; save a preset to reuse it. The [editor guide](docs/PRESET_EDITOR.md) explains coefficients and correction values.
 
-## Supported input
-
-AnaChroma accepts parallel Full-SBS images in JPEG/JPG, PNG, TIFF/TIF, BMP and WebP format. The left view is on the left and the right view is on the right. Both views are placed side by side at their full width.
-
-EXIF orientation is applied when loading. The oriented image must have an even width so it can be divided into two equal views.
-
-## Anaglyph methods and preview
-
-The current AnaglyphBatch provides 18 methods, including Dubois LCD with red-channel correction, Dubois, Compromise, Wimmer, Cosima 3/4, Rendepth 1/2, iaian7, Color, Half-Color, Grey, Oldschool, Frans van den Poel, John Wattie, Dubois green/magenta, Dubois amber/blue and external CIELab Least Squares.
-
-One method is selected at a time. Methods retain their individual processing rules; sRGB linearization is used only where required by the reference pipeline. Preview and export share the same processing core. Automatic preview follows the available window area, up to a 1600 px long edge. CIELab uses up to 1024 px. The preview area has square corners. Its black surround follows StereoFine (3% of displayed image width plus 2 px, at least 16 px), keeping existing floating stereo windows visible. The preset editor uses the same surround. At startup, the bundled SBS example appears as an anaglyph and responds to method selection and custom matrix drafts. It provides an immediate way to try the available methods. Load your own images for export.
-
-An explicit **Create custom method…** action opens the preset editor. Two 3 × 3 matrices can be adjusted through numeric fields, sliders and the mouse wheel, with a dedicated live preview. Matrix sliders start at −2 to +2 with 0.001 steps; direct numeric entry preserves finer coefficients and extends the slider when necessary. This is a practical editing range, not a physical limit for anaglyphs. Custom presets also include an optional linear-light calculation, brightness/contrast adjustment and individual RGB correction values. Settings appear directly beneath the matrices and are stored locally; built-in methods retain their reference behavior.
+Shortcuts: **Left/Right** or **Page Up/Page Down** browse images; **Ctrl+Left/Right** switch preview methods. Text fields and selected sliders retain their usual controls.
 
 ## Output
 
-The standard output is **JPEG quality 90, 4:4:4 without chroma subsampling, with optimized JPEG coding**. A separate **JPEG quality 95 for print/archive** option is available. Resizing uses Lanczos interpolation and preserves the aspect ratio.
+JPEG quality **90**, **4:4:4** without chroma subsampling, with optimized coding. Optional **JPEG quality 95 for print/archive**. Lanczos resizing preserves the aspect ratio.
 
-Available sizes:
+Sizes: Original; 1080p (within 1920 × 1080); 2160p (within 3840 × 2160); 2048 px long edge; custom long or short edge.
 
-- Original
-- 1080p: fit within 1920 × 1080 px
-- 2160p: fit within 3840 × 2160 px
-- 2048 px long edge
-- Custom long or short edge
+**Use subfolder in program folder** selects `output` beside the program. **Choose** selects a custom output folder. **Output destination** shows the active path. Folder processing preserves the source root name and relative subfolders under either destination. Each selected method gets its filename suffix, for example `image_dubois_lcd.jpg`. Existing results are replaced only after a complete new file has been written; colliding names and original overwrites are rejected before export.
 
-Output filenames use the current AnaglyphBatch suffixes, such as `image_dubois_lcd.jpg` or `image_compromise.jpg`.
+ExifTool copies metadata while excluding original previews, thumbnails and orientation. A metadata warning keeps the exported image. Progress counts actual output files; processing can be cancelled.
 
-Metadata is copied using ExifTool where possible, excluding embedded original previews, thumbnails and orientation tags. A metadata failure will be reported without discarding a successfully written image.
+## Portable builds and source
 
-## Source and builds
+Extract the complete [release package](https://github.com/muelli1975/AnaChroma/releases) and start AnaChroma. Keep the supplied application files and tools together. Windows includes the required runtimes; Linux/macOS need Tcl/Tk for source use and system Perl for ExifTool. macOS builds are ad-hoc signed and not notarized.
 
-The core uses Python, Pillow and NumPy, with CustomTkinter for the interface.
+Settings and custom methods stay local in `settings.json` and `presets.json` beside the program, with a user configuration folder fallback if the program folder is read-only. Paths, output mode, language and recursive selection are remembered.
 
-The build script creates a portable directory on the current platform. CIELab remains a separate executable and is bundled with matching source code and licenses in development packages. Its original calculation and solver are unchanged; a PNG interface replaces the obsolete OpenCV image front end. ExifTool is bundled with its original support files and license information. See the [CIELab build](native/cielab/README.md) and actual CI validation results.
+The core uses Python, Pillow and NumPy with CustomTkinter. CIELab and ExifTool are bundled as separate tools with their licenses and corresponding sources. Release packages include a `source` folder for the matching application source. Build details: [BUILD.md](docs/BUILD.md).
 
-The agreed scope is documented in [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md), the module structure in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), and the source baseline in [docs/REFERENCE_BASELINE.md](docs/REFERENCE_BASELINE.md).
-
-## Run from source
-
-Use Python 3.10 or newer with Tcl/Tk installed (development packages use Python 3.12). From the repository directory:
+To run from source, use Python 3.10+ with Tcl/Tk:
 
 ```sh
 python -m venv .venv
-# Activate .venv using your platform's usual command.
+# Activate .venv for your platform.
 python -m pip install -e .
 python run_anachroma.py
 ```
 
-On Windows activate with `.venv\Scripts\activate`; on Linux/macOS use `source .venv/bin/activate`. Some Linux Python distributions require their separate Tk package.
-
-ExifTool is found in `tools/exiftool.exe` (Windows), `tools/exiftool` or the system PATH. The Windows ExifTool distribution's companion files must remain beside its executable. CIELab is found in `tools/cielab/cielab.exe`, `tools/cielab/cielab` or PATH. ExifTool provides metadata transfer; CIELab adds the externally calculated Least Squares method.
-
-The default output is `output` beside the program/source checkout. **Use subfolder in program folder** enables this destination and greys out the **Custom output folder** label and path. **Choose** remains available; selecting a custom folder automatically unchecks the box. Check it again to return to the default while retaining the custom folder for later. **Output destination** always shows the active destination, including the input root name for folder processing. Folder inputs retain their root name and subfolder structure under either destination. Changing the destination reloads the selected image folder and excludes the current output destination from discovery. Paths, output mode, language and the recursive option are remembered in `settings.json`; custom methods are saved in `presets.json`. Both files are stored exclusively locally. A read-only program folder uses the user's configuration folder. Existing outputs with the same name are replaced only after a complete new image has been written; conflicting input names are rejected.
-
-Read [custom presets](docs/PRESET_EDITOR.md) for coefficient orientation, linearization and channel corrections. Set the calculation according to the source instructions for any copied matrix, especially its linearization setting.
-
 ## License
 
-AnaChroma source code and original documentation created by Christoph Müller are released under the **MIT License**. Third-party components remain under their respective licenses.
-
-See [LICENSE.txt](LICENSE.txt) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Copyright Christoph Müller. MIT License for AnaChroma; bundled third-party components retain their own licenses. See [LICENSE.txt](LICENSE.txt) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

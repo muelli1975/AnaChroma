@@ -10,7 +10,8 @@ from PIL import Image, ImageTk
 
 from . import __version__
 from .engine import Cancelled
-from .export import SIZE_LABELS, SizeSpec, target_paths
+from .export import SIZE_LABELS, SizeSpec, export_jobs
+from .export_selection import ExportSelection
 from .inputs import discover
 from .i18n import translate, translate_widgets
 from .matrices import BUILTINS
@@ -20,7 +21,7 @@ from .resources import app_dir, find_tool, resource_dir, user_dir
 from .settings import load_settings, save_settings
 from .theme import (APP_BG, BORDER, DISABLED, GOLD, GOLD_HOVER, MUTED, PANEL_BG, SECONDARY_BG,
                     TEXT, HOVER_BG, FONT_FAMILY, PREVIEW_BG, configure_theme, preview_size, clear_preview)
-from .worker import PreviewWorker, run_batch
+from .worker import PreviewWorker, run_jobs
 
 
 class AnaChromaApp(ctk.CTk):
@@ -48,7 +49,7 @@ class AnaChromaApp(ctk.CTk):
         self.resize_after = None
         self.preview_edge = 1024
         self.preview_image = None
-        self.ctk_image = None
+        self.preview_photo = None
         self.closed = False
         self.inputs = None
         self.demo_path = resource_dir() / "assets" / "anachroma.jpg"
@@ -60,14 +61,18 @@ class AnaChromaApp(ctk.CTk):
         self.batch_running = False
         self.batch_thread = None
         self.editor = None
+        self.export_ids = None
+        self.export_dialog = None
+        self.current_method_id = BUILTINS[0].id
         self.draft = None
         self.settings_path = user_dir()/"settings.json"
         self.presets_path = user_dir()/"presets.json"
         self.settings = load_settings(self.settings_path)
         self.language = self.settings.language
         self.presets_error = ""
+        self.presets_notices = []
         try:
-            self.custom = load_presets(self.presets_path)
+            self.custom = load_presets(self.presets_path, self.presets_notices)
         except (OSError, ValueError) as exc:
             self.custom = []
             self.presets_error = str(exc)
@@ -121,9 +126,10 @@ class AnaChromaApp(ctk.CTk):
         options.update(kwargs)
         button = ctk.CTkButton(parent, text=text, command=command, **options)
         if primary:
-            button.bind("<Enter>", lambda _: button.configure(text_color=APP_BG)
+            button.bind("<Enter>", lambda _: button.configure(text_color=APP_BG, border_color=GOLD_HOVER)
                         if button.cget("state") == "normal" else None, add="+")
-            button.bind("<Leave>", lambda _: button.configure(text_color=GOLD_HOVER), add="+")
+            button.bind("<Leave>", lambda _: button.configure(text_color=GOLD_HOVER,
+                        border_color=GOLD if button.cget("state") == "normal" else BORDER), add="+")
         return button
 
     def _section(self, parent, text):
@@ -182,10 +188,8 @@ class AnaChromaApp(ctk.CTk):
         methods = self._section(sidebar, "Anaglyph")
         ctk.CTkLabel(methods, text="Verfahren", anchor="w").pack(fill="x", padx=12)
         self.method_menu = ctk.CTkOptionMenu(methods, variable=self.method_var, values=[""],
-                                           command=lambda _: self._method_changed())
+                                           command=self._method_changed)
         self.method_menu.pack(fill="x", padx=12, pady=4)
-        self.create_button = self._button(methods, "Eigenes Verfahren anlegen…", self.create_custom)
-        self.create_button.pack(fill="x", padx=12, pady=4)
         self.edit_button = self._button(methods, "Bearbeiten…", self.edit_custom)
         self.edit_button.pack(fill="x", padx=12, pady=4)
         ctk.CTkLabel(methods, text="Größe", anchor="w").pack(fill="x", padx=12, pady=(8, 0))
@@ -193,8 +197,10 @@ class AnaChromaApp(ctk.CTk):
                                          command=self._size_selected)
         self.size_menu.pack(fill="x", padx=12, pady=4)
         self.custom_size = ctk.CTkFrame(methods, fg_color="transparent")
-        ctk.CTkRadioButton(self.custom_size, text="lange Seite", variable=self.edge_var, value="long", fg_color=GOLD).pack(anchor="w", pady=3)
-        ctk.CTkRadioButton(self.custom_size, text="kurze Seite", variable=self.edge_var, value="short", fg_color=GOLD).pack(anchor="w", pady=3)
+        self.long_radio = ctk.CTkRadioButton(self.custom_size, text="lange Seite", variable=self.edge_var, value="long", fg_color=GOLD)
+        self.long_radio.pack(anchor="w", pady=3)
+        self.short_radio = ctk.CTkRadioButton(self.custom_size, text="kurze Seite", variable=self.edge_var, value="short", fg_color=GOLD)
+        self.short_radio.pack(anchor="w", pady=3)
         size_row = ctk.CTkFrame(self.custom_size, fg_color="transparent")
         size_row.pack(fill="x", pady=4)
         self.pixel_entry = ctk.CTkEntry(size_row, textvariable=self.pixel_var, width=125)
@@ -203,6 +209,12 @@ class AnaChromaApp(ctk.CTk):
         self.size_anchor = ctk.CTkFrame(methods, height=6, fg_color="transparent")
         self.size_anchor.pack(fill="x")
         jobs = self._section(side, "Verarbeitung")
+        export_row = ctk.CTkFrame(jobs, fg_color="transparent")
+        export_row.pack(fill="x", padx=12, pady=(0, 4))
+        self.export_summary = ctk.CTkLabel(export_row, text="", anchor="w", justify="left", wraplength=175)
+        self.export_summary.pack(side="left", fill="x", expand=True)
+        self.export_button = self._button(export_row, "Auswählen", self.choose_export_methods, width=84)
+        self.export_button.pack(side="right", padx=(4, 0))
         self.action_button = self._button(jobs, "Bild speichern", self.primary_action, primary=True, height=38)
         self.action_button.pack(fill="x", padx=12, pady=4)
         self.save_button = self._button(jobs, "Aktuelles Bild speichern", lambda: self.start_export(False))
@@ -222,7 +234,8 @@ class AnaChromaApp(ctk.CTk):
         self.preview_panel.grid(row=2, column=0, sticky="nsew")
         self.preview_panel.grid_columnconfigure(0, weight=1)
         self.preview_panel.grid_rowconfigure(0, weight=1)
-        self.preview_label = ctk.CTkLabel(self.preview_panel, text="Datei oder Ordner laden", text_color=MUTED, fg_color=PREVIEW_BG)
+        self.preview_label = tk.Label(self.preview_panel, text="Datei oder Ordner laden", fg=MUTED, bg=PREVIEW_BG,
+                                      font=(FONT_FAMILY, 13), borderwidth=0, highlightthickness=0)
         self.preview_label.grid(row=0, column=0, sticky="nsew", padx=12, pady=12)
         self.preview_panel.bind("<Configure>", self._preview_resize)
         for sequence in ("<MouseWheel>", "<Button-4>", "<Button-5>"):
@@ -250,6 +263,11 @@ class AnaChromaApp(ctk.CTk):
     def _startup_notes(self):
         if self.presets_error:
             messagebox.showwarning(self.t("Eigene Verfahren"), self.t(self.presets_error + "\nDie Datei bleibt unverändert; Speichern ist bis zur Klärung gesperrt."), parent=self)
+        elif self.presets_notices:
+            messagebox.showwarning(self.t("Eigene Verfahren"),
+                self.t("Diese älteren Verfahren enthalten Helligkeits-/Kontrastanpassungen, die in Version 1.0 entfallen:")
+                + "\n" + "\n".join(self.presets_notices) + "\n\n"
+                + self.t("Matrizen und RGB-Korrektur bleiben erhalten. Beim Speichern wird die ursprüngliche Preset-Datei als .pre-1.0.bak gesichert."), parent=self)
         missing = [n for n in ("ExifTool" if not find_tool("exiftool") else "", "CIELab" if not find_tool("cielab") else "") if n]
         if missing:
             self.status.configure(text=self.t("Bereit. Externe Tools nicht gefunden: " + ", ".join(missing) + "."))
@@ -260,14 +278,26 @@ class AnaChromaApp(ctk.CTk):
             self.methods[f"{n}  {method.name}"] = method
         for method in self.custom:
             self.methods[self.t(f"Eigene: {method.name}")] = method
-        self.method_menu.configure(values=list(self.methods))
+        self.method_menu.configure(values=list(self.methods)[:len(BUILTINS)]
+            + [self.t("Eigenes Verfahren anlegen…")] + list(self.methods)[len(BUILTINS):])
         label = next((name for name, method in self.methods.items() if method.id == selected), next(iter(self.methods)))
         self.method_var.set(label)
+        self.current_method_id = self.methods[label].id
+        if self.export_ids is not None:
+            valid = {m.id for m in self.methods.values()}
+            self.export_ids = tuple(i for i in self.export_ids if i in valid) or None
+        self._refresh_export_selection()
 
     def selected_method(self):
-        return self.methods[self.method_var.get()]
+        return self.methods.get(self.method_var.get()) or next(
+            m for m in self.methods.values() if m.id == self.current_method_id)
 
-    def _method_changed(self):
+    def _method_changed(self, value=None):
+        if value == self.t("Eigenes Verfahren anlegen…"):
+            self._refresh_methods(self.current_method_id)
+            self.create_custom()
+            return
+        self.current_method_id = self.selected_method().id
         self._state()
         self.request_preview()
 
@@ -285,13 +315,15 @@ class AnaChromaApp(ctk.CTk):
     def _state(self):
         busy = self.batch_running or self.scanning
         for widget in (self.file_button, self.folder_button, self.recursive_box, self.output_checkbox,
-                       self.size_menu, self.quality_box):
+                       self.size_menu, self.quality_box, self.pixel_entry, self.long_radio, self.short_radio,
+                       self.language_menu, self.export_button):
             widget.configure(state="disabled" if busy else "normal")
             if isinstance(widget, ctk.CTkCheckBox):
                 widget.configure(fg_color=DISABLED if busy else GOLD,
                                  hover_color=DISABLED if busy else GOLD_HOVER)
-        for widget in (self.method_menu, self.create_button):
+        for widget in (self.method_menu,):
             widget.configure(state="disabled" if busy or self.editor is not None else "normal")
+        self.export_button.configure(state="disabled" if busy or self.editor is not None else "normal")
         self.edit_button.configure(state="normal" if not busy and self.editor is None and not self.selected_method().builtin else "disabled")
         for widget in (self.save_button, self.action_button):
             widget.configure(state="normal" if self.inputs and not busy and self.editor is None else "disabled")
@@ -309,9 +341,10 @@ class AnaChromaApp(ctk.CTk):
         else:
             self.input_label.configure(text=self.t("Keine Bilder gewählt"))
         self._refresh_output()
+        self._refresh_export_selection()
         self.cancel_button.configure(state="normal" if busy else "disabled")
-        self.previous_button.configure(state="normal" if self.inputs and self.index > 0 and not self.scanning else "disabled")
-        self.next_button.configure(state="normal" if self.inputs and self.index < len(self.inputs.files)-1 and not self.scanning else "disabled")
+        self.previous_button.configure(state="normal" if self.inputs and self.index > 0 and not busy else "disabled")
+        self.next_button.configure(state="normal" if self.inputs and self.index < len(self.inputs.files)-1 and not busy else "disabled")
 
     def open_file(self):
         selected = filedialog.askopenfilename(parent=self, title=self.t("SBS-Bild wählen"), initialdir=self.settings.last_input or None,
@@ -385,12 +418,15 @@ class AnaChromaApp(ctk.CTk):
         self.scan_cancel.set()
         cancel = self.scan_cancel = Event()
         self.scanning = True
+        self.preview_id += 1
+        self.preview_worker.active_cancel.set()
         recursive, output = self.recursive.get(), self._effective_output()
+        suffixes = tuple(m.suffix for m in self.custom)
         self.status.configure(text=self.t("Suche SBS-Bilder..."))
         self._state()
         def scan():
             try:
-                found = discover(path, recursive, (output,) if output is not None else (), cancel)
+                found = discover(path, recursive, (output,) if output is not None else (), cancel, suffixes)
                 self.events.put(("scan", identifier, found))
             except Cancelled:
                 self.events.put(("scan_cancelled", identifier))
@@ -399,23 +435,34 @@ class AnaChromaApp(ctk.CTk):
         Thread(target=scan, daemon=True, name="anachroma-inputs").start()
 
     def navigate(self, delta, absolute=None):
-        if not self.inputs or self.scanning:
+        if not self.inputs or self.scanning or self.batch_running:
             return
         self.index = min(max(absolute if absolute is not None else self.index+delta, 0), len(self.inputs.files)-1)
         self._state()
         self.request_preview()
 
     def _key(self, event):
-        if event.widget.winfo_toplevel() != self:
+        if event.widget.winfo_toplevel() != self or self.batch_running or self.scanning:
             return None
-        if event.widget.winfo_class() in {"Entry", "TEntry", "Text"}:
+        widget = event.widget
+        while widget != self:
+            if widget.winfo_class() in {"Entry", "TEntry", "Text", "Spinbox"} or isinstance(widget, ctk.CTkSlider):
+                return None
+            widget = widget.master
+        if event.state & 4:
+            if event.keysym in {"Left", "Right"} and self.editor is None:
+                methods = list(self.methods.values())
+                index = next(i for i, m in enumerate(methods) if m.id == self.selected_method().id)
+                selected = methods[(index + (-1 if event.keysym == "Left" else 1)) % len(methods)]
+                self._refresh_methods(selected.id)
+                self._method_changed()
+                return "break"
+            return None
+        if event.state & (8 | 131072):
             return None
         mapping = {"Left": -1, "Prior": -1, "Right": 1, "Next": 1}
         if event.keysym in mapping:
             self.navigate(mapping[event.keysym])
-            return "break"
-        if self.inputs and event.keysym in {"Home", "End"}:
-            self.navigate(0, 0 if event.keysym == "Home" else len(self.inputs.files)-1)
             return "break"
 
     def _wheel(self, event):
@@ -432,6 +479,8 @@ class AnaChromaApp(ctk.CTk):
         path = self.preview_path()
         if path is None:
             return
+        if self.batch_running or self.scanning:
+            return
         self.preview_id += 1  # invalidate results immediately, even during throttle
         self.filename.configure(text=self.t(f"{self.index+1}/{len(self.inputs.files)} · {path.name}" if self.inputs
                                 else "AnaChroma · Beispielbild"))
@@ -439,7 +488,7 @@ class AnaChromaApp(ctk.CTk):
         label = "Entwurf · " if self.draft is not None else ""
         self.preview_note.configure(text=self.t(label + method.name))
         if self.preview_after is None:
-            self.preview_after = self.after(100, self._submit_preview)
+            self.preview_after = self.after(180, self._submit_preview)
 
     def preview_path(self):
         if self.inputs:
@@ -454,10 +503,8 @@ class AnaChromaApp(ctk.CTk):
         method = self.draft or self.selected_method()
         if method.mode == "cielab" and find_tool("cielab") is None:
             clear_preview(self.preview_label, self.t("CIELab nicht gefunden.\nBitte ein anderes Verfahren wählen."))
-            if self.editor is not None:
-                self.editor.show_preview(None, self.t("CIELab nicht gefunden. Andere Verfahren sind verfügbar."))
             self.preview_image = None
-            self.ctk_image = None
+            self.preview_photo = None
             self.status.configure(text=self.t("CIELab nicht gefunden. Andere Verfahren sind verfügbar."))
             self._state()
             return
@@ -472,8 +519,8 @@ class AnaChromaApp(ctk.CTk):
         image = self.preview_image
         size, border = preview_size(image.size, (self.preview_panel.winfo_width(), self.preview_panel.winfo_height()))
         self.preview_label.grid_configure(padx=border, pady=border)
-        self.ctk_image = ctk.CTkImage(light_image=image, dark_image=image, size=size)
-        self.preview_label.configure(image=self.ctk_image, text=self.t(""))
+        self.preview_photo = ImageTk.PhotoImage(image.resize(size, Image.Resampling.LANCZOS), master=self)
+        self.preview_label.configure(image=self.preview_photo, text=self.t(""))
 
     def _preview_limit(self, method):
         if method.mode == "cielab":
@@ -499,10 +546,14 @@ class AnaChromaApp(ctk.CTk):
         if not method.editable:
             messagebox.showinfo(self.t("Eigenes Verfahren"), self.t("Dieses Spezialverfahren benötigt zusätzliche Rechenschritte.\nDer Editor beginnt stattdessen mit der einfachen Color-Matrix."), parent=self)
             method = BUILTINS[9]
+        if self.batch_running or self.scanning or self.editor is not None:
+            return
         self.editor = PresetEditor(self, method)
         self._state()
 
     def edit_custom(self):
+        if self.batch_running or self.scanning or self.editor is not None:
+            return
         self.editor = PresetEditor(self, self.selected_method(), existing=True)
         self._state()
 
@@ -532,25 +583,47 @@ class AnaChromaApp(ctk.CTk):
         self._state()
         self.request_preview()
 
+    def output_methods(self):
+        if self.export_ids is None:
+            return (self.selected_method(),)
+        chosen = set(self.export_ids)
+        return tuple(m for m in self.methods.values() if m.id in chosen)
+
+    def _refresh_export_selection(self):
+        if not hasattr(self, "export_summary"):
+            return
+        text = "Aktuelles Verfahren" if self.export_ids is None else f"{len(self.export_ids)} Verfahren gewählt"
+        self.export_summary.configure(text=self.t("Ausgabeverfahren") + ":\n" + self.t(text))
+
+    def choose_export_methods(self):
+        if self.batch_running or self.scanning or self.editor is not None or self.export_dialog is not None:
+            return
+        self.export_dialog = ExportSelection(self)
+
     def start_export(self, all_images):
-        if not self.inputs or self.batch_running or self.editor is not None:
+        if not self.inputs or self.batch_running or self.scanning or self.editor is not None:
             return
         try:
             pixels = int(self.pixel_var.get()) if self.size_var.get() == "Benutzerdefiniert" else 2048
             size = SizeSpec(self.size_var.get(), self.edge_var.get(), pixels)
             size.dimensions((1920, 1080))  # validate custom input before the worker
-            method = self.selected_method()
-            if method.mode == "cielab" and find_tool("cielab") is None:
+            methods = self.output_methods()
+            if any(m.mode == "cielab" for m in methods) and find_tool("cielab") is None:
                 raise ValueError("CIELab ist nicht installiert. Externes Programm unter tools/cielab bereitstellen.")
             files = self.inputs.files if all_images else (self.inputs.files[self.index],)
             output = self._effective_output()
             if output is None:
                 raise ValueError("Bitte einen Ausgabeordner auswählen.")
-            targets = target_paths(self.inputs, files, output, method)
+            jobs = export_jobs(self.inputs, files, output, methods)
         except (ValueError, OSError) as exc:
             messagebox.showerror(self.t("Verarbeitung"), self.t(str(exc)), parent=self)
             return
         self.batch_running = True
+        self.preview_id += 1
+        self.preview_worker.active_cancel.set()
+        if self.preview_after is not None:
+            self.after_cancel(self.preview_after)
+            self.preview_after = None
         cancel = self.batch_cancel = Event()
         quality = 95 if self.quality95.get() else 90
         self.progress.set(0)
@@ -558,7 +631,7 @@ class AnaChromaApp(ctk.CTk):
         self._state()
         def run():
             try:
-                result = run_batch(files, targets, method, size, quality, cancel, self.events.put)
+                result = run_jobs(jobs, size, quality, cancel, self.events.put)
                 self.events.put(("batch_done", result))
             except Exception as exc:
                 self.events.put(("batch_error", str(exc)))
@@ -592,29 +665,25 @@ class AnaChromaApp(ctk.CTk):
                 elif kind == "preview" and event[1] == self.preview_id:
                     self.preview_image = event[2]
                     self._fit_preview()
-                    if self.editor is not None:
-                        self.editor.show_preview(self.preview_image)
                     if not self.batch_running and not self.scanning:
                         self.status.configure(text=self.t("Vorschau bereit."))
                 elif kind == "preview_error" and event[1] == self.preview_id:
                     clear_preview(self.preview_label, self.t(event[2]))
                     self.preview_image = None
-                    self.ctk_image = None
+                    self.preview_photo = None
                     self.preview_label.configure(wraplength=600)
-                    if self.editor is not None:
-                        self.editor.show_preview(None, event[2])
                     if not self.batch_running:
                         self.status.configure(text=self.t(event[2]))
                 elif kind == "batch_progress":
                     _, index, total, filename, status = event
                     self.progress.set((index-1)/total)
-                    self.status.configure(text=self.t(f"Datei {index}/{total} · {filename} · {status}"))
+                    self.status.configure(text=self.t(f"Ausgabe {index}/{total} · {filename} · {status}"))
                 elif kind == "batch_file_done":
                     self.progress.set(event[1]/event[2])
                 elif kind == "batch_done":
                     self.batch_running = False
                     result = event[1]
-                    text = f"{'Abgebrochen' if result.cancelled else 'Fertig'}. {result.processed} Bilder verarbeitet, {len(result.errors)} Fehler."
+                    text = f"{'Abgebrochen' if result.cancelled else 'Fertig'}. {result.processed} Ausgaben gespeichert, {len(result.errors)} Fehler."
                     if result.warnings:
                         text += f" {len(result.warnings)} Metadatenwarnungen."
                     self.status.configure(text=self.t(text))

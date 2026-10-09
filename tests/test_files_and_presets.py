@@ -139,3 +139,20 @@ def test_batch_continues_after_error_and_reports_cancellation(tmp_path,monkeypat
     cancel=Event();cancel.set()
     r=run_batch(files,files,BUILTINS[0],SizeSpec(),90,cancel,lambda _:None)
     assert r.cancelled and not r.errors and not r.processed
+
+
+def test_development_adjustments_are_discarded(tmp_path):
+    import json
+    from dataclasses import asdict
+    path=tmp_path/"presets.json"
+    method=BUILTINS[0].as_custom()
+    entry=asdict(method);entry.update(brightness=1.2, contrast=.9)
+    path.write_text(json.dumps({"schema_version":1,"presets":[entry]}))
+    original = path.read_bytes()
+    notices = []
+    assert load_presets(path, notices)==[method]
+    assert notices == [method.name]
+    assert path.read_bytes() == original
+    save_presets(path,[method])
+    assert "brightness" not in path.read_text() and "contrast" not in path.read_text()
+    assert path.with_name("presets.json.pre-1.0.bak").read_bytes() == original

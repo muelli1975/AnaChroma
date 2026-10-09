@@ -4,6 +4,12 @@ import re
 from string import Formatter
 
 EN = {
+    "Diese älteren Verfahren enthalten Helligkeits-/Kontrastanpassungen, die in Version 1.0 entfallen:": "These older methods contain brightness/contrast adjustments removed in version 1.0:",
+    "Matrizen und RGB-Korrektur bleiben erhalten. Beim Speichern wird die ursprüngliche Preset-Datei als .pre-1.0.bak gesichert.": "Matrices and RGB correction are retained. Saving backs up the original preset file as .pre-1.0.bak.",
+    "Ausgabeverfahren": "Export methods", "Aktuelles Verfahren": "Current method",
+    "Aktuelles Verfahren verwenden": "Use current method", "Übernehmen": "Apply",
+    "Bitte mindestens ein Ausgabeverfahren auswählen.": "Please select at least one export method.",
+    "Ausgabeverfahren würden dieselbe Datei erzeugen.": "Export methods would create the same file.",
     "Hochwertige Anaglyphen aus SBS-Bildern": "High-quality anaglyphs from SBS images",
     "Eingabe": "Input", "Ausgabe": "Output", "Anaglyph": "Anaglyph", "Verarbeitung": "Processing",
     "Einzelbild…": "Single image…", "Bildordner…": "Image folder…", "Einzelbild": "Single image",
@@ -40,8 +46,8 @@ EN = {
     "Matrix rechts": "Right matrix", "Rot": "Red", "Grün": "Green", "Blau": "Blue",
     "Eingang Rot": "Input red", "Eingang Grün": "Input green", "Eingang Blau": "Input blue",
     "Ausgabe\nRot": "Output\nred", "Ausgabe\nGrün": "Output\ngreen", "Ausgabe\nBlau": "Output\nblue",
-    "In linearem Licht berechnen": "Calculate in linear light", "Bildanpassung": "Image adjustment",
-    "Helligkeit": "Brightness", "Kontrast": "Contrast", "Farbkorrektur": "Colour correction",
+    "In linearem Licht berechnen": "Calculate in linear light",
+    "Farbkorrektur": "Colour correction",
     "Zurücksetzen": "Reset", "Löschen": "Delete", "Verfahren speichern": "Save method",
     "SBS-Bild laden": "Load an SBS image", "Eigene Variante": "Custom variant",
     "Bitte einen Ausgabeordner auswählen.": "Please choose an output folder.",
@@ -59,7 +65,6 @@ EN = {
         "Suffix: lowercase letters, digits and underscores; start with a letter.",
     "Matrixwerte müssen endlich und in Float32 berechenbar sein.": "Matrix values must be finite and computable in Float32.",
     "Kanalpotenzen müssen positiv und endlich sein.": "Channel powers must be positive and finite.",
-    "Helligkeits-/Kontrastfaktoren müssen endlich und mindestens 0 sein.": "Brightness/contrast factors must be finite and at least 0.",
     "Bildbreite ist nicht gerade – SBS kann nicht sauber geteilt werden.": "Image width is odd – SBS cannot be split evenly.",
     "Keine unterstützten Bilder gefunden.": "No supported images found.",
     "Der Eingabeordner existiert nicht.": "The input folder does not exist.",
@@ -76,6 +81,11 @@ EN = {
 }
 
 FORMATS = (
+    ("{count} Verfahren gewählt", "{count} methods selected"),
+    ("Ausgabe {index}/{total} · {filename} · {status}", "Output {index}/{total} · {filename} · {status}"),
+    ("{state}. {count} Ausgaben gespeichert, {errors} Fehler.", "{state}. {count} outputs saved, {errors} errors."),
+    ("{state}. {count} Ausgaben gespeichert, {errors} Fehler. {warnings} Metadatenwarnungen.",
+     "{state}. {count} outputs saved, {errors} errors. {warnings} metadata warnings."),
     ("Bildordner · {count} Bilder", "Image folder · {count} images"),
     ("AnaChroma · Beispielbild", "AnaChroma · Sample image"),
     ("Eigene: {name}", "Custom: {name}"), ("Entwurf · {name}", "Draft · {name}"),

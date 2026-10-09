@@ -15,7 +15,7 @@ class PackagedSmokeCheck:
     def poll(self):
         app = self.app
         if self.stage == "demo":
-            if app.preview_image is None or app.ctk_image is None:
+            if app.preview_image is None or app.preview_photo is None:
                 return False
             w, h = app.preview_image.size
             if not (0 < w <= 1024 and abs(w/h-16/9) < .01) or app.inputs is not None:

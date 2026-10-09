@@ -1,87 +1,57 @@
-# AnaChroma
+# AnaChroma 1.0
 
 [English](README.md)
 
 **Hochwertige Anaglyphen aus SBS-Bildern**
 
-AnaChroma ist ein kompaktes lokales Desktop-Werkzeug in Entwicklung, das Full-SBS-Stereobilder in hochwertige Anaglyphen umwandelt. Es baut auf den bewährten Verfahren der [AnaglyphBatch](https://github.com/muelli1975/AnaglyphBatch) auf und ergänzt automatische Vorschau, Bildnavigation sowie komfortable Einzelbild- und Ordnerverarbeitung.
+AnaChroma konvertiert Full-SBS-Stereobilder in hochwertige Anaglyphen, mit automatischer Vorschau, Bildnavigation und Einzelbild- oder Ordnerausgabe. Die Verarbeitung läuft vollständig lokal, ohne Account, Cloud oder Tracking.
 
-Die Anwendung ist für vollständig lokale Verarbeitung ausgelegt: kein Account, keine Cloud, kein Tracking und keine Online-Abhängigkeiten während der Nutzung.
+## Schnellstart
 
-## Entwicklungsstand
+1. Ein Einzelbild oder einen Bildordner öffnen. Bei einem Einzelbild stehen auch die benachbarten Bilder zur Navigation bereit.
+2. Ein Anaglyphenverfahren wählen und die Vorschau prüfen.
+3. Ausgabeordner und Größe wählen. Unter **Ausgabeverfahren** lassen sich mehrere Verfahren für die gleichzeitige Ausgabe auswählen.
+4. **Bild speichern** oder **Alle verarbeiten** starten. Bei Ordnern können Unterordner einbezogen werden.
 
-Der aktuelle Entwicklungsstand ist **0.1.0.dev3**. Die zwischen Deutsch und Englisch umschaltbare Oberfläche, die gemeinsame Engine, der Editor für eigene Presets und Einzelbild-/Ordnerexport sind implementiert. Die Version wird als Entwicklungsbuild bereitgestellt. Das bereitgestellte AnaChroma-Icon und das SBS-Beispielbild sind eingebunden. CIELab wird aus den Original-Rechenquellen nativ gebaut; echte Stereofotos und die native Bedienung unter Windows/macOS müssen weiterhin praktisch geprüft werden.
+Unterstützt werden JPEG/JPG, PNG, TIFF/TIF, BMP und WebP. Full-SBS enthält zwei Halbbilder in voller Breite: links das linke Auge, rechts das rechte. EXIF-Orientation wird vor dem Teilen angewendet; das ausgerichtete Bild muss eine gerade Breite haben.
 
-GitHub Actions bereitet Entwicklungspakete für Windows, Linux und macOS vor. Details zu Builds und Prüfungen stehen in [Build-Anleitung](docs/BUILD.md) und [Prüfstand](docs/VALIDATION.md).
+## Verfahren und Vorschau
 
-## Ablauf
+18 Verfahren umfassen unter anderem Dubois LCD mit Rotkorrektur, Dubois, Compromise, Wimmer, Cosima, Rendepth, iaian7, Grey, Color, Grün/Magenta, Amber/Blau und CIELab Least Squares. Vorschau und Export verwenden dieselben Rechenregeln.
 
-1. Ein SBS-Bild öffnen oder einen Bildordner auswählen.
-2. Durch die Bilder blättern und ein Anaglyphenverfahren wählen; die Vorschau aktualisiert sich automatisch.
-3. Ausgabeordner und Bildgröße auswählen.
-4. Im Einzelbildmodus **Bild speichern**, im Ordnermodus **Alle verarbeiten** wählen. Im Ordnermodus lässt sich auch nur das aktuelle Bild speichern.
+Die automatische Vorschau folgt der verfügbaren Fensterfläche bis maximal 1600 px lange Seite; CIELab verwendet maximal 1024 px. Beide nutzen dieselbe Anzeigefläche. Ein schwarzer Umraum macht vorhandene schwebende Scheinfenster sichtbar. Das originale SBS-Beispielbild mit 7680 × 2160 px ist enthalten.
 
-Beim Öffnen einer einzelnen Datei werden auch die anderen unterstützten Bilder im selben Ordner für die Navigation verfügbar. Die optionale Verarbeitung von Unterordnern erhält die Eingabeordnerstruktur in der Ausgabe.
+**Eigenes Verfahren anlegen…** steht im Menü unter den Standardverfahren und öffnet einen kompakten Editor. Zwei 3×3-Matrizen lassen sich über präzise Zahlenfelder, Regler und das Mausrad einstellen. Dazu kommen optionale Berechnung in linearem Licht und RGB-Farbkorrektur. Änderungen erscheinen in der großen Hauptvorschau; gespeicherte Verfahren können erneut verwendet werden. Die [Editor-Anleitung](docs/PRESET_EDITOR.md) erklärt Koeffizienten und Korrekturwerte.
 
-## Unterstützte Eingabe
-
-AnaChroma ist für parallele Full-SBS-Bilder in JPEG/JPG, PNG, TIFF/TIF, BMP und WebP vorgesehen. Links steht das linke, rechts das rechte Halbbild. Beide Ansichten liegen in voller Breite nebeneinander.
-
-Die EXIF-Orientierung wird beim Laden angewendet. Das ausgerichtete Bild muss eine gerade Breite besitzen, damit es in zwei gleich große Halbbilder geteilt werden kann.
-
-## Anaglyphenverfahren und Vorschau
-
-Die aktuelle AnaglyphBatch liefert 18 Verfahren, darunter Dubois LCD mit Rotkanalkorrektur, Dubois, Compromise, Wimmer, Cosima 3/4, Rendepth 1/2, iaian7, Color, Half-Color, Grey, Oldschool, Frans van den Poel, John Wattie, Dubois grün/magenta, Dubois amber/blau und externes CIELab Least Squares.
-
-Es wird jeweils ein Verfahren ausgewählt. Die Verfahren behalten ihre eigenen Rechenregeln; sRGB-Linearisierung wird nur verwendet, wo die Referenzpipeline sie verlangt. Vorschau und Export nutzen denselben Verarbeitungskern. Die automatische Vorschau passt sich der Fensterfläche an, bis maximal 1600 px lange Seite. CIELab verwendet bis zu 1024 px. Der Vorschaubereich hat rechteckige Ecken. Sein schwarzer Rand entspricht StereoFine (3 % der angezeigten Bildbreite plus 2 px, mindestens 16 px), damit vorhandene schwebende Scheinfenster erkennbar bleiben. Der Preseteditor verwendet denselben Rand. Beim Start erscheint das mitgelieferte SBS-Beispielbild als Anaglyphe. Es reagiert auf die Verfahrensauswahl und eigene Matrixentwürfe und dient zum direkten Ausprobieren. Für den Export eigene Bilder laden.
-
-Der ausdrücklich sichtbare Einstieg **Eigenes Verfahren anlegen…** öffnet den Preset-Editor. Zwei 3 × 3-Matrizen lassen sich über Zahlenfelder, Schieberegler und das Mausrad mit einer eigenen Live-Vorschau einstellen. Die Matrixregler beginnen bei −2 bis +2 mit Schritten von 0,001; direkte Zahleneingaben erhalten feinere Koeffizienten und erweitern den Regler bei Bedarf. Das ist ein praktischer Bedienbereich, keine physikalische Grenze für Anaglyphen. Eigene Presets enthalten außerdem eine optionale Berechnung in linearem Licht, Helligkeits-/Kontrastanpassungen und einzelne RGB-Korrekturwerte. Die Einstellungen stehen direkt unter den Matrizen und werden lokal gespeichert; eingebaute Verfahren behalten ihr Referenzverhalten.
+Tastatur: **Links/Rechts** oder **Bild auf/Bild ab** wechseln das Bild; **Strg+Links/Rechts** wechseln das Vorschauverfahren. Eingabefelder und ausgewählte Regler behalten ihre normale Bedienung.
 
 ## Ausgabe
 
-Standard ist **JPEG-Qualität 90, 4:4:4 ohne Chroma-Subsampling, mit optimierter JPEG-Codierung**. Zusätzlich gibt es die Option **JPEG-Qualität 95 für Druck/Archiv**. Die Skalierung verwendet Lanczos und erhält das Seitenverhältnis.
+JPEG-Qualität **90**, **4:4:4** ohne Chroma-Subsampling und optimierte Codierung. Optional **JPEG-Qualität 95 für Druck/Archiv**. Lanczos-Skalierung erhält das Seitenverhältnis.
 
-Verfügbare Größen:
+Größen: Original; 1080p (innerhalb 1920 × 1080); 2160p (innerhalb 3840 × 2160); 2048 lange Seite; benutzerdefinierte lange oder kurze Seite.
 
-- Original
-- 1080p: eingepasst in 1920 × 1080 px
-- 2160p: eingepasst in 3840 × 2160 px
-- 2048 px lange Seite
-- Benutzerdefinierte lange oder kurze Seite
+**Unterordner im Programmordner verwenden** wählt `output` neben dem Programm. **Auswählen** bestimmt einen eigenen Ausgabeordner. **Ausgabeziel** zeigt den aktiven Pfad. Ordnerausgabe erhält unter beiden Zielen den Quellordnernamen und die relative Unterordnerstruktur. Jedes gewählte Verfahren bekommt sein Dateinamenssuffix, etwa `bild_dubois_lcd.jpg`. Vorhandene Ergebnisse werden erst nach vollständigem Schreiben ersetzt; Namenskollisionen und das Überschreiben von Originalen werden vor dem Export abgewiesen.
 
-Die Dateinamen verwenden die aktuellen Suffixe der AnaglyphBatch, beispielsweise `bild_dubois_lcd.jpg` oder `bild_compromise.jpg`.
+ExifTool übernimmt Metadaten ohne Original-Previews, Thumbnails und Orientation. Bei einer Metadatenwarnung bleibt das exportierte Bild erhalten. Der Fortschritt zählt tatsächliche Ausgabedateien; die Verarbeitung lässt sich abbrechen.
 
-Metadaten werden nach Möglichkeit mit ExifTool übernommen, ohne eingebettete Originalvorschauen, Vorschaubilder und Orientation-Tags. Ein Fehler bei der Metadatenübernahme wird gemeldet, ohne ein erfolgreich geschriebenes Bild zu verwerfen.
+## Portable Builds und Quellcode
 
-## Quellcode und Builds
+Das vollständige [Release-Paket](https://github.com/muelli1975/AnaChroma/releases) entpacken und AnaChroma starten. Die mitgelieferten Programmdateien und Tools zusammenhalten. Windows enthält die benötigten Laufzeitkomponenten; Linux/macOS brauchen für Quellcodebetrieb Tcl/Tk und für ExifTool System-Perl. macOS-Builds sind ad-hoc signiert und nicht notarisiert.
 
-Der Kern verwendet Python, Pillow und NumPy sowie CustomTkinter für die Oberfläche.
+Einstellungen und eigene Verfahren bleiben lokal in `settings.json` und `presets.json` neben dem Programm. Bei Schreibschutz wird auf den Benutzer-Konfigurationsordner ausgewichen. Pfade, Ausgabemodus, Sprache und Unterordnerwahl werden gemerkt.
 
-Das Build-Skript erzeugt ein portables Verzeichnis für die jeweilige Plattform. CIELab bleibt ein separates Programm und wird in den Entwicklungspaketen zusammen mit den passenden Quellen und Lizenzen gebündelt. Die ursprüngliche CIELab-Berechnung und der Solver bleiben unverändert; eine PNG-Schnittstelle ersetzt die veraltete OpenCV-Bildanbindung. ExifTool wird mit seinen ursprünglichen Begleitdateien und Lizenzinformationen gebündelt. Siehe [CIELab-Build](native/cielab/README.md) und die tatsächlichen CI-Prüfergebnisse.
+Der Kern verwendet Python, Pillow und NumPy mit CustomTkinter. CIELab und ExifTool werden als separate Tools mit Lizenzen und zugehörigen Quellen gebündelt. Release-Pakete enthalten den passenden Programmquellstand unter `source`. Build-Details: [BUILD.md](docs/BUILD.md).
 
-Der abgestimmte Umfang steht in [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md), die Modulstruktur in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) und die Quellgrundlage in [docs/REFERENCE_BASELINE.md](docs/REFERENCE_BASELINE.md).
-
-## Aus dem Quellcode starten
-
-Python 3.10 oder neuer mit Tcl/Tk verwenden (Entwicklungspakete nutzen Python 3.12). Im Repository-Verzeichnis:
+Quellcodebetrieb mit Python 3.10+ und Tcl/Tk:
 
 ```sh
 python -m venv .venv
-# .venv mit dem üblichen Befehl der Plattform aktivieren.
+# .venv passend zur Plattform aktivieren.
 python -m pip install -e .
 python run_anachroma.py
 ```
 
-Unter Windows mit `.venv\Scripts\activate` aktivieren, unter Linux/macOS mit `source .venv/bin/activate`. Manche Linux-Python-Distributionen benötigen ihr separates Tk-Paket.
-
-ExifTool wird unter `tools/exiftool.exe` (Windows), `tools/exiftool` oder im System-PATH gefunden. Begleitdateien der Windows-ExifTool-Distribution müssen neben deren Programmdatei bleiben. CIELab wird unter `tools/cielab/cielab.exe`, `tools/cielab/cielab` oder im PATH gefunden. ExifTool ermöglicht die Metadatenübernahme; CIELab ergänzt die extern berechnete Least-Squares-Methode.
-
-Standardausgabe ist `output` neben dem Programm bzw. dem Quellcheckout. **Unterordner im Programmordner verwenden** aktiviert dieses Ziel; Beschriftung und Pfad unter **Eigener Ausgabeordner** sind dann ausgegraut. **Auswählen** bleibt bedienbar; die Wahl eines eigenen Ordners entfernt den Haken automatisch. Erneutes Aktivieren kehrt zum Standard zurück und behält den eigenen Ordner für später. **Ausgabeziel** zeigt immer den tatsächlich verwendeten Zielordner, bei Ordnerverarbeitung einschließlich des Eingabeordnernamens. Bei Bildordnern liegt unter beiden Zielen der Name des Eingabeordners mit seinen Unterordnern. Ein Zielwechsel liest den gewählten Bildordner neu ein und schließt das aktuelle Ausgabeziel von der Suche aus. Pfade, Ausgabemodus, Sprache und Unterordneroption stehen in `settings.json`, eigene Verfahren in `presets.json`. Beide Dateien werden ausschließlich lokal gespeichert. Bei einem schreibgeschützten Programmordner wird der Benutzer-Konfigurationsordner verwendet. Fertige Ausgaben mit gleichem Namen werden erst nach vollständigem Schreiben des neuen Bildes ersetzt; kollidierende Eingabenamen werden abgelehnt.
-
-Die [Editorbeschreibung](docs/PRESET_EDITOR.md) erklärt Matrixrichtung, Linearisierung und Kanalkorrekturen. Bei einer übernommenen Matrix die Berechnung gemäß ihrer Rechenanleitung einstellen, insbesondere die Linearisierung.
-
 ## Lizenz
 
-Der Quellcode und die ursprüngliche Dokumentation von AnaChroma, erstellt von Christoph Müller, stehen unter der **MIT-Lizenz**. Drittkomponenten behalten ihre jeweiligen eigenen Lizenzen.
-
-Siehe [LICENSE.txt](LICENSE.txt) und [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Copyright Christoph Müller. MIT-Lizenz für AnaChroma; Fremdkomponenten behalten ihre jeweiligen Lizenzen. Siehe [LICENSE.txt](LICENSE.txt) und [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
