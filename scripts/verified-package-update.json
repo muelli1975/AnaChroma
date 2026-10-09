@@ -1,0 +1,22 @@
+{
+  "repo": "muelli1975/AnaChroma",
+  "app": "AnaChroma",
+  "tag": "v1.0",
+  "release_id": 407916981,
+  "run": 37942623135,
+  "commit": "89c5037928da83b7f206cd69742415183055a6e4",
+  "packages": [
+    "AnaChroma_1.0_Linux_x64.tar.gz",
+    "AnaChroma_1.0_macOS_AppleSilicon.tar.gz",
+    "AnaChroma_1.0_Windows_x64.zip"
+  ],
+  "previous": {
+    "AnaChroma_1.0_Linux_x64.tar.gz": "sha256:37ba5ce7ca69e31578dffade2cc7a6283f47a668eae4432f9f36372564eff634",
+    "AnaChroma_1.0_macOS_AppleSilicon.tar.gz": "sha256:7fd50cde11aea21ef25e358561bdb272999c7451c4b3fec22e786fab18c7ff4e",
+    "AnaChroma_1.0_Windows_x64.zip": "sha256:9dd8cfa7b352bbcc6b96aabf20b9319cab0bd911a1fa70f7d8e4bbe592f99b81",
+    "SHA256SUMS.txt": "sha256:3d5785f581836ec9aedd2eb8e3d47afd7386791e4a64f3f34e830c47a8ffb79b"
+  },
+  "gui": "src/anachroma/gui.py",
+  "notes": "RELEASE_NOTES_1.0.md",
+  "image_blob": "8097cba3f31bc4b049a82c6075fab786a00033d1"
+}
