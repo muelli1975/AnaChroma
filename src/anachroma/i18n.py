@@ -8,7 +8,7 @@ EN = {
     "Unterordner im Programmordner\nverwenden": "Use subfolder in\nprogram folder",
     "Tastenkürzel…": "Keyboard shortcuts…",
     "Tastenkürzel": "Keyboard shortcuts",
-    "Links / Rechts oder Bild auf / Bild ab: vorheriges / nächstes Bild\nStrg + Links / Rechts: vorheriges / nächstes Vorschauverfahren\n\nIn Eingabefeldern und an Reglern bleibt die normale Bedienung erhalten.": "Left / Right or Page Up / Page Down: previous / next image\nCtrl + Left / Right: previous / next preview method\n\nText fields and sliders keep their normal controls.",
+    "Links / Rechts oder Bild auf / Bild ab: vorheriges / nächstes Bild\nStrg + Links / Rechts: vorheriges / nächstes Vorschauverfahren": "Left / Right or Page Up / Page Down: previous / next image\nCtrl + Left / Right: previous / next preview method",
     "Diese älteren Verfahren enthalten Helligkeits-/Kontrastanpassungen, die in Version 1.0 entfallen:": "These older methods contain brightness/contrast adjustments removed in version 1.0:",
     "Matrizen und RGB-Korrektur bleiben erhalten. Beim Speichern wird die ursprüngliche Preset-Datei als .pre-1.0.bak gesichert.": "Matrices and RGB correction are retained. Saving backs up the original preset file as .pre-1.0.bak.",
     "Ausgabeverfahren": "Export methods", "Aktuelles Verfahren": "Current method",

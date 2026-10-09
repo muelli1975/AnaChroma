@@ -454,7 +454,7 @@ class AnaChromaApp(ctk.CTk):
     def show_shortcuts(self):
         if self.batch_running or self.scanning:
             return
-        messagebox.showinfo(self.t("Tastenkürzel"), self.t("Links / Rechts oder Bild auf / Bild ab: vorheriges / nächstes Bild\nStrg + Links / Rechts: vorheriges / nächstes Vorschauverfahren\n\nIn Eingabefeldern und an Reglern bleibt die normale Bedienung erhalten."), parent=self)
+        messagebox.showinfo(self.t("Tastenkürzel"), self.t("Links / Rechts oder Bild auf / Bild ab: vorheriges / nächstes Bild\nStrg + Links / Rechts: vorheriges / nächstes Vorschauverfahren"), parent=self)
 
     def _key(self, event):
         if event.widget.winfo_toplevel() != self or self.batch_running or self.scanning:
