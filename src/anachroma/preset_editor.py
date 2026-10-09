@@ -8,7 +8,7 @@ import customtkinter as ctk
 
 from .matrices import BUILTINS, MAX_SAFE_VALUE, Method
 from .i18n import translate_widgets
-from .theme import BORDER, DANGER, GOLD, GOLD_HOVER, MUTED, PANEL_BG, TEXT, FONT_FAMILY, DISABLED
+from .theme import BORDER, DANGER, DANGER_HOVER, GOLD, GOLD_HOVER, MUTED, PANEL_BG, TEXT, FONT_FAMILY, DISABLED
 
 
 class NumberControl(ctk.CTkFrame):
@@ -199,7 +199,7 @@ class PresetEditor(ctk.CTkToplevel):
         buttons.pack(fill="x")
         ctk.CTkButton(buttons, text="Zurücksetzen", command=self.reset, width=110).pack(side="left", padx=4)
         if existing:
-            ctk.CTkButton(buttons, text="Löschen", command=self.delete, width=90, border_color=DANGER).pack(side="left", padx=4)
+            ctk.CTkButton(buttons, text="Löschen", command=self.delete, width=90, border_color=DANGER, hover_color=DANGER_HOVER).pack(side="left", padx=4)
         ctk.CTkButton(buttons, text="Abbrechen", command=self.cancel, width=110).pack(side="right", padx=4)
         self.save_button = app._button(buttons, "Verfahren speichern", self.save, primary=True, width=210)
         self.save_button.pack(side="right", padx=4)
@@ -234,10 +234,12 @@ class PresetEditor(ctk.CTkToplevel):
             draft = self.draft()
             self.error.configure(text=self.app.t(""))
             self.save_button.configure(state="normal")
+            self.app._style_primary_button(self.save_button)
             self.app.editor_preview(draft)
         except (ValueError, OverflowError) as exc:
             self.error.configure(text=self.app.t(f"{exc} Vorschau zeigt den letzten gültigen Entwurf."))
             self.save_button.configure(state="disabled")
+            self.app._style_primary_button(self.save_button)
 
     def _template(self, name):
         template = self.templates[name].as_custom()

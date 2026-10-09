@@ -10,6 +10,7 @@ DISABLED = "#727272"
 GOLD = "#9c7c38"
 GOLD_HOVER = "#c6a95e"
 DANGER = "#7f3939"
+DANGER_HOVER = "#944545"
 PREVIEW_BG = "#000000"
 import sys
 FONT_FAMILY = "Segoe UI" if sys.platform == "win32" else "Helvetica"

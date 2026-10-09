@@ -48,6 +48,16 @@ jobs:
       - name: Test on Windows or macOS
         if: runner.os != 'Linux'
         run: python scripts/run_tests.py
+      - name: Compare family button rendering and shortcut discovery
+        if: runner.os == 'Linux'
+        run: xvfb-run -a -s "-screen 0 2560x1920x24" python scripts/check_family_ui.py
+      - name: Upload family GUI check images
+        if: runner.os == 'Linux' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: AnaChroma-family-ui
+          path: build/family-ui/*.png
+          if-no-files-found: warn
       - name: Build portable directory
         run: python scripts/build.py
       - name: Test packaged CIELab executable

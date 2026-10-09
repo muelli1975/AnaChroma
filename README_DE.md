@@ -31,7 +31,7 @@ JPEG-Qualität **90**, **4:4:4** ohne Chroma-Subsampling und optimierte Codierun
 
 Größen: Original; 1080p (innerhalb 1920 × 1080); 2160p (innerhalb 3840 × 2160); 2048 lange Seite; benutzerdefinierte lange oder kurze Seite.
 
-**Unterordner im Programmordner verwenden** wählt `output` neben dem Programm. **Auswählen** bestimmt einen eigenen Ausgabeordner. **Ausgabeziel** zeigt den aktiven Pfad. Ordnerausgabe erhält unter beiden Zielen den Quellordnernamen und die relative Unterordnerstruktur. Jedes gewählte Verfahren bekommt sein Dateinamenssuffix, etwa `bild_dubois_lcd.jpg`. Vorhandene Ergebnisse werden erst nach vollständigem Schreiben ersetzt; Namenskollisionen und das Überschreiben von Originalen werden vor dem Export abgewiesen.
+**Unterordner im Programmordner verwenden** wählt `output` neben dem Programm. **Auswählen** bestimmt einen eigenen Ausgabeordner. **Ausgabeziel** zeigt den aktiven Pfad. Ordnerausgabe speichert direkt im Ausgabeziel und erhält die relative Unterordnerstruktur. Jedes gewählte Verfahren bekommt sein Dateinamenssuffix, etwa `bild_dubois_lcd.jpg`. Vorhandene Ergebnisse werden erst nach vollständigem Schreiben ersetzt; Namenskollisionen und das Überschreiben von Originalen werden vor dem Export abgewiesen.
 
 ExifTool übernimmt Metadaten ohne Original-Previews, Thumbnails und Orientation. Bei einer Metadatenwarnung bleibt das exportierte Bild erhalten. Der Fortschritt zählt tatsächliche Ausgabedateien; die Verarbeitung lässt sich abbrechen.
 
@@ -61,3 +61,5 @@ python run_anachroma.py
 ## Lizenz
 
 Copyright Christoph Müller. MIT-Lizenz für AnaChroma; Fremdkomponenten behalten ihre jeweiligen Lizenzen. Siehe [LICENSE.txt](LICENSE.txt) und [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+Das Paket enthält den festen Programmordner `AnaChroma`; Versions- und Plattformangaben stehen im Namen des Downloadarchivs.

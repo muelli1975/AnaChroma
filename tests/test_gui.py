@@ -139,7 +139,7 @@ def test_input_mode_action_and_recursive_output(app, tmp_path):
     assert app.action_button.cget("text") == "Alle verarbeiten"
     app.primary_action()
     wait_for(app, lambda: not app.batch_running, timeout=45)
-    assert list((tmp_path/"output"/"Urlaub"/"Tag1").glob("zwei_*.jpg"))
+    assert list((tmp_path/"output"/"Tag1").glob("zwei_*.jpg"))
     app.load_input(root / "eins.png")
     wait_for(app, lambda: app.inputs is not None and not app.inputs.folder_input and not app.scanning)
     assert app.action_button.cget("text") == "Bild speichern"
@@ -191,12 +191,12 @@ def test_stereofine_output_selection_and_persistence(app, tmp_path, monkeypatch)
     assert app.output_button.cget("state") == "disabled"
     wait_for(app, lambda: not app.scanning)
     assert len(app.inputs.files) == 1
-    assert app.output_status.cget("text") == str(custom.resolve() / root.name)
+    assert app.output_status.cget("text") == str(custom.resolve())
     assert app.output_button.cget("state") == "normal"
     app.output_checkbox.toggle()
     wait_for(app, lambda: not app.scanning)
     assert len(app.inputs.files) == 2
-    assert app.output_status.cget("text") == str((tmp_path / "output" / root.name).resolve())
+    assert app.output_status.cget("text") == str((tmp_path / "output").resolve())
     assert app.output_button.cget("state") == "normal"
     app.output_checkbox.toggle()
     wait_for(app, lambda: not app.scanning)

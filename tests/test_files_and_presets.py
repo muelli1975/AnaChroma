@@ -58,7 +58,7 @@ def test_discovery_navigation_recursion_and_structure(tmp_path):
     found=discover(root,recursive=True)
     assert len(found.files)==4
     targets=target_paths(found,found.files,tmp_path/"results",BUILTINS[0])
-    assert tmp_path/"results"/"Urlaub"/"Tag1"/"eins_dubois_lcd.jpg" in targets
+    assert tmp_path/"results"/"Tag1"/"eins_dubois_lcd.jpg" in targets
 
 
 def test_collision_and_original_protection(tmp_path):

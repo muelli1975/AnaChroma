@@ -31,10 +31,9 @@ def discover(path: Path, recursive: bool = False, exclude: tuple[Path, ...] = ()
     if not root.is_dir():
         raise ValueError("Der Eingabeordner existiert nicht.")
     excluded = tuple(p.resolve() for p in exclude)
-    destinations = tuple(q / root.name if not is_file else q for q in excluded)
-    blocked_roots = tuple(q for q in excluded + destinations
+    blocked_roots = tuple(q for q in excluded
                           if q != root and q.is_relative_to(root))
-    same_folder_output = root in excluded or root in destinations
+    same_folder_output = root in excluded
     suffixes = tuple('_' + s for s in dict.fromkeys(
         [m.suffix for m in BUILTINS] + list(generated_suffixes)))
     def blocked(p):

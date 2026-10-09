@@ -55,7 +55,7 @@ def target_paths(inputs: InputList, files: tuple[Path, ...], output: Path, metho
     sources = {str(p.resolve()).casefold() for p in inputs.files}
     for source in files:
         relative = source.relative_to(inputs.root)
-        folder = Path(inputs.root.name) / relative.parent if inputs.folder_input else relative.parent
+        folder = relative.parent
         target = output / folder / f"{source.stem}_{method.suffix}.jpg"
         key = str(target.resolve()).casefold()
         if key in seen:

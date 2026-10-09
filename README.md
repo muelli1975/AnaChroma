@@ -23,7 +23,7 @@ The automatic preview follows the available window area, up to a 1600 px long ed
 
 **Create custom method…**, beneath the standard methods in the menu, opens a compact editor. Adjust two 3 × 3 matrices with exact numeric entry, sliders and the mouse wheel. Optional linear-light calculation and RGB colour correction are available. Changes appear in the main preview; save a preset to reuse it. The [editor guide](docs/PRESET_EDITOR.md) explains coefficients and correction values.
 
-Shortcuts: **Left/Right** or **Page Up/Page Down** browse images; **Ctrl+Left/Right** switch preview methods. Text fields and selected sliders retain their usual controls.
+**Keyboard shortcuts…** below the preview opens a short overview. Shortcuts: **Left/Right** or **Page Up/Page Down** browse images; **Ctrl+Left/Right** switch preview methods. Text fields and selected sliders retain their usual controls.
 
 ## Output
 
@@ -31,7 +31,7 @@ JPEG quality **90**, **4:4:4** without chroma subsampling, with optimized coding
 
 Sizes: Original; 1080p (within 1920 × 1080); 2160p (within 3840 × 2160); 2048 px long edge; custom long or short edge.
 
-**Use subfolder in program folder** selects `output` beside the program. **Choose** selects a custom output folder. **Output destination** shows the active path. Folder processing preserves the source root name and relative subfolders under either destination. Each selected method gets its filename suffix, for example `image_dubois_lcd.jpg`. Existing results are replaced only after a complete new file has been written; colliding names and original overwrites are rejected before export.
+**Use subfolder in program folder** selects `output` beside the program. **Choose** selects a custom output folder. **Output destination** shows the active path. Folder processing saves directly in the output destination and preserves relative subfolders. Each selected method gets its filename suffix, for example `image_dubois_lcd.jpg`. Existing results are replaced only after a complete new file has been written; colliding names and original overwrites are rejected before export.
 
 ExifTool copies metadata while excluding original previews, thumbnails and orientation. A metadata warning keeps the exported image. Progress counts actual output files; processing can be cancelled.
 
@@ -61,3 +61,5 @@ python run_anachroma.py
 ## License
 
 Copyright Christoph Müller. MIT License for AnaChroma; bundled third-party components retain their own licenses. See [LICENSE.txt](LICENSE.txt) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+The package contains a stable `AnaChroma` application folder; the download archive name identifies version and platform.

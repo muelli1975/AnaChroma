@@ -19,7 +19,7 @@ def test_output_ancestor_same_folder_and_generated_exclusion(tmp_path):
     (source/'input').mkdir()
     Image.new('RGB', (16, 8)).save(source/'input'/'generated.png')
     result = discover(source, True, (source,), generated_suffixes=('mine',))
-    assert [p.name for p in result.files] == ['one.png']
+    assert {p.relative_to(source).as_posix() for p in result.files} == {'one.png', 'input/generated.png'}
     assert discover(source/'one_dubois.jpg', exclude=(source,)).files[result.selected].exists()
 
 
@@ -35,7 +35,7 @@ def test_multi_export_progress_errors_cancel_and_collisions(tmp_path, monkeypatc
     result=run_jobs(jobs,SizeSpec(),90,Event(),events.append)
     assert result.processed==2 and len(result.errors)==2
     assert [event[1] for event in events if event[0]=='batch_file_done']==[1,2,3,4]
-    assert len(list((tmp_path/'output'/'input').glob('*.jpg')))==2
+    assert len(list((tmp_path/'output').glob('*.jpg')))==2
     with pytest.raises(ValueError):export_jobs(inputs,inputs.files,tmp_path/'output',(methods[0],replace(methods[1],suffix=methods[0].suffix)))
     cancel=Event(); cancel.set()
     assert run_jobs(jobs,SizeSpec(),90,cancel,events.append).cancelled

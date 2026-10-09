@@ -6,3 +6,7 @@
 - Bildnavigation mit Links/Rechts und Bild auf/Bild ab; Verfahrenswechsel mit Strg+Links/Rechts.
 - Automatische Übernahme der Bildmetadaten und integrierte CIELab-Ausgabe.
 - Deutsche und englische Oberfläche; vollständig lokale Verarbeitung.
+- Anklickbare Übersicht der Tastenkürzel unter der Vorschau.
+- Ordnerausgaben direkt im Ausgabeziel; relative Unterordner bleiben erhalten.
+- Einheitliche Versionsanzeige 1.0.
+- Korrigierter Button-Hover und konsistente Farben für inaktive Bedienelemente.

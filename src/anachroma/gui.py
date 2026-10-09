@@ -28,7 +28,7 @@ class AnaChromaApp(ctk.CTk):
     def __init__(self):
         configure_theme()
         super().__init__()
-        self.title(f"AnaChroma {__version__}")
+        self.title(f"AnaChroma {__version__.removesuffix('.0')}")
         icon = resource_dir() / "assets" / "anachroma.ico"
         if icon.is_file():
             import sys
@@ -126,11 +126,21 @@ class AnaChromaApp(ctk.CTk):
         options.update(kwargs)
         button = ctk.CTkButton(parent, text=text, command=command, **options)
         if primary:
-            button.bind("<Enter>", lambda _: button.configure(text_color=APP_BG, border_color=GOLD_HOVER)
-                        if button.cget("state") == "normal" else None, add="+")
-            button.bind("<Leave>", lambda _: button.configure(text_color=GOLD_HOVER,
-                        border_color=GOLD if button.cget("state") == "normal" else BORDER), add="+")
+            button.bind("<Enter>", lambda _: self.after_idle(lambda: self._style_primary_button(button, hover=True)), add="+")
+            button.bind("<Leave>", lambda _: self.after_idle(lambda: self._style_primary_button(button)), add="+")
         return button
+
+    def _style_primary_button(self, button, hover=False):
+        if not button.winfo_exists():
+            return
+        enabled = button.cget("state") == "normal"
+        hovered = enabled and hover
+        button.configure(
+            fg_color=GOLD_HOVER if hovered else SECONDARY_BG,
+            hover_color=GOLD_HOVER if enabled else SECONDARY_BG,
+            text_color=APP_BG if hovered else GOLD_HOVER if enabled else DISABLED,
+            border_color=GOLD_HOVER if hovered else GOLD if enabled else BORDER,
+        )
 
     def _section(self, parent, text):
         frame = ctk.CTkFrame(parent, fg_color=PANEL_BG, corner_radius=10)
@@ -246,6 +256,9 @@ class AnaChromaApp(ctk.CTk):
         self.previous_button.pack(side="left")
         self.next_button = self._button(nav, "Nächstes Bild", lambda: self.navigate(1), width=150)
         self.next_button.pack(side="right")
+        self.shortcuts_button = self._button(nav, "Tastenkürzel…", self.show_shortcuts, width=140, height=26,
+            fg_color="transparent", border_width=0, text_color=MUTED, hover_color=SECONDARY_BG)
+        self.shortcuts_button.pack(side="left", expand=True, padx=8)
         footer = ctk.CTkFrame(self, fg_color=SECONDARY_BG, corner_radius=0)
         footer.grid(row=1, column=0, columnspan=2, sticky="ew")
         self.progress = ctk.CTkProgressBar(footer, progress_color=GOLD)
@@ -316,7 +329,7 @@ class AnaChromaApp(ctk.CTk):
         busy = self.batch_running or self.scanning
         for widget in (self.file_button, self.folder_button, self.recursive_box, self.output_checkbox,
                        self.size_menu, self.quality_box, self.pixel_entry, self.long_radio, self.short_radio,
-                       self.language_menu, self.export_button):
+                       self.language_menu, self.export_button, self.shortcuts_button):
             widget.configure(state="disabled" if busy else "normal")
             if isinstance(widget, ctk.CTkCheckBox):
                 widget.configure(fg_color=DISABLED if busy else GOLD,
@@ -327,7 +340,7 @@ class AnaChromaApp(ctk.CTk):
         self.edit_button.configure(state="normal" if not busy and self.editor is None and not self.selected_method().builtin else "disabled")
         for widget in (self.save_button, self.action_button):
             widget.configure(state="normal" if self.inputs and not busy and self.editor is None else "disabled")
-        self.action_button.configure(border_color=GOLD if self.action_button.cget("state") == "normal" else BORDER)
+        self._style_primary_button(self.action_button)
         folder_mode = self.inputs is not None and self.inputs.folder_input
         self.action_button.configure(text=self.t("Alle verarbeiten" if folder_mode else "Bild speichern"))
         if folder_mode:
@@ -387,8 +400,6 @@ class AnaChromaApp(ctk.CTk):
         text = self.output_var.get() or "–"
         self.output_label.configure(text=text)
         target = self._effective_output()
-        if target is not None and self.inputs and self.inputs.folder_input:
-            target = target / self.inputs.root.name
         self.output_status.configure(text=str(target) if target is not None
                                      else self.t("Kein eigener Ausgabeordner gewählt"))
         custom_active = not self.use_program_output.get() and not (self.batch_running or self.scanning)
@@ -440,6 +451,11 @@ class AnaChromaApp(ctk.CTk):
         self.index = min(max(absolute if absolute is not None else self.index+delta, 0), len(self.inputs.files)-1)
         self._state()
         self.request_preview()
+
+    def show_shortcuts(self):
+        if self.batch_running or self.scanning:
+            return
+        messagebox.showinfo(self.t("Tastenkürzel"), self.t("Links / Rechts oder Bild auf / Bild ab: vorheriges / nächstes Bild\nStrg + Links / Rechts: vorheriges / nächstes Vorschauverfahren\n\nIn Eingabefeldern und an Reglern bleibt die normale Bedienung erhalten."), parent=self)
 
     def _key(self, event):
         if event.widget.winfo_toplevel() != self or self.batch_running or self.scanning:
