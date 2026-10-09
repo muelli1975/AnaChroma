@@ -1,0 +1,78 @@
+[
+  {
+    "app": "AnaChroma",
+    "repo": "muelli1975/AnaChroma",
+    "tag": "v1.0",
+    "assets": [
+      {
+        "name": "AnaChroma_1.0_Linux_x64.tar.gz",
+        "digest": "sha256:37ba5ce7ca69e31578dffade2cc7a6283f47a668eae4432f9f36372564eff634"
+      },
+      {
+        "name": "AnaChroma_1.0_macOS_AppleSilicon.tar.gz",
+        "digest": "sha256:7fd50cde11aea21ef25e358561bdb272999c7451c4b3fec22e786fab18c7ff4e"
+      },
+      {
+        "name": "AnaChroma_1.0_Windows_x64.zip",
+        "digest": "sha256:9dd8cfa7b352bbcc6b96aabf20b9319cab0bd911a1fa70f7d8e4bbe592f99b81"
+      }
+    ]
+  },
+  {
+    "app": "Freeda",
+    "repo": "muelli1975/Freeda",
+    "tag": "v1.2",
+    "assets": [
+      {
+        "name": "Freeda_1.2_Linux_x64.tar.gz",
+        "digest": "sha256:00c675fabc89476c8076f6e68ce861e971578491e5600d13c410c29c5d06a0f9"
+      },
+      {
+        "name": "Freeda_1.2_macOS_AppleSilicon.zip",
+        "digest": "sha256:686f9a0788e86547747243c69343e5119868f05e56d60cf75f3e0559d015a5b7"
+      },
+      {
+        "name": "Freeda_1.2_macOS_Intel.zip",
+        "digest": "sha256:b1bea50728887f424c3e4efae1ce6f5c5c18100f0171be46a1ad84882ec364ee"
+      },
+      {
+        "name": "Freeda_1.2_Windows_x64.zip",
+        "digest": "sha256:1786420a5028ef68fe88f16af1edde959efe82628a14dc8e059ce205ab53ab1d"
+      }
+    ]
+  },
+  {
+    "app": "StereoFine",
+    "repo": "muelli1975/StereoFine",
+    "tag": "v1.0",
+    "assets": [
+      {
+        "name": "StereoFine_1.0_Linux_x64.tar.gz",
+        "digest": "sha256:22052d37732d50e5a7623799b39417723113284126756d03b62fa3c450548948"
+      },
+      {
+        "name": "StereoFine_1.0_macOS_AppleSilicon.zip",
+        "digest": "sha256:9990cd87dd510e60c62edf225afe7037d368d73ed5256f293c528317f02243f5"
+      },
+      {
+        "name": "StereoFine_1.0_macOS_Intel.zip",
+        "digest": "sha256:e50675a8aa82bf03a4755e25ef0910af9477cc6a458181023846c60972e1643d"
+      },
+      {
+        "name": "StereoFine_1.0_Windows_x64.zip",
+        "digest": "sha256:bc65cdfb98bf1156fd318c2cfedfcc478f56331516c367b73c115202347e0fff"
+      }
+    ]
+  },
+  {
+    "app": "AnaglyphBatch",
+    "repo": "muelli1975/AnaglyphBatch",
+    "tag": "1.0",
+    "assets": [
+      {
+        "name": "AnaglyphBatch_1.0.zip",
+        "digest": "sha256:f267aff1cef4aa1e3383c00afb638307d41c145b20f27b502884bd7d3fe3de88"
+      }
+    ]
+  }
+]

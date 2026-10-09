@@ -1,0 +1,17 @@
+name: Audit portable package layout
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/package-layout-audit.yml', 'scripts/package-layout-audit.py', 'scripts/package-layout-audit.json']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect published archives and verify their checksums
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/package-layout-audit.py
