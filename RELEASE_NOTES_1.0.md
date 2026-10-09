@@ -11,3 +11,4 @@
 - Einheitliche Versionsanzeige 1.0.
 - Korrigierter Button-Hover und konsistente Farben für inaktive Bedienelemente.
 - Sprache und Ein-/Ausgabeordner bleiben nach Neustart erhalten; Bearbeitungswerte starten mit den Standardwerten und 2048 Pixeln lange Seite.
+- Feinere Matrixregler mit Startbereich −0,5 bis +1,5; freie Zahleneingaben bleiben möglich.

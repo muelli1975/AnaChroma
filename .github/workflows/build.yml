@@ -58,6 +58,9 @@ jobs:
       - name: Test on Windows or macOS
         if: runner.os != 'Linux'
         run: python scripts/run_tests.py
+      - name: Check family UI colors, settings and scaling
+        if: runner.os == 'Linux'
+        run: xvfb-run -a -s "-screen 0 2560x1920x24" python scripts/check_family_ui.py
       - name: Build portable directory
         run: python scripts/build.py
       - name: Test packaged CIELab executable

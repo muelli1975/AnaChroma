@@ -12,7 +12,7 @@ Die Felder zeigen **direkte Koeffizienten**, keine Prozentwerte. `0.4561` bzw. `
 
 | Einstellung | Neutralwert / Startbereich | Schritt und Grundlage |
 | --- | --- | --- |
-| Matrixkoeffizienten | 0 = kein Beitrag, 1 = voller Beitrag; Regler −2 bis +2 | 0,001 beim Ziehen/Mausrad, entsprechend SPMs Tausendstel-Darstellung. Endpunkte als praktische Kanalgewichtung wie Photoshop −200 % bis +200 %, keine physikalische Grenze. |
+| Matrixkoeffizienten | 0 = kein Beitrag, 1 = voller Beitrag; Regler −0,5 bis +1,5 | 0,001 beim Ziehen/Mausrad, entsprechend SPMs Tausendstel-Darstellung. Der kompakte Startbereich umfasst die eingebauten Matrixvorlagen; er ist keine physikalische Grenze. |
 | Rot/Grün/Blau, Kanalpotenz | Neutral 1; Regler 0,625 bis 1,25 | 0,001; umfasst die im vereinfachten Editor darstellbaren Potenzen der Batch. |
 
 Direkte Eingaben außerhalb des Anfangsbereichs erweitern den jeweiligen Regler sichtbar. Feinere Zahlen werden gespeichert; Reglerbewegungen runden ausschließlich den veränderten Wert auf dessen Schrittweite. Technische Grenzen verhindern Float32-Überlauf bzw. nicht darstellbare Kanalpotenzen; sie sind keine sinnvollen fotografischen Einstellbereiche. NaN, Unendlich und unvollständige Eingaben sind ungültig.

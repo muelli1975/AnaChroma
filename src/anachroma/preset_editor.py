@@ -170,7 +170,7 @@ class PresetEditor(ctk.CTkToplevel):
                 ctk.CTkLabel(grid, text=f"Ausgabe\n{channel}", text_color=MUTED).grid(row=row+2, column=0, padx=(0, 4))
                 cells = []
                 for col in range(3):
-                    cell = NumberControl(grid, values[row][col], self._changed, width=90)
+                    cell = NumberControl(grid, values[row][col], self._changed, lower=-.5, upper=1.5, width=90)
                     cell.grid(row=row+2, column=col+1, sticky="ew", padx=2, pady=3)
                     cells.append(cell)
                 controls.append(cells)
