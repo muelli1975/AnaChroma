@@ -1,6 +1,8 @@
 # AnaChroma – Projektgrundlage für Version 1
 
-Stand: 7. Oktober 2026. Diese Spezifikation hält die Projektbibel und die anschließend bestätigten Abgleiche mit den aktuellen GitHub-Ständen fest. Sie beschreibt den vereinbarten v1-Funktionsumfang; der erste Entwicklungsstand ist implementiert, aber noch keine fertige v1. Der tatsächliche Prüfstand steht in [VALIDATION.md](VALIDATION.md).
+Stand: 9. Oktober 2026. Diese Spezifikation hält die Projektbibel und die anschließend bestätigten Abgleiche mit den aktuellen GitHub-Ständen fest. Sie beschreibt den vereinbarten v1-Funktionsumfang; der erste Entwicklungsstand ist implementiert, aber noch keine fertige v1. Der tatsächliche Prüfstand steht in [VALIDATION.md](VALIDATION.md).
+
+Der gemeinsame [Gestaltungs- und Bedienstandard](../DESIGN_STANDARD_STEREOTOOLS.txt), Version 1.1 vom 9. Oktober 2026, ist für Farben, Beschriftungen, Vorschauen, Ausgabeanzeige und Original-Assets verbindlich. Er enthält ausdrücklich gekennzeichnete Projektbesonderheiten und vereinbarte Ergänzungen. Der Implementierungsstand ist davon getrennt; insbesondere Mehrfachausgabe, neue Shortcuts und die einheitliche Anzeigegröße der CIELab-Vorschau sind noch gesondert umzusetzen und zu prüfen.
 
 ## Name, Zweck und Grundhaltung
 
@@ -18,7 +20,7 @@ Die geprüften Quellstände sind in [REFERENCE_BASELINE.md](REFERENCE_BASELINE.m
 
 - **18 Verfahren** aus der aktuellen Batch, einschließlich Cosima 3/4, Frans van den Poel und John Wattie.
 - Aktuelle Reihenfolge, Namen und Dateinamenssuffixe; die erste Variante heißt **Dubois LCD (Sanders/McAllister) + rot**, Suffix **`dubois_lcd`**.
-- In AnaChroma v1 wird **ein einzelnes Verfahren** ausgewählt. Die Mehrfachauswahl der heutigen Batch wird nicht übernommen.
+- Die Vorschau zeigt **ein einzelnes Verfahren**. Für die Ausgabe gehört die **gleichzeitige Auswahl mehrerer Standardverfahren und eigener Presets** zum vereinbarten Ziel, entsprechend der AnaglyphBatch. Standard ist das aktuelle Vorschauverfahren; eine kompakte Checkbox-Auswahl öffnet sich separat. Bild- und Ordnerexport berücksichtigen alle gewählten Ausgabeverfahren mit eigenen Suffixen. Diese Ergänzung ist im aktuellen Entwicklungsstand noch nicht implementiert.
 - 1080p und 2160p bedeuten Einpassen in die entsprechenden Breite/Höhe-Grenzen.
 - Bei CIELab werden die separaten Halbbilder **vor** der externen Berechnung auf Ausgabegröße gebracht, wie in der Batch.
 - Das bereitgestellte Icon wird unverändert verwendet. Als Abschlusssound wird die vorhandene **`ready.wav` unverändert** übernommen.
@@ -59,7 +61,8 @@ Anzeige: beispielsweise `12/83 · bild012_sbs.jpg`. Keine Thumbnail-Galerie und 
 
 ## Vorschau
 
-- An die Vorschaufläche angepasst, maximal **1600 px lange Seite**; CIELab maximal 1024 px. Seitenverhältnis erhalten.
+- An die Vorschaufläche angepasst, maximal **1600 px lange Seite**; CIELab maximal 1024 px. Seitenverhältnis erhalten. Beide nutzen dieselbe Bildfläche; bei CIELab darf eine geringere Berechnungsauflösung nicht zu einer kleineren Darstellung führen.
+- Der äußere Schwarzrand ist **`max(16 px, round(angezeigte Bildbreite × 0,030) + 2 px)` pro Seite**, auf **`#000000`**. Beim Einpassen reservieren; Bildkanten bleiben vollständig sichtbar. Dieselbe Regel gilt im eigenen Verfahrenseditor.
 - Automatische Aktualisierung bei Bildwechsel, neuer Eingabe, Verfahrenswechsel und relevanten Einstellungen.
 - Einzelne Einstellungswechsel um etwa **150–250 ms** entprellen. Während fortlaufender Reglerbewegungen die neuesten Werte regelmäßig anzeigen (Startziel etwa alle **100 ms**); nicht erst nach Loslassen oder einer Bewegungspause aktualisieren.
 - Alte Berechnungsergebnisse dürfen eine neu angeforderte Vorschau nicht überschreiben.
@@ -71,9 +74,9 @@ Die Vorschau ist eine verkleinerte Ansicht zur Beurteilung, kein Versprechen ein
 
 ## Eigene Verfahren und Preset-Editor
 
-Im Hauptfenster steht bei der Auswahl **Verfahren** ein ausdrücklich sichtbarer Button **Eigenes Verfahren anlegen…**. Eine eigene gespeicherte Auswahl kann zusätzlich über **Bearbeiten…** geöffnet werden. Ein Eintrag **Eigene: <Name>** macht eigene Verfahren in der Liste erkennbar. Die Möglichkeit, ein Verfahren anzulegen, darf nicht ausschließlich hinter einer unklaren Verwaltungsbezeichnung verborgen sein.
+Der Abschnitt heißt **Anaglyph**. Im Hauptfenster steht direkt unter der Auswahl **Verfahren** ein ausdrücklich sichtbarer Button **Eigenes Verfahren anlegen…**. Eine eigene gespeicherte Auswahl kann zusätzlich über **Bearbeiten…** geöffnet werden. Ein Eintrag **Eigene: <Name>** macht eigene Verfahren in der Liste erkennbar. Die Möglichkeit, ein Verfahren anzulegen, darf nicht ausschließlich hinter einer unklaren Verwaltungsbezeichnung verborgen sein.
 
-Der Editor zeigt **Matrix links** und **Matrix rechts** nebeneinander, jeweils als 3 × 3-Raster. Spalten bezeichnen die Eingangsanteile R/G/B, Zeilen die ausgegebenen R/G/B-Kanäle. Jeder Koeffizient erhält ein Zahlenfeld mit einem zugehörigen kleinen Schieberegler. Zahlenfeld und Regler bleiben synchron; der ausgewählte Wert wird deutlich hervorgehoben.
+Der Editor zeigt **Matrix links** und **Matrix rechts** nebeneinander, jeweils als 3 × 3-Raster, mit einer ausreichend großen, beim Vergrößern mitwachsenden Vorschau rechts neben den Einstellungen. Buttontexte müssen in Deutsch und Englisch vollständig sichtbar bleiben. Spalten bezeichnen die Eingangsanteile R/G/B, Zeilen die ausgegebenen R/G/B-Kanäle. Jeder Koeffizient erhält ein Zahlenfeld mit einem zugehörigen kleinen Schieberegler. Zahlenfeld und Regler bleiben synchron; der ausgewählte Wert wird deutlich hervorgehoben.
 
 Quellenbasierte Festlegung der Regler:
 
