@@ -39,6 +39,11 @@ gui_response = api(f"repos/{repo}/contents/{plan['gui']}?ref={plan['commit']}")
 expected_gui = base64.b64decode(gui_response["content"])
 notes_response = api(f"repos/{repo}/contents/{plan['notes']}?ref={plan['commit']}")
 Path("verified-release-notes.md").write_bytes(base64.b64decode(notes_response["content"]))
+verified_sources = {}
+if app == "AnaChroma":
+    for source in ("LICENSE", "docs/REFERENCE_BASELINE.md", "src/anachroma/preset_editor.py"):
+        response = api(f"repos/{repo}/contents/{source}?ref={plan['commit']}")
+        verified_sources[source] = base64.b64decode(response["content"])
 for name in plan["packages"]:
     path = artifacts / name
     if name.endswith(".zip"):
@@ -59,6 +64,11 @@ for name in plan["packages"]:
         forbidden = {f"{app}/settings.json",f"{app}/presets.json"}
         assert not forbidden.intersection(members), "Package contains local preferences"
         if app == "AnaChroma":
+            assert f"{app}/LICENSE.txt" not in members, "Obsolete application license packaged"
+            assert read(f"{app}/LICENSE") == verified_sources["LICENSE"], "MIT license bytes changed"
+            for source, expected_source in verified_sources.items():
+                packaged_source = read(f"{app}/source/{source}")
+                assert packaged_source.replace(b"\r\n", b"\n") == expected_source.replace(b"\r\n", b"\n"), ("Verified source differs", source)
             originals = [n for n in members if n.endswith("/assets/anachroma.jpg")]
             assert originals
             for n in originals:
