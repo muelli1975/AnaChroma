@@ -411,7 +411,7 @@ def test_navigation_focus_guard_and_multiple_exports(app, tmp_path, monkeypatch)
 
 @pytest.mark.parametrize("scale", [1., 1.5])
 @pytest.mark.parametrize("language", ["Deutsch", "English"])
-def test_editor_complete_long_values_and_wheel_hint(app, scale, language):
+def test_editor_fixed_fields_keep_exact_long_values_and_wheel_hint(app, scale, language):
     import customtkinter as ctk
     ctk.set_widget_scaling(scale)
     ctk.set_window_scaling(scale)
@@ -419,6 +419,33 @@ def test_editor_complete_long_values_and_wheel_hint(app, scale, language):
         app._language_changed(language)
         app.create_custom(); app.update()
         editor = app.editor
+        app.update();time.sleep(.03);app.update()
+        cells = [c for grid in editor.controls for row in grid for c in row] + editor.powers
+        def positions():
+            return (editor.winfo_width(),editor.winfo_height(),
+                    tuple((c.winfo_rootx()-editor.winfo_rootx(),c.winfo_rooty()-editor.winfo_rooty(),c.winfo_width(),c.winfo_height(),
+                           c.entry.winfo_rootx()-editor.winfo_rootx(),c.entry.winfo_rooty()-editor.winfo_rooty(),c.entry.winfo_width(),c.entry.winfo_height())
+                          for c in cells))
+        fixed = positions()
+        from anachroma.matrices import BUILTINS
+        from tkinter import font as tkfont
+        for cell in cells:
+            entry=cell.entry._entry
+            values_to_fit = [value for m in BUILTINS if m.editable
+                            for matrix in (m.left,m.right) for row in matrix for value in row]
+            values_to_fit += [value for m in BUILTINS if m.editable for value in m.powers]
+            assert max(tkfont.Font(font=entry.cget("font")).measure(repr(float(v)))
+                       for v in values_to_fit)+8 <= entry.winfo_width()
+        untouched=editor.controls[0][0][1].get()
+        for cell in (editor.controls[0][0][0],editor.controls[1][2][2],editor.powers[0]):
+            for fraction in (.17,.53,.91):
+                # Real click path, including slider focus and change callbacks.
+                canvas=cell.slider._canvas
+                canvas.event_generate("<Button-1>",x=round(canvas.winfo_width()*fraction),
+                                      y=canvas.winfo_height()//2)
+                app.update();time.sleep(.03);app.update()
+                assert positions()==fixed
+        assert editor.controls[0][0][1].get()==untouched
         values = ("-0.12345678901234568", "1.2345678901234567", "-2.345678901234567e+20")
         for grid in editor.controls:
             for row in grid:
@@ -433,12 +460,11 @@ def test_editor_complete_long_values_and_wheel_hint(app, scale, language):
             entry = cell.entry._entry
             entry.xview_moveto(0)
             app.update()
-            from tkinter import font as tkfont
-            text_width = tkfont.Font(font=entry.cget("font")).measure(cell.var.get())
-            assert text_width + 8 <= entry.winfo_width(), (cell.var.get(), text_width, entry.winfo_width())
+            assert entry.xview()[1] < 1., "Long custom text should scroll inside the fixed field"
             assert entry.winfo_rootx() >= editor.winfo_rootx()
             assert entry.winfo_rootx()+entry.winfo_width() <= editor.winfo_rootx()+editor.winfo_width()
             assert cell.get() == float(cell.var.get())
+        assert positions()==fixed
         assert editor.draft().left[0] == tuple(map(float, values))
         def labels(widget):
             yield widget

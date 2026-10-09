@@ -28,6 +28,7 @@ class NumberControl(ctk.CTkFrame):
         self.horizontal = horizontal
         self.control_width = width
         self.slider_width = max(40, width - 92) if horizontal else max(40, width-2)
+        self._reserve_entry_space()
         self.entry.pack(side="right" if horizontal else "top", fill="x", padx=2, pady=1)
         self.slider = None
         if slider:
@@ -60,7 +61,6 @@ class NumberControl(ctk.CTkFrame):
         self.updating = True
         self.var.set(repr(float(value)))
         self._position(value)
-        self._fit_entry_text()
         self.entry.configure(border_color=BORDER)
         self.updating = False
 
@@ -70,23 +70,20 @@ class NumberControl(ctk.CTkFrame):
             self.slider.configure(from_=low, to=high)
             self.slider.set(value)
 
-    def _fit_entry_text(self):
-        # Measure the actual scaled font; retain the exact text, including its last digit.
+    def _reserve_entry_space(self):
+        # Fixed room for every supplied editable coefficient/power. Longer custom
+        # text stays exact in the entry and scrolls without resizing the editor.
         font = tkfont.Font(font=self.entry._entry.cget("font"))
+        values = [value for method in BUILTINS if method.editable
+                  for matrix in (method.left, method.right) for row in matrix for value in row]
+        values += [value for method in BUILTINS if method.editable for value in method.powers]
         width = max(self.minimum_entry_width,
-                    math.ceil(font.measure(self.var.get()) / self._get_widget_scaling()) + 28)
+                    math.ceil(max(font.measure(repr(float(value))) for value in values)
+                              / self._get_widget_scaling()) + 28)
         self.entry.configure(width=width)
         self.configure(width=width + self.slider_width + 16 if self.horizontal else width + 4)
-        placement = self.grid_info()
-        if placement:
-            self.master.grid_columnconfigure(placement["column"],
-                minsize=math.ceil((self.cget("width") + 4) * self._get_widget_scaling()))
-        window = self.winfo_toplevel()
-        if hasattr(window, "_fit_number_fields"):
-            window.schedule_number_fit()
 
     def _edited(self, *_):
-        self._fit_entry_text()
         if self.updating:
             return
         try:
@@ -97,7 +94,7 @@ class NumberControl(ctk.CTkFrame):
         self.changed()
 
     def _slide(self, value):
-        quantized = round(value/self.step)*self.step
+        quantized = float(f"{round(value/self.step)*self.step:.12g}")
         self.set(value if self.positive and quantized <= 0 else quantized)
         self.changed()
 
@@ -234,6 +231,7 @@ class PresetEditor(ctk.CTkToplevel):
         self.initializing = False
         self.translate_ui()
         self._changed()
+        self.schedule_number_fit()
         self.lift_after = self.after(100, self.lift)
 
     def schedule_number_fit(self):
