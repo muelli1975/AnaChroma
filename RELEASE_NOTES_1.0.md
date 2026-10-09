@@ -1,16 +1,16 @@
 # AnaChroma 1.0
 
-AnaChroma erzeugt hochwertige Anaglyphen aus Full-SBS-Bildern und verarbeitet alle Bilder lokal.
+AnaChroma creates high-quality anaglyphs from Full-SBS images and processes all images locally.
 
-- 18 Anaglyphenverfahren, einschließlich CIELab sowie Rot/Cyan, Grün/Magenta und Amber/Blau.
-- Automatische Vorschau des gewählten Verfahrens.
-- Eigene Verfahren mit zwei Matrizen, präziser Zahleneingabe, optionalem linearem Licht und RGB-Farbkorrektur; Entwürfe erscheinen in der Hauptvorschau.
-- Einzelbilder und ganze Ordner verarbeiten; Unterordner auf Wunsch einbeziehen und deren Struktur im Ausgabeziel erhalten.
-- Ein oder mehrere Verfahren für die Ausgabe auswählen.
-- JPEG-Ausgabe mit Qualität 90 oder optional 95 für Druck und Archiv, jeweils ohne Chroma-Subsampling.
-- Ausgabegrößen Original, 1080p, 2160p, 2048 Pixel lange Seite und benutzerdefinierte Größe bei erhaltenem Seitenverhältnis.
-- Automatische Übernahme geeigneter Bildmetadaten.
-- Bildnavigation mit Links/Rechts und Bild auf/Bild ab; Verfahrenswechsel mit Strg+Links/Rechts und anklickbare Übersicht der Tastenkürzel.
-- Fortschrittsanzeige und Abbruch laufender Verarbeitung.
-- Deutsche und englische Oberfläche; Sprache, eigene Verfahren und Ein-/Ausgabeordner bleiben gespeichert.
-- Portable Pakete für Windows, Linux und macOS Apple Silicon mit enthaltenem Quellcode.
+- 18 anaglyph methods, including CIELab, red/cyan, green/magenta and amber/blue.
+- Automatic preview of the selected method.
+- Custom methods with two matrices, precise numerical input, optional linear-light processing and RGB colour correction; drafts appear in the main preview.
+- Process single images or entire folders; optionally include subfolders and preserve their structure in the output folder.
+- Select one or several methods for export.
+- JPEG output at quality 90, or optional quality 95 for print and archive, always without chroma subsampling.
+- Output sizes: Original, 1080p, 2160p, 2048-pixel long edge and custom dimensions, with the aspect ratio preserved.
+- Automatic copying of suitable image metadata.
+- Image navigation with Left/Right and Page Up/Page Down; method selection with Ctrl+Left/Right and a clickable keyboard-shortcut overview.
+- Progress display and cancellation during processing.
+- German and English interface; language, custom methods and input/output folders are remembered.
+- Portable packages for Windows, Linux and macOS Apple Silicon, with source code included.
