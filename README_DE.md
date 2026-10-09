@@ -60,6 +60,6 @@ python run_anachroma.py
 
 ## Lizenz
 
-Copyright Christoph Müller. MIT-Lizenz für AnaChroma; Fremdkomponenten behalten ihre jeweiligen Lizenzen. Siehe [LICENSE.txt](LICENSE.txt) und [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Copyright Christoph Müller. MIT-Lizenz für AnaChroma; Fremdkomponenten behalten ihre jeweiligen Lizenzen. Siehe [LICENSE](LICENSE) und [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 Das Paket enthält den festen Programmordner `AnaChroma`; Versions- und Plattformangaben stehen im Namen des Downloadarchivs.

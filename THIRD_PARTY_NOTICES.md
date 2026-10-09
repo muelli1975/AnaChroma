@@ -1,6 +1,6 @@
 # AnaChroma – Third-party notices
 
-AnaChroma's own source code and original documentation are licensed under the MIT License (`LICENSE.txt`). Third-party software remains under its own licenses.
+AnaChroma's own source code and original documentation are licensed under the MIT License (`LICENSE`). Third-party software remains under its own licenses.
 
 ## Runtime and development packages
 

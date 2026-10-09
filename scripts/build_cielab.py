@@ -64,7 +64,7 @@ def main():
     with tarfile.open(out / "cielab-source.tar.gz", "w:gz") as archive:
         archive.add(SOURCE, arcname="cielab-source/native")
         archive.add(Path(__file__), arcname="cielab-source/build_cielab.py")
-        archive.add(ROOT / "LICENSE.txt", arcname="cielab-source/AnaChroma-MIT-LICENSE.txt")
+        archive.add(ROOT / "LICENSE", arcname="cielab-source/AnaChroma-MIT-LICENSE.txt")
         for dependency in info["dependencies"]:
             name = f"{dependency['name']}-{dependency['version']}"
             archive.add(deps / name, arcname=f"cielab-source/dependencies/{name}")
