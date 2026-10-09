@@ -1,0 +1,56 @@
+name: Verify supplied AnaChroma background
+on:
+  push:
+    branches: [codex/image-review-20261009]
+    paths: ['.github/workflows/image-review.yml']
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 7ede9dc5566b5bf1272824cfd022ca36b937b6c3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install display and pinned application dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+          python -m pip install -r requirements-build.txt -e .
+      - name: Verify original bytes and startup preview
+        run: |
+          xvfb-run -a -s "-screen 0 2560x1920x24" python - <<'PY'
+          import base64, hashlib, io, json, tempfile, time
+          from pathlib import Path
+          from unittest.mock import patch
+          from PIL import Image, ImageGrab
+          from anachroma import gui
+          path = Path("assets/anachroma.jpg")
+          original = path.read_bytes()
+          blob = hashlib.sha1(b"blob " + str(len(original)).encode() + b"\0" + original).hexdigest()
+          assert blob == "a2482eb6a9a8a5744cfbcdceb9f728e77db721ae"
+          with Image.open(path) as im:
+              im.load()
+              print("ORIGINAL_IMAGE_JSON " + json.dumps({"bytes":len(original), "sha256":hashlib.sha256(original).hexdigest(), "blob":blob, "size":im.size, "mode":im.mode, "format":im.format}), flush=True)
+          with tempfile.TemporaryDirectory() as folder, patch.object(gui, "user_dir", return_value=Path(folder)):
+              app = gui.AnaChromaApp()
+              try:
+                  end = time.monotonic() + 30
+                  while app.preview_photo is None and time.monotonic() < end:
+                      app.update()
+                      time.sleep(.01)
+                  assert app.preview_photo is not None and app.inputs is None
+                  app.update()
+                  capture = ImageGrab.grab(bbox=(app.winfo_rootx(), app.winfo_rooty(), app.winfo_rootx()+app.winfo_width(), app.winfo_rooty()+app.winfo_height()))
+                  buffer = io.BytesIO()
+                  capture.save(buffer, format="PNG")
+                  print("IMAGE_REVIEW_JSON " + json.dumps({"name":"AnaChroma-new-background.png", "data":base64.b64encode(buffer.getvalue()).decode()}), flush=True)
+              finally:
+                  app.close()
+          assert path.read_bytes() == original
+          print("Original image unchanged; startup preview ready and excluded from batch input.", flush=True)
+          PY
