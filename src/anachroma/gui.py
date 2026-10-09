@@ -288,7 +288,7 @@ class AnaChromaApp(ctk.CTk):
     def _refresh_methods(self, selected):
         self.methods = {}
         for n, method in enumerate(BUILTINS, 1):
-            self.methods[f"{n}  {method.name}"] = method
+            self.methods[f"{n}  {self.t(method.name)}"] = method
         for method in self.custom:
             self.methods[self.t(f"Eigene: {method.name}")] = method
         self.method_menu.configure(values=list(self.methods)[:len(BUILTINS)]
@@ -501,7 +501,8 @@ class AnaChromaApp(ctk.CTk):
                                 else "AnaChroma · Beispielbild"))
         method = self.draft or self.selected_method()
         label = "Entwurf · " if self.draft is not None else ""
-        self.preview_note.configure(text=self.t(label + method.name))
+        name = self.t(method.name) if method.builtin else method.name
+        self.preview_note.configure(text=self.t(label + name))
         if self.preview_after is None:
             self.preview_after = self.after(180, self._submit_preview)
 

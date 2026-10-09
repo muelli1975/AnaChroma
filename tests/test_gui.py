@@ -107,10 +107,18 @@ def test_language_switch_editor_template_and_slider_factors(app, tmp_path):
     app._language_changed("English"); app.update()
     assert app.action_button.cget("text") == "Save image"
     assert app.file_button.cget("text") == "Single image…"
+    assert app.method_var.get().endswith("+ red")
+    assert app.preview_note.cget("text").endswith("+ red")
+    first = app.selected_method()
+    assert first.name.endswith("+ rot") and first.id == "builtin:1"
     app._size_selected("Custom"); app.update()
     assert app.size_var.get() == "Benutzerdefiniert" and app.custom_size.winfo_ismapped()
     app.create_custom(); app.update()
     editor = app.editor
+    assert editor.template.get().endswith("+ red")
+    assert "+ red – custom variant" in editor.name.get()
+    editor._template("Dubois LCD (Sanders/McAllister) + red")
+    assert editor.draft().left == first.left and editor.draft().right == first.right
     template = next(m for m in editor.templates.values() if m.suffix == "wimmer")
     editor._template(template.name)
     assert "Wimmer" in editor.name.get() and editor.suffix.get() == "eigen_wimmer"
@@ -124,6 +132,9 @@ def test_language_switch_editor_template_and_slider_factors(app, tmp_path):
     editor.cancel(); app._language_changed("Deutsch"); app.update()
     assert app.file_button.cget("text") == "Einzelbild…"
     assert app.settings.language == "de"
+    app._refresh_methods("builtin:1"); app.request_preview()
+    assert app.method_var.get().endswith("+ rot")
+    assert app.preview_note.cget("text").endswith("+ rot")
 
 
 def test_input_mode_action_and_recursive_output(app, tmp_path):

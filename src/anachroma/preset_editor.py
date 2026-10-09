@@ -153,7 +153,8 @@ class PresetEditor(ctk.CTkToplevel):
         self.existing = existing
         self.base = method.as_custom(existing=existing)
         if not existing:
-            self.base = replace(self.base, name=self.app.t(self.base.name))
+            name = self.app.t(method.name) if method.builtin else method.name
+            self.base = replace(self.base, name=self.app.t(f"{name} – eigene Variante"))
         self.original = self.base
         self.initializing = True
         self.grid_columnconfigure(0, weight=1)
@@ -262,6 +263,10 @@ class PresetEditor(ctk.CTkToplevel):
     def translate_ui(self):
         self.title("AnaChroma – " + self.app.t("Eigenes Verfahren"))
         translate_widgets(self, self.app.language, (self.error,))
+        selected = getattr(self, "template_labels", {}).get(self.template.get(), self.template.get())
+        self.template_labels = {self.app.t(name): name for name in self.templates}
+        self.template.configure(values=list(self.template_labels))
+        self.template.set(self.app.t(selected))
 
     def destroy(self):
         if getattr(self, "number_fit_after", None):
@@ -294,12 +299,14 @@ class PresetEditor(ctk.CTkToplevel):
             self.app._style_primary_button(self.save_button)
 
     def _template(self, name):
+        name = self.template_labels.get(name, name)
         template = self.templates[name].as_custom()
         existing = [m for m in self.app.custom if m.id != self.base.id]
-        proposal_name, proposal_suffix = self.app.t(template.name), template.suffix
+        translated_name = self.app.t(f"{self.app.t(name)} – eigene Variante")
+        proposal_name, proposal_suffix = translated_name, template.suffix
         number = 2
         while any(m.name.casefold() == proposal_name.casefold() or m.suffix == proposal_suffix for m in existing):
-            proposal_name = f"{self.app.t(template.name)} ({number})"
+            proposal_name = f"{translated_name} ({number})"
             proposal_suffix = f"{template.suffix}_{number}"
             number += 1
         self.original = replace(template, id=self.base.id, name=proposal_name, suffix=proposal_suffix)
