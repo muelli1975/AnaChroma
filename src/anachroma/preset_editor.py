@@ -77,9 +77,13 @@ class NumberControl(ctk.CTkFrame):
                     math.ceil(font.measure(self.var.get()) / self._get_widget_scaling()) + 28)
         self.entry.configure(width=width)
         self.configure(width=width + self.slider_width + 16 if self.horizontal else width + 4)
+        placement = self.grid_info()
+        if placement:
+            self.master.grid_columnconfigure(placement["column"],
+                minsize=math.ceil((self.cget("width") + 4) * self._get_widget_scaling()))
         window = self.winfo_toplevel()
         if hasattr(window, "_fit_number_fields"):
-            window.after_idle(window._fit_number_fields)
+            window.schedule_number_fit()
 
     def _edited(self, *_):
         self._fit_entry_text()
@@ -231,15 +235,24 @@ class PresetEditor(ctk.CTkToplevel):
         self._changed()
         self.lift_after = self.after(100, self.lift)
 
+    def schedule_number_fit(self):
+        if getattr(self, "number_fit_after", None):
+            self.after_cancel(self.number_fit_after)
+        self.number_fit_after = self.after(10, self._fit_number_fields)
+
     def _fit_number_fields(self):
+        self.number_fit_after = None
         if not self.winfo_exists():
             return
         scale = self._get_window_scaling()
         needed = math.ceil((self.body.winfo_reqwidth() + 32 * scale) / scale)
-        width = max(680, needed)
+        matrix_width = sum(sum(max(row[col].entry.cget("width") + 8 for row in grid)
+                               for col in range(3)) + 90 for grid in self.controls) + 52
+        correction_width = sum(cell.cget("width") + 8 for cell in self.powers) + 32
+        width = max(680, needed, math.ceil(matrix_width), math.ceil(correction_width))
         needed_height = math.ceil((self.body.winfo_reqheight() + self.footer.winfo_reqheight()
                                   + 30 * scale) / scale)
-        height = max(550, needed_height)
+        height = max(590, needed_height)
         self.minsize(width, height)
         if self.winfo_width() < width * scale or self.winfo_height() < height * scale:
             width = max(width, math.ceil(self.winfo_width() / scale))
@@ -251,6 +264,9 @@ class PresetEditor(ctk.CTkToplevel):
         translate_widgets(self, self.app.language, (self.error,))
 
     def destroy(self):
+        if getattr(self, "number_fit_after", None):
+            self.after_cancel(self.number_fit_after)
+            self.number_fit_after = None
         if hasattr(self, "lift_after"):
             self.after_cancel(self.lift_after)
         super().destroy()

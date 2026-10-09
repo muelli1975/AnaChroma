@@ -417,6 +417,7 @@ def test_editor_complete_long_values_and_wheel_hint(app, scale, language):
         for cell in editor.powers:
             cell.var.set("0.6666666666666666")
         app.update()
+        time.sleep(.03); app.update()
         for cell in [c for grid in editor.controls for row in grid for c in row] + editor.powers:
             entry = cell.entry._entry
             entry.xview_moveto(0)

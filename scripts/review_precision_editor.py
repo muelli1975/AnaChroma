@@ -1,5 +1,5 @@
 """Render the actual precision editor in both languages at 100/150 percent."""
-import base64, io, json, tempfile
+import base64, io, json, tempfile, time
 from pathlib import Path
 from unittest.mock import patch
 import customtkinter as ctk
@@ -22,7 +22,7 @@ with tempfile.TemporaryDirectory() as directory, patch.object(gui,"user_dir",ret
                             cell.var.set(value)
                 editor.correct.set(True)
                 for cell in editor.powers:cell.var.set("0.6666666666666666")
-                app.update();editor.lift();app.update()
+                app.update();time.sleep(.05);app.update();editor.lift();app.update()
                 box=(editor.winfo_rootx(),editor.winfo_rooty(),editor.winfo_rootx()+editor.winfo_width(),editor.winfo_rooty()+editor.winfo_height())
                 shot=ImageGrab.grab(bbox=box)
                 path=screens/f"{language}-{scale}.png";shot.save(path)
