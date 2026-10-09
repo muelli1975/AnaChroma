@@ -1,0 +1,61 @@
+name: Review tested stereo GUI screenshots
+on:
+  push:
+    branches: [codex/gui-review-20261009]
+    paths: ['.github/workflows/gui-review.yml']
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dd499d33e2b6d17f80c681b10d9a44e9d2f2df72
+      - uses: actions/checkout@v4
+        with:
+          repository: muelli1975/Freeda
+          ref: 3cb22bc76957962b034b4f056a5aa46ad0eaeb51
+          path: freeda-review
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.10'
+      - name: Install desktop dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-tk xvfb xauth fonts-dejavu-core
+          python -m pip install -r requirements-build.txt -e .
+          python -m pip install -r freeda-review/requirements-build.txt
+      - name: Capture exact tested GUIs in both languages and scales
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          for root in (Path('.'), Path('freeda-review')):
+              path = root / 'scripts/check_family_ui.py'
+              source = path.read_text()
+              source = source.replace('ImageGrab.grab().save(screens / name)', 'ImageGrab.grab(bbox=(app.winfo_rootx(), app.winfo_rooty(), app.winfo_rootx()+app.winfo_width(), app.winfo_rooty()+app.winfo_height())).save(screens / name)')
+              path.write_text(source)
+          path = Path('freeda-review/tests/gui_views_smoke.py')
+          path.write_text(path.read_text().replace("if language=='de':", "if True:"))
+          PY
+          xvfb-run -a -s "-screen 0 2560x1920x24" python scripts/check_family_ui.py
+          (cd freeda-review && xvfb-run -a -s "-screen 0 2560x1920x24" python scripts/check_family_ui.py)
+          (cd freeda-review && xvfb-run -a -s "-screen 0 2560x1920x24" python scripts/check_gui.py tests/gui_views_smoke.py)
+          python - <<'PY'
+          import base64, json
+          from pathlib import Path
+          for root, width in ((Path('.'), '940'), (Path('freeda-review'), '1000')):
+              for path in sorted((root/'build/family-ui').glob('*.png')):
+                  if '-'+width+'-' in path.name:
+                      print('GUI_REVIEW_JSON '+json.dumps({'name':path.name,'data':base64.b64encode(path.read_bytes()).decode()}), flush=True)
+          PY
+      - name: Preserve screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stereo-gui-review-20261009
+          path: |
+            build/family-ui/*.png
+            freeda-review/build/family-ui/*.png
+          retention-days: 14
