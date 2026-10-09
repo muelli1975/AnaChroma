@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: muelli1975/Freeda
-          ref: 3cb22bc76957962b034b4f056a5aa46ad0eaeb51
+          ref: 7e07ee29268d80659a32e69312f28c5929c71f4e
           path: freeda-review
       - uses: actions/setup-python@v5
         with:
@@ -35,6 +35,29 @@ jobs:
               path = root / 'scripts/check_family_ui.py'
               source = path.read_text()
               source = source.replace('ImageGrab.grab().save(screens / name)', 'ImageGrab.grab(bbox=(app.winfo_rootx(), app.winfo_rooty(), app.winfo_rootx()+app.winfo_width(), app.winfo_rooty()+app.winfo_height())).save(screens / name)')
+              if root == Path('.'):
+                  capture = """ImageGrab.grab(bbox=(app.winfo_rootx(), app.winfo_rooty(), app.winfo_rootx()+app.winfo_width(), app.winfo_rooty()+app.winfo_height())).save(screens / name)"""
+                  editor = """
+                        if size[0] == 940:
+                            editor = gui.PresetEditor(app, app.selected_method())
+                            app.editor = editor
+                            wait(app, lambda: editor.winfo_ismapped())
+                            app.update_idletasks()
+                            assert all(c.lower == -.5 and c.upper == 1.5 for grid in editor.controls for row in grid for c in row)
+                            original = editor.draft()
+                            control = editor.controls[0][0][0]
+                            control.var.set('2.123456789')
+                            assert control.get() == 2.123456789 and control.slider.cget('to') >= 2.123456789
+                            control.var.set('-.75')
+                            assert control.get() == -.75 and control.slider.cget('from_') <= -.75
+                            editor.reset()
+                            assert editor.draft().left == original.left and editor.draft().right == original.right
+                            app.update()
+                            ImageGrab.grab(bbox=(editor.winfo_rootx(), editor.winfo_rooty(), editor.winfo_rootx()+editor.winfo_width(), editor.winfo_rooty()+editor.winfo_height())).save(screens / ('editor-' + name))
+                            editor.cancel()
+                            app.update()
+                  """
+                  source = source.replace(capture, capture + editor)
               path.write_text(source)
           path = Path('freeda-review/tests/gui_views_smoke.py')
           path.write_text(path.read_text().replace("if language=='de':", "if True:"))
@@ -42,6 +65,9 @@ jobs:
           xvfb-run -a -s "-screen 0 2560x1920x24" python scripts/check_family_ui.py
           (cd freeda-review && xvfb-run -a -s "-screen 0 2560x1920x24" python scripts/check_family_ui.py)
           (cd freeda-review && xvfb-run -a -s "-screen 0 2560x1920x24" python scripts/check_gui.py tests/gui_views_smoke.py)
+      - name: Emit screenshots for visual review
+        if: always()
+        run: |
           python - <<'PY'
           import base64, json
           from pathlib import Path
