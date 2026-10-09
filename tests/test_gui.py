@@ -396,3 +396,44 @@ def test_navigation_focus_guard_and_multiple_exports(app, tmp_path, monkeypatch)
     files = sorted(p.name for p in (tmp_path/"output").glob("*.jpg"))
     assert files == ["bild1_dubois.jpg", "bild1_dubois_lcd.jpg"]
     assert "2 Ausgaben gespeichert" in app.status.cget("text")
+
+
+@pytest.mark.parametrize("scale", [1., 1.5])
+@pytest.mark.parametrize("language", ["Deutsch", "English"])
+def test_editor_complete_long_values_and_wheel_hint(app, scale, language):
+    import customtkinter as ctk
+    ctk.set_widget_scaling(scale)
+    ctk.set_window_scaling(scale)
+    try:
+        app._language_changed(language)
+        app.create_custom(); app.update()
+        editor = app.editor
+        values = ("-0.12345678901234568", "1.2345678901234567", "-2.345678901234567e+20")
+        for grid in editor.controls:
+            for row in grid:
+                for cell, value in zip(row, values):
+                    cell.var.set(value)
+        editor.correct.set(True)
+        for cell in editor.powers:
+            cell.var.set("0.6666666666666666")
+        app.update()
+        for cell in [c for grid in editor.controls for row in grid for c in row] + editor.powers:
+            entry = cell.entry._entry
+            entry.xview_moveto(0)
+            app.update()
+            x, y, width, height = entry.bbox(len(cell.var.get())-1)
+            assert x >= 0 and x + width <= entry.winfo_width()-2, (cell.var.get(), entry.winfo_width(), entry.bbox(len(cell.var.get())-1))
+            assert entry.winfo_rootx() >= editor.winfo_rootx()
+            assert entry.winfo_rootx()+entry.winfo_width() <= editor.winfo_rootx()+editor.winfo_width()
+            assert cell.get() == float(cell.var.get())
+        assert editor.draft().left[0] == tuple(map(float, values))
+        def labels(widget):
+            yield widget
+            for child in widget.winfo_children():
+                yield from labels(child)
+        hint = "Mausrad: ausgewählten Wert fein ändern." if language == "Deutsch" else "Mouse wheel: finely adjust the selected value."
+        assert any(isinstance(w, ctk.CTkLabel) and w.cget("text") == hint for w in labels(editor))
+        editor.cancel()
+    finally:
+        ctk.set_widget_scaling(1.)
+        ctk.set_window_scaling(1.)

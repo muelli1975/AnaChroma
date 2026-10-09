@@ -61,6 +61,16 @@ jobs:
       - name: Check family UI colors, settings and scaling
         if: runner.os == 'Linux'
         run: xvfb-run -a -s "-screen 0 2560x1920x24" python scripts/check_family_ui.py
+      - name: Render German and English precision editor at 100 and 150 percent
+        if: runner.os == 'Linux'
+        run: xvfb-run -a -s "-screen 0 2560x1920x24" python scripts/review_precision_editor.py
+      - name: Preserve precision editor screenshots
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: precision-editor-review
+          path: build/editor-review/*.png
+          retention-days: 14
       - name: Build portable directory
         run: python scripts/build.py
       - name: Test packaged CIELab executable

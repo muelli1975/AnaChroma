@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import replace
 import math
 import tkinter as tk
+from tkinter import font as tkfont
 from tkinter import messagebox
 import customtkinter as ctk
 
@@ -23,6 +24,7 @@ class NumberControl(ctk.CTkFrame):
         self.wheel_remainder = 0.
         self.var = tk.StringVar(value=repr(value))
         self.entry = ctk.CTkEntry(self, width=76 if horizontal else width, height=26, textvariable=self.var, border_color=BORDER)
+        self.minimum_entry_width = 76 if horizontal else width
         self.entry.pack(side="right" if horizontal else "top", fill="x", padx=2, pady=1)
         self.slider = None
         if slider:
@@ -55,6 +57,7 @@ class NumberControl(ctk.CTkFrame):
         self.updating = True
         self.var.set(repr(float(value)))
         self._position(value)
+        self._fit_entry_text()
         self.entry.configure(border_color=BORDER)
         self.updating = False
 
@@ -64,7 +67,18 @@ class NumberControl(ctk.CTkFrame):
             self.slider.configure(from_=low, to=high)
             self.slider.set(value)
 
+    def _fit_entry_text(self):
+        # Measure the actual scaled font; retain the exact text, including its last digit.
+        font = tkfont.Font(font=self.entry._entry.cget("font"))
+        width = max(self.minimum_entry_width,
+                    math.ceil(font.measure(self.var.get()) / self._get_widget_scaling()) + 28)
+        self.entry.configure(width=width)
+        window = self.winfo_toplevel()
+        if hasattr(window, "_fit_number_fields"):
+            window.after_idle(window._fit_number_fields)
+
     def _edited(self, *_):
+        self._fit_entry_text()
         if self.updating:
             return
         try:
@@ -136,7 +150,7 @@ class PresetEditor(ctk.CTkToplevel):
         self.initializing = True
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
-        body = ctk.CTkFrame(self, fg_color="transparent")
+        body = self.body = ctk.CTkFrame(self, fg_color="transparent")
         body.grid(row=0, column=0, sticky="nsew", padx=16, pady=(12, 6))
         body.grid_columnconfigure(0, weight=1)
         body.grid_rowconfigure(0, weight=1)
@@ -191,6 +205,9 @@ class PresetEditor(ctk.CTkToplevel):
                                     lower=.625, upper=1.25, positive=True, horizontal=True, width=180)
             control.grid(row=2, column=i, padx=2, sticky="ew")
             self.powers.append(control)
+        ctk.CTkLabel(content, text="Mausrad: ausgewählten Wert fein ändern.",
+                       text_color=MUTED, anchor="w").grid(
+                           row=4, column=0, columnspan=2, sticky="ew", pady=(8, 0))
         footer = ctk.CTkFrame(self, fg_color="transparent")
         footer.grid(row=1, column=0, sticky="ew", padx=16, pady=(0, 12))
         self.error = ctk.CTkLabel(footer, text="", height=18, text_color=DANGER, wraplength=660, justify="left")
@@ -209,6 +226,17 @@ class PresetEditor(ctk.CTkToplevel):
         self.translate_ui()
         self._changed()
         self.lift_after = self.after(100, self.lift)
+
+    def _fit_number_fields(self):
+        if not self.winfo_exists():
+            return
+        scale = self._get_window_scaling()
+        needed = math.ceil((self.body.winfo_reqwidth() + 32 * scale) / scale)
+        width = max(680, needed)
+        self.minsize(width, 530)
+        if self.winfo_width() < width * scale:
+            height = max(550, math.ceil(self.winfo_height() / scale))
+            self.geometry(f"{width}x{height}")
 
     def translate_ui(self):
         self.title("AnaChroma – " + self.app.t("Eigenes Verfahren"))

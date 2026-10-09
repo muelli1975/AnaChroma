@@ -4,6 +4,7 @@ import re
 from string import Formatter
 
 EN = {
+    "Mausrad: ausgewählten Wert fein ändern.": "Mouse wheel: finely adjust the selected value.",
     "Unterordner im Programmordner\nverwenden": "Use subfolder in\nprogram folder",
     "Tastenkürzel…": "Keyboard shortcuts…",
     "Tastenkürzel": "Keyboard shortcuts",
