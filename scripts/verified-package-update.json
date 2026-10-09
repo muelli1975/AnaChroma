@@ -3,18 +3,18 @@
   "app": "AnaChroma",
   "tag": "v1.0",
   "release_id": 407916981,
-  "run": 37962792419,
-  "commit": "1bb63eacd448f3d8581f1f70bf44fc8ef2af6970",
+  "run": 37970254629,
+  "commit": "3933f26b849c2d217541215e476b646e6d2b4d3a",
   "packages": [
     "AnaChroma_1.0_Linux_x64.tar.gz",
     "AnaChroma_1.0_macOS_AppleSilicon.tar.gz",
     "AnaChroma_1.0_Windows_x64.zip"
   ],
   "previous": {
-    "AnaChroma_1.0_Linux_x64.tar.gz": "sha256:b3c55e5f03c2079775e12564cd82ed79eb887e6ff46462a2dc89d49a84c3333b",
-    "AnaChroma_1.0_macOS_AppleSilicon.tar.gz": "sha256:ff2b4e58432ee0b33124915625796a2050144e34702c76f234822198a760ceb7",
-    "AnaChroma_1.0_Windows_x64.zip": "sha256:5efe759297f087ab65a5cbd16b4f0dc886cc1f60b368512f320a88d12362ed7f",
-    "SHA256SUMS.txt": "sha256:17ac537ae11c3b3dd9d197c005dc282524194552328b0dd81de0021ecdb45767"
+    "AnaChroma_1.0_Linux_x64.tar.gz": "sha256:fb1682333a5bd50e04ed94e816ee658bc0188efc41fcc816840d2896f7739ac1",
+    "AnaChroma_1.0_macOS_AppleSilicon.tar.gz": "sha256:f229b8c8fb3dc686b5fb070bfac0936615ec3232d20d505952d230034082ab6a",
+    "AnaChroma_1.0_Windows_x64.zip": "sha256:fe06e6a62dc96f6440f5cfd121f3c924795e38216ba5375473511f82b04d41d8",
+    "SHA256SUMS.txt": "sha256:92225e087b72c0f5bb503e0346623ced863cf5df6ffb6022427f24da3c0ae129"
   },
   "gui": "src/anachroma/gui.py",
   "notes": "RELEASE_NOTES_1.0.md",
