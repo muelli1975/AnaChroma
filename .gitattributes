@@ -3,3 +3,6 @@ native/cielab/upstream/** -text
 assets/*.jpg binary
 assets/*.ico binary
 assets/*.wav binary
+
+# Preserve the supplied MIT license bytes, including original line endings.
+LICENSE -text
