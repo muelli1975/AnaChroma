@@ -37,6 +37,12 @@ ExifTool copies metadata while excluding original previews, thumbnails and orien
 
 ## Portable builds and source
 
+| Platform | Package |
+| --- | --- |
+| Windows x64 | `AnaChroma_1.0_Windows_x64.zip` |
+| Linux x64 | `AnaChroma_1.0_Linux_x64.tar.gz` |
+| macOS Apple Silicon | `AnaChroma_1.0_macOS_AppleSilicon.tar.gz` |
+
 Extract the complete [release package](https://github.com/muelli1975/AnaChroma/releases) and start AnaChroma. Keep the supplied application files and tools together. Windows includes the required runtimes; Linux/macOS need Tcl/Tk for source use and system Perl for ExifTool. macOS builds are ad-hoc signed and not notarized.
 
 Settings and custom methods stay local in `settings.json` and `presets.json` beside the program, with a user configuration folder fallback if the program folder is read-only. Paths, output mode, language and recursive selection are remembered.

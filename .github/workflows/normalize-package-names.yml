@@ -1,0 +1,63 @@
+name: Normalize AnaChroma 1.0 package names
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/normalize-package-names.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: normalize-anachroma-v1.0
+  cancel-in-progress: false
+
+jobs:
+  rename:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Rename the existing assets and update their checksum filenames
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, pathlib, subprocess
+          repo = os.environ["GH_REPO"]
+          mapping = [{"old":"AnaChroma-windows-2022.zip","name":"AnaChroma_1.0_Windows_x64.zip","id":624982443,"digest":"sha256:9dd8cfa7b352bbcc6b96aabf20b9319cab0bd911a1fa70f7d8e4bbe592f99b81"},{"old":"AnaChroma-ubuntu-24.04.tar.gz","name":"AnaChroma_1.0_Linux_x64.tar.gz","id":624982439,"digest":"sha256:37ba5ce7ca69e31578dffade2cc7a6283f47a668eae4432f9f36372564eff634"},{"old":"AnaChroma-macos-14.tar.gz","name":"AnaChroma_1.0_macOS_AppleSilicon.tar.gz","id":624982440,"digest":"sha256:7fd50cde11aea21ef25e358561bdb272999c7451c4b3fec22e786fab18c7ff4e"}]
+          def api(path, *args):
+              return json.loads(subprocess.check_output(["gh", "api", "repos/" + repo + "/" + path, *args], text=True))
+          release = api("releases/tags/v1.0")
+          assert not release["draft"] and release["id"] == 407916981, "Unexpected release"
+          tag = api("git/ref/tags/v1.0")
+          assert tag["object"]["sha"] == "fa1f82bd2aa3841e45331b1d1db71aa2dd1519d6", "Unexpected source tag"
+          assets = {asset["id"]: asset for asset in release["assets"]}
+          assert len(assets) == 4, "Unexpected asset set"
+          assert sum(asset["name"] == "SHA256SUMS.txt" for asset in assets.values()) == 1, "Checksum file missing"
+          for item in mapping:
+              asset = assets[item["id"]]
+              assert asset["name"] in (item["old"], item["name"]), "Unexpected filename"
+              assert asset["digest"] == item["digest"], "Package bytes differ"
+          for item in mapping:
+              asset = assets[item["id"]]
+              if asset["name"] != item["name"]:
+                  renamed = api("releases/assets/" + str(item["id"]), "--method", "PATCH", "-f", "name=" + item["name"])
+                  assert renamed["id"] == item["id"] and renamed["digest"] == item["digest"], "Rename changed package identity or bytes"
+          refreshed = api("releases/tags/v1.0")
+          renamed = {asset["id"]: asset for asset in refreshed["assets"]}
+          for item in mapping:
+              assert renamed[item["id"]]["name"] == item["name"], "Filename did not update"
+              assert renamed[item["id"]]["digest"] == item["digest"], "Package bytes changed"
+          sums = "".join(item["digest"].split(":", 1)[1] + "  " + item["name"] + "\n" for item in sorted(mapping, key=lambda item: item["name"]))
+          pathlib.Path("SHA256SUMS.txt").write_text(sums, encoding="utf-8")
+          subprocess.run(["gh", "release", "upload", "v1.0", "SHA256SUMS.txt", "--clobber"], check=True)
+          checksum = next(asset for asset in api("releases/tags/v1.0")["assets"] if asset["name"] == "SHA256SUMS.txt")
+          import hashlib
+          assert checksum["digest"] == "sha256:" + hashlib.sha256(pathlib.Path("SHA256SUMS.txt").read_bytes()).hexdigest(), "Checksum upload differs"
+          PY
