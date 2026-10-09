@@ -1,9 +1,8 @@
 # AnaChroma 1.0
 
-- 18 Anaglyphenverfahren mit automatischer Vorschau und Einzelbild-/Ordnerausgabe.
-- Gleichzeitige Ausgabe mehrerer Verfahren mit separater Vorschauauswahl.
-- Kompakter Editor für eigene Matrizen, lineares Licht und RGB-Farbkorrektur; große Hauptvorschau.
-- Originales 7680 × 2160-SBS-Beispielbild; korrekter Schwarzrand auch bei erhöhter Skalierung.
-- Bildnavigation mit Links/Rechts und Bild auf/ab; Verfahrenswechsel mit Strg+Links/Rechts.
-- ExifTool und natives CIELab gebündelt; lokale deutsche/englische Oberfläche.
-- Prüfung von rekursiven Zielen, Namenskollisionen, Abbruch und EXIF-Orientierungen.
+- 18 Anaglyphenverfahren mit automatischer Vorschau.
+- Einzelbilder und ganze Ordner verarbeiten; mehrere Verfahren gleichzeitig ausgeben.
+- Kompakter Editor für eigene Matrizen mit linearem Licht und RGB-Farbkorrektur; Änderungen direkt in der großen Vorschau beurteilen.
+- Bildnavigation mit Links/Rechts und Bild auf/Bild ab; Verfahrenswechsel mit Strg+Links/Rechts.
+- Automatische Übernahme der Bildmetadaten und integrierte CIELab-Ausgabe.
+- Deutsche und englische Oberfläche; vollständig lokale Verarbeitung.
