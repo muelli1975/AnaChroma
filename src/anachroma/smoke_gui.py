@@ -51,7 +51,7 @@ class PackagedSmokeCheck:
                 self.failures.append("Packaged CIELab export failed")
             else:
                 with Image.open(outputs[0]) as image:
-                    if image.size != (16, 12) or image.getexif().get(315) != "AnaChroma package check":
+                    if image.size != (2048, 1536) or image.getexif().get(315) != "AnaChroma package check":
                         self.failures.append("Packaged CIELab dimensions or ExifTool metadata copy failed")
             return True
         return False

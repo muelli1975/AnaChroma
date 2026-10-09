@@ -11,7 +11,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 URL = "https://github.com/muelli1975/AnaglyphBatch/releases/download/1.0/AnaglyphBatch_1.0.zip"
-HASH = "f267aff1cef4aa1e3383c00afb638307d41c145b20f27b502884bd7d3fe3de88"
+HASH = "2f192dbf7f36c152cf7b35566aefc84058844e28b6a548fd3752f8488a708286"
 
 
 def main():
@@ -28,7 +28,7 @@ def main():
     old.mkdir(exist_ok=True)
     with zipfile.ZipFile(archive) as zipped:
         for name in zipped.namelist():
-            if name.startswith("tools/cielab/") and not name.endswith("/"):
+            if name.startswith("AnaglyphBatch/tools/cielab/") and not name.endswith("/"):
                 (old / Path(name).name).write_bytes(zipped.read(name))
     archive.unlink()  # Do not include the complete unrelated tools distribution.
     current = ROOT / "tools" / "cielab" / "cielab.exe"
