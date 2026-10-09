@@ -25,10 +25,13 @@ class NumberControl(ctk.CTkFrame):
         self.var = tk.StringVar(value=repr(value))
         self.entry = ctk.CTkEntry(self, width=76 if horizontal else width, height=26, textvariable=self.var, border_color=BORDER)
         self.minimum_entry_width = 76 if horizontal else width
+        self.horizontal = horizontal
+        self.control_width = width
+        self.slider_width = max(40, width - 92) if horizontal else max(40, width-2)
         self.entry.pack(side="right" if horizontal else "top", fill="x", padx=2, pady=1)
         self.slider = None
         if slider:
-            self.slider = ctk.CTkSlider(self, width=max(40, width-2), height=14, from_=lower, to=upper,
+            self.slider = ctk.CTkSlider(self, width=self.slider_width, height=14, from_=lower, to=upper,
                 button_color=GOLD_HOVER, button_hover_color=GOLD_HOVER, progress_color=GOLD,
                 command=self._slide)
             self.slider.pack(side="left" if horizontal else "top", fill="x", expand=horizontal, padx=6, pady=3)
@@ -73,6 +76,7 @@ class NumberControl(ctk.CTkFrame):
         width = max(self.minimum_entry_width,
                     math.ceil(font.measure(self.var.get()) / self._get_widget_scaling()) + 28)
         self.entry.configure(width=width)
+        self.configure(width=width + self.slider_width + 16 if self.horizontal else width + 4)
         window = self.winfo_toplevel()
         if hasattr(window, "_fit_number_fields"):
             window.after_idle(window._fit_number_fields)
@@ -208,7 +212,7 @@ class PresetEditor(ctk.CTkToplevel):
         ctk.CTkLabel(content, text="Mausrad: ausgewählten Wert fein ändern.",
                        text_color=MUTED, anchor="w").grid(
                            row=4, column=0, columnspan=2, sticky="ew", pady=(8, 0))
-        footer = ctk.CTkFrame(self, fg_color="transparent")
+        footer = self.footer = ctk.CTkFrame(self, fg_color="transparent")
         footer.grid(row=1, column=0, sticky="ew", padx=16, pady=(0, 12))
         self.error = ctk.CTkLabel(footer, text="", height=18, text_color=DANGER, wraplength=660, justify="left")
         self.error.pack(fill="x")
@@ -233,9 +237,13 @@ class PresetEditor(ctk.CTkToplevel):
         scale = self._get_window_scaling()
         needed = math.ceil((self.body.winfo_reqwidth() + 32 * scale) / scale)
         width = max(680, needed)
-        self.minsize(width, 530)
-        if self.winfo_width() < width * scale:
-            height = max(550, math.ceil(self.winfo_height() / scale))
+        needed_height = math.ceil((self.body.winfo_reqheight() + self.footer.winfo_reqheight()
+                                  + 30 * scale) / scale)
+        height = max(550, needed_height)
+        self.minsize(width, height)
+        if self.winfo_width() < width * scale or self.winfo_height() < height * scale:
+            width = max(width, math.ceil(self.winfo_width() / scale))
+            height = max(height, math.ceil(self.winfo_height() / scale))
             self.geometry(f"{width}x{height}")
 
     def translate_ui(self):

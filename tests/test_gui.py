@@ -421,8 +421,9 @@ def test_editor_complete_long_values_and_wheel_hint(app, scale, language):
             entry = cell.entry._entry
             entry.xview_moveto(0)
             app.update()
-            x, y, width, height = entry.bbox(len(cell.var.get())-1)
-            assert x >= 0 and x + width <= entry.winfo_width()-2, (cell.var.get(), entry.winfo_width(), entry.bbox(len(cell.var.get())-1))
+            from tkinter import font as tkfont
+            text_width = tkfont.Font(font=entry.cget("font")).measure(cell.var.get())
+            assert text_width + 8 <= entry.winfo_width(), (cell.var.get(), text_width, entry.winfo_width())
             assert entry.winfo_rootx() >= editor.winfo_rootx()
             assert entry.winfo_rootx()+entry.winfo_width() <= editor.winfo_rootx()+editor.winfo_width()
             assert cell.get() == float(cell.var.get())
@@ -432,7 +433,8 @@ def test_editor_complete_long_values_and_wheel_hint(app, scale, language):
             for child in widget.winfo_children():
                 yield from labels(child)
         hint = "Mausrad: ausgewählten Wert fein ändern." if language == "Deutsch" else "Mouse wheel: finely adjust the selected value."
-        assert any(isinstance(w, ctk.CTkLabel) and w.cget("text") == hint for w in labels(editor))
+        hint_label = next(w for w in labels(editor) if isinstance(w, ctk.CTkLabel) and w.cget("text") == hint)
+        assert hint_label.winfo_rooty()+hint_label.winfo_height() <= editor.body.winfo_rooty()+editor.body.winfo_height()
         editor.cancel()
     finally:
         ctk.set_widget_scaling(1.)
