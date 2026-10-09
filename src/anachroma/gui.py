@@ -179,7 +179,7 @@ class AnaChromaApp(ctk.CTk):
                                           fg_color=GOLD, command=self._recursive_changed)
         self.recursive_box.pack(anchor="w", padx=12, pady=(8, 12))
         output = self._section(sidebar, "Ausgabe")
-        self.output_checkbox = ctk.CTkCheckBox(output, text="Unterordner im Programmordner verwenden",
+        self.output_checkbox = ctk.CTkCheckBox(output, text="Unterordner im Programmordner\nverwenden",
             variable=self.use_program_output, command=self._output_changed, fg_color=GOLD)
         self.output_checkbox.pack(anchor="w", padx=12, pady=(0, 8))
         self.custom_output_label = ctk.CTkLabel(output, text="Eigener Ausgabeordner", text_color=MUTED, anchor="w")

@@ -4,6 +4,7 @@ import re
 from string import Formatter
 
 EN = {
+    "Unterordner im Programmordner\nverwenden": "Use subfolder in\nprogram folder",
     "Tastenkürzel…": "Keyboard shortcuts…",
     "Tastenkürzel": "Keyboard shortcuts",
     "Links / Rechts oder Bild auf / Bild ab: vorheriges / nächstes Bild\nStrg + Links / Rechts: vorheriges / nächstes Vorschauverfahren\n\nIn Eingabefeldern und an Reglern bleibt die normale Bedienung erhalten.": "Left / Right or Page Up / Page Down: previous / next image\nCtrl + Left / Right: previous / next preview method\n\nText fields and sliders keep their normal controls.",

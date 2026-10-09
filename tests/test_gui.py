@@ -153,7 +153,7 @@ def test_stereofine_output_selection_and_persistence(app, tmp_path, monkeypatch)
     assert app.use_program_output.get()
     assert app._effective_output() == (tmp_path / "output").resolve()
     assert app.output_status.cget("text") == str((tmp_path / "output").resolve())
-    assert app.output_checkbox.cget("text") == "Unterordner im Programmordner verwenden"
+    assert app.output_checkbox.cget("text") == "Unterordner im Programmordner\nverwenden"
     assert app.custom_output_label.cget("text") == "Eigener Ausgabeordner"
     assert app.output_button.cget("text") == "Auswählen"
     assert app.output_button.cget("state") == "normal"
@@ -202,7 +202,7 @@ def test_stereofine_output_selection_and_persistence(app, tmp_path, monkeypatch)
     wait_for(app, lambda: not app.scanning)
     assert len(app.inputs.files) == 1 and app._effective_output() == custom.resolve()
     app._language_changed("English")
-    assert app.output_checkbox.cget("text") == "Use subfolder in program folder"
+    assert app.output_checkbox.cget("text") == "Use subfolder in\nprogram folder"
     assert app.custom_output_label.cget("text") == "Custom output folder"
     assert app.output_button.cget("text") == "Choose"
     assert app.output_status.cget("text") == str(custom.resolve())
