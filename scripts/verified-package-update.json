@@ -3,8 +3,8 @@
   "app": "AnaChroma",
   "tag": "v1.0",
   "release_id": 407916981,
-  "run": 37952269440,
-  "commit": "dd499d33e2b6d17f80c681b10d9a44e9d2f2df72",
+  "run": 37955378945,
+  "commit": "d0f6470c4c0ca682e401b02e5da6bb4ae3ef9a85",
   "packages": [
     "AnaChroma_1.0_Linux_x64.tar.gz",
     "AnaChroma_1.0_macOS_AppleSilicon.tar.gz",
