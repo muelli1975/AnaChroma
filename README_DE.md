@@ -6,6 +6,8 @@
 
 AnaChroma konvertiert Full-SBS-Stereobilder in hochwertige Anaglyphen, mit automatischer Vorschau, Bildnavigation und Einzelbild- oder Ordnerausgabe. Die Verarbeitung läuft vollständig lokal, ohne Account, Cloud oder Tracking.
 
+![AnaChroma 1.0 – Programmoberfläche](docs/Screenshots/AnaChroma.png)
+
 ## Schnellstart
 
 1. Ein Einzelbild oder einen Bildordner öffnen. Bei einem Einzelbild stehen auch die benachbarten Bilder zur Navigation bereit.

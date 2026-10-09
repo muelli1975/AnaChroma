@@ -6,6 +6,8 @@
 
 AnaChroma converts Full-SBS stereo images into high-quality anaglyphs with automatic preview, image navigation and single-image or folder export. It works completely locally, without an account, cloud or tracking.
 
+![AnaChroma 1.0 user interface](docs/Screenshots/AnaChroma.png)
+
 ## Quick start
 
 1. Open a single image or an image folder. Opening a single image also enables navigation through neighbouring images.
