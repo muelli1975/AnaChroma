@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: muelli1975/Freeda
-          ref: 7e07ee29268d80659a32e69312f28c5929c71f4e
+          ref: 57001248d40af4e68707d5805636f5e322a1e8ef
           path: freeda-review
       - uses: actions/setup-python@v5
         with:
@@ -36,28 +36,8 @@ jobs:
               source = path.read_text()
               source = source.replace('ImageGrab.grab().save(screens / name)', 'ImageGrab.grab(bbox=(app.winfo_rootx(), app.winfo_rooty(), app.winfo_rootx()+app.winfo_width(), app.winfo_rooty()+app.winfo_height())).save(screens / name)')
               if root == Path('.'):
-                  capture = """ImageGrab.grab(bbox=(app.winfo_rootx(), app.winfo_rooty(), app.winfo_rootx()+app.winfo_width(), app.winfo_rooty()+app.winfo_height())).save(screens / name)"""
-                  editor = """
-                        if size[0] == 940:
-                            editor = gui.PresetEditor(app, app.selected_method())
-                            app.editor = editor
-                            wait(app, lambda: editor.winfo_ismapped())
-                            app.update_idletasks()
-                            assert all(c.lower == -.5 and c.upper == 1.5 for grid in editor.controls for row in grid for c in row)
-                            original = editor.draft()
-                            control = editor.controls[0][0][0]
-                            control.var.set('2.123456789')
-                            assert control.get() == 2.123456789 and control.slider.cget('to') >= 2.123456789
-                            control.var.set('-.75')
-                            assert control.get() == -.75 and control.slider.cget('from_') <= -.75
-                            editor.reset()
-                            assert editor.draft().left == original.left and editor.draft().right == original.right
-                            app.update()
-                            ImageGrab.grab(bbox=(editor.winfo_rootx(), editor.winfo_rooty(), editor.winfo_rootx()+editor.winfo_width(), editor.winfo_rooty()+editor.winfo_height())).save(screens / ('editor-' + name))
-                            editor.cancel()
-                            app.update()
-                  """
-                  source = source.replace(capture, capture + editor)
+                  source = source.replace("ImageGrab.grab(bbox=(app.winfo_rootx(), app.winfo_rooty(), app.winfo_rootx()+app.winfo_width(), app.winfo_rooty()+app.winfo_height())).save(screens / name)", "ImageGrab.grab(bbox=(app.winfo_rootx(), app.winfo_rooty(), app.winfo_rootx()+app.winfo_width(), app.winfo_rooty()+app.winfo_height())).save(screens / name)\n                        if size[0] == 940:\n                            editor = gui.PresetEditor(app, app.selected_method())\n                            app.editor = editor\n                            wait(app, lambda: editor.winfo_ismapped())\n                            app.update_idletasks()\n                            assert all(c.lower == -.5 and c.upper == 1.5 for grid in editor.controls for row in grid for c in row)\n                            original = editor.draft()\n                            control = editor.controls[0][0][0]\n                            control.var.set('2.123456789')\n                            assert control.get() == 2.123456789 and control.slider.cget('to') >= 2.123456789\n                            control.var.set('-.75')\n                            assert control.get() == -.75 and control.slider.cget('from_') <= -.75\n                            editor.reset()\n                            assert editor.draft().left == original.left and editor.draft().right == original.right\n                            app.update()\n                            ImageGrab.grab(bbox=(editor.winfo_rootx(), editor.winfo_rooty(), editor.winfo_rootx()+editor.winfo_width(), editor.winfo_rooty()+editor.winfo_height())).save(screens / ('editor-' + name))\n                            editor.cancel()\n                            app.update()\n")
+              compile(source, str(path), 'exec')
               path.write_text(source)
           path = Path('freeda-review/tests/gui_views_smoke.py')
           path.write_text(path.read_text().replace("if language=='de':", "if True:"))
