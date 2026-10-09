@@ -10,3 +10,4 @@
 - Ordnerausgaben direkt im Ausgabeziel; relative Unterordner bleiben erhalten.
 - Einheitliche Versionsanzeige 1.0.
 - Korrigierter Button-Hover und konsistente Farben für inaktive Bedienelemente.
+- Sprache und Ein-/Ausgabeordner bleiben nach Neustart erhalten; Bearbeitungswerte starten mit den Standardwerten und 2048 Pixeln lange Seite.

@@ -45,7 +45,7 @@ ExifTool copies metadata while excluding original previews, thumbnails and orien
 
 Extract the complete [release package](https://github.com/muelli1975/AnaChroma/releases) and start AnaChroma. Keep the supplied application files and tools together. Windows includes the required runtimes; Linux/macOS need Tcl/Tk for source use and system Perl for ExifTool. macOS builds are ad-hoc signed and not notarized.
 
-Settings and custom methods stay local in `settings.json` and `presets.json` beside the program, with a user configuration folder fallback if the program folder is read-only. Paths, output mode, language and recursive selection are remembered.
+Settings and custom methods stay local in `settings.json` and `presets.json` beside the program, with a user configuration folder fallback if the program folder is read-only. Language, dialog folders and output mode are remembered. Processing controls start at their defaults, including 2048 pixels on the long edge and Include subfolders off.
 
 The core uses Python, Pillow and NumPy with CustomTkinter. CIELab and ExifTool are bundled as separate tools with their licenses and corresponding sources. Release packages include a `source` folder for the matching application source. Build details: [BUILD.md](docs/BUILD.md).
 

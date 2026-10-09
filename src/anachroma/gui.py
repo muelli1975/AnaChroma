@@ -77,11 +77,11 @@ class AnaChromaApp(ctk.CTk):
             self.custom = []
             self.presets_error = str(exc)
         self.method_var = tk.StringVar()
-        self.size_var = tk.StringVar(value="Original")
-        self.size_display = tk.StringVar(value="Original")
+        self.size_var = tk.StringVar(value="2048 lange Seite")
+        self.size_display = tk.StringVar(value="2048 lange Seite")
         self.edge_var = tk.StringVar(value="long")
         self.pixel_var = tk.StringVar(value="2048")
-        self.recursive = tk.BooleanVar(value=self.settings.recursive)
+        self.recursive = tk.BooleanVar(value=False)
         self.quality95 = tk.BooleanVar(value=False)
         self.default_output = user_dir()/"output"
         self.use_program_output = tk.BooleanVar(value=self.settings.use_program_output)
@@ -411,13 +411,12 @@ class AnaChromaApp(ctk.CTk):
         self.start_export(bool(self.inputs and self.inputs.folder_input))
 
     def _recursive_changed(self):
-        self.settings.recursive = self.recursive.get()
-        self._persist_settings()
         if self.inputs:
             path = self.inputs.root if self.inputs.folder_input else self.inputs.files[self.index]
             self.load_input(path)
 
     def _persist_settings(self):
+        self.settings.recursive = False
         try:
             save_settings(self.settings_path, self.settings)
         except OSError as exc:

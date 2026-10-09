@@ -205,7 +205,7 @@ def test_stereofine_output_selection_and_persistence(app, tmp_path, monkeypatch)
     assert app.output_checkbox.cget("text") == "Use subfolder in program folder"
     assert app.custom_output_label.cget("text") == "Custom output folder"
     assert app.output_button.cget("text") == "Choose"
-    assert app.output_status.cget("text") == str(custom.resolve() / root.name)
+    assert app.output_status.cget("text") == str(custom.resolve())
     app.load_input(root / "Tag1" / "original.png")
     wait_for(app, lambda: not app.scanning)
     assert app.output_status.cget("text") == str(custom.resolve())
