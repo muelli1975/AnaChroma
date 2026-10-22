@@ -1,6 +1,6 @@
 # AnaChroma 1.0
 
-[Deutsch](README_DE.md)
+[Downloads and SHA-256](https://github.com/muelli1975/AnaChroma/releases/tag/v1.0) · [Deutsch](README_DE.md)
 
 **High-quality anaglyphs from SBS images**
 
@@ -41,9 +41,9 @@ ExifTool copies metadata while excluding original previews, thumbnails and orien
 
 | Platform | Package |
 | --- | --- |
-| Windows x64 | `AnaChroma_1.0_Windows_x64.zip` |
-| Linux x64 | `AnaChroma_1.0_Linux_x64.tar.gz` |
-| macOS Apple Silicon | `AnaChroma_1.0_macOS_AppleSilicon.tar.gz` |
+| Windows x64 | [AnaChroma_1.0_Windows_x64.zip](https://github.com/muelli1975/AnaChroma/releases/download/v1.0/AnaChroma_1.0_Windows_x64.zip) |
+| Linux x64 | [AnaChroma_1.0_Linux_x64.tar.gz](https://github.com/muelli1975/AnaChroma/releases/download/v1.0/AnaChroma_1.0_Linux_x64.tar.gz) |
+| macOS Apple Silicon | [AnaChroma_1.0_macOS_AppleSilicon.tar.gz](https://github.com/muelli1975/AnaChroma/releases/download/v1.0/AnaChroma_1.0_macOS_AppleSilicon.tar.gz) |
 
 Extract the complete [release package](https://github.com/muelli1975/AnaChroma/releases) and start AnaChroma. Keep the supplied application files and tools together. Windows includes the required runtimes; Linux/macOS need Tcl/Tk for source use and system Perl for ExifTool. macOS builds are ad-hoc signed and not notarized.
 

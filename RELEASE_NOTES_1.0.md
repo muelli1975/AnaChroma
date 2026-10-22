@@ -1,16 +1,15 @@
 # AnaChroma 1.0
 
-AnaChroma creates high-quality anaglyphs from Full-SBS images and processes all images locally.
+Create anaglyphs from Full-SBS stereo photographs, with preview and single-image or folder export.
 
-- 18 anaglyph methods, including CIELab, red/cyan, green/magenta and amber/blue.
-- Automatic preview of the selected method.
-- Custom methods with two matrices, precise numerical input, optional linear-light processing and RGB colour correction; drafts appear in the main preview.
-- Process single images or entire folders; optionally include subfolders and preserve their structure in the output folder.
-- Select one or several methods for export.
-- JPEG output at quality 90, or optional quality 95 for print and archive, always without chroma subsampling.
-- Output sizes: Original, 1080p, 2160p, 2048-pixel long edge and custom dimensions, with the aspect ratio preserved.
-- Automatic copying of suitable image metadata.
-- Image navigation with Left/Right and Page Up/Page Down; method selection with Ctrl+Left/Right and a clickable keyboard-shortcut overview.
-- Progress display and cancellation during processing.
-- German and English interface; language, custom methods and input/output folders are remembered.
-- Portable packages for Windows, Linux and macOS Apple Silicon, with source code included.
+- Choose from 18 methods, including CIELab, red/cyan, green/magenta and amber/blue.
+- Create custom methods with a matrix editor and reusable presets.
+- Export several methods at once, with selectable image sizes and metadata transfer.
+- Browse images with keyboard shortcuts and optionally process subfolders.
+- German and English interface.
+
+## Installation
+
+Extract the complete package for your system and start AnaChroma. Keep the supplied tools and application files together. No separate Python installation is required. Linux/macOS metadata transfer requires Perl. The macOS app is ad-hoc signed and not Apple-notarized.
+
+Keep `settings.json` and `presets.json` when updating.
