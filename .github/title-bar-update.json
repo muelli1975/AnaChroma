@@ -1,0 +1,20 @@
+{
+  "repository": "muelli1975/AnaChroma",
+  "tag": "v1.0",
+  "branch": "main",
+  "previous_tag": "fa1f82bd2aa3841e45331b1d1db71aa2dd1519d6",
+  "release_id": 407916981,
+  "assets": {
+    "AnaChroma_1.0_Linux_x64.tar.gz": "sha256:91d2ed6f123c4ed74c005c8626c6c5b0b45135332542642630e844f543dcb9da",
+    "AnaChroma_1.0_macOS_AppleSilicon.tar.gz": "sha256:7ef0405f717696651cf04d56cfd6568091044d3da6a57e1d5e8a5c9ad817ebf5",
+    "AnaChroma_1.0_Windows_x64.zip": "sha256:f7a0ba32ac9d84701fccfdc6e3ccdbb62a36f4e7914a70e9e148f1db96419dea",
+    "SHA256SUMS.txt": "sha256:ececd5e84b3b33abb0c7a7947478d76c6d8cead14b39a219721eeb973325536b"
+  },
+  "replace": [
+    "AnaChroma_1.0_macOS_AppleSilicon.tar.gz",
+    "AnaChroma_1.0_Windows_x64.zip",
+    "SHA256SUMS.txt"
+  ],
+  "release_note": "### Title bar maintenance update\n\n- Use a fixed dark title bar on Windows 11 and the native Dark Aqua appearance on macOS.",
+  "checksums": "SHA256SUMS.txt"
+}

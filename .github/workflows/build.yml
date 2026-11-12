@@ -30,7 +30,7 @@ jobs:
             label: Linux_x64
           - os: windows-2022
             label: Windows_x64
-          - os: macos-14
+          - os: macos-15
             label: macOS_AppleSilicon
     runs-on: ${{ matrix.os }}
     steps:
@@ -143,3 +143,24 @@ jobs:
           sha256sum *.zip *.tar.gz > SHA256SUMS.txt
           cd ..
           gh release create v1.0 artifacts/* --verify-tag --title 'AnaChroma 1.0' --notes-file RELEASE_NOTES_1.0.md
+
+  publish-title-bar-update:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.event.head_commit.message == 'Refresh AnaChroma 1.0 title bars'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: AnaChroma_1.0_*
+          path: release-files
+          merge-multiple: true
+      - name: Update the existing release with the checked Windows and macOS packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/publish_title_bar_update.py --root release-files --config .github/title-bar-update.json
