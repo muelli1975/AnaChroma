@@ -9,6 +9,7 @@ import customtkinter as ctk
 from PIL import Image, ImageTk
 
 from . import __version__
+from .titlebar import install_tk_titlebars
 from .engine import Cancelled
 from .export import SIZE_LABELS, SizeSpec, export_jobs
 from .export_selection import ExportSelection
@@ -28,6 +29,7 @@ class AnaChromaApp(ctk.CTk):
     def __init__(self):
         configure_theme()
         super().__init__()
+        install_tk_titlebars(self)
         self.title(f"AnaChroma {__version__.removesuffix('.0')}")
         icon = resource_dir() / "assets" / "anachroma.ico"
         if icon.is_file():
