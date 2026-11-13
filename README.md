@@ -55,7 +55,7 @@ To run from source, use Python 3.10+ with Tcl/Tk:
 
 ```sh
 python -m venv .venv
-# Activate .venv for your platform.
+# Activate .venv for the current platform.
 python -m pip install -e .
 python run_anachroma.py
 ```
